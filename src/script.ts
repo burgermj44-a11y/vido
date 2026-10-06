@@ -23,15 +23,8 @@ export const CAPTIONS: Caption[] = [
   { start: 21.7, end: 23.08, text: "والنتيجة اللي حاب توصلها", hl: ["توصلها"] },
 ];
 
-// Instagram account shown in the "follow" animation.
-// Profile picture: public/profile.jpg
-export const PROFILE = {
-  username: "abdelwahab__mj",
-  name: "wahab_mj || عبد الوهاب مجاج",
-  posts: "442",
-  followers: "498K",
-  following: "509",
-};
+// Instagram "follow" animation uses the real profile screenshot:
+// public/profile_shot.png
 
 // Visual scenes (images / graphics) that follow what is being said.
 export type SceneKind =
