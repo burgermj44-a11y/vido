@@ -11,7 +11,7 @@ import {
   useCurrentFrame,
   useVideoConfig,
 } from "remotion";
-import { BROLLS, CAPTIONS, SCENES, SFX, Broll, Caption, Scene } from "./script";
+import { BROLLS, CAPTIONS, PROFILE, SCENES, SFX, Broll, Caption, Scene } from "./script";
 import { FONT, loadFonts } from "./fonts";
 
 export const FPS = 24;
@@ -25,6 +25,8 @@ const ACCENT = "#E63E62";
 const RED = "#FF2E4D";
 const sec = (s: number) => Math.round(s * FPS);
 const icon = (code: string) => staticFile(`img/${code}.svg`);
+// effects stay well under the voice
+const SFX_GAIN = 0.6;
 const pad4 = (n: number) => String(n).padStart(4, "0");
 
 /* ---------------- depth layers ----------------
@@ -68,7 +70,7 @@ const BackgroundVideo: React.FC = () => {
   const zoom = useZoom();
   return (
     <AbsoluteFill style={{ overflow: "hidden" }}>
-      <OffthreadVideo src={staticFile("source.mp4")} style={videoStyle(zoom)} />
+      <OffthreadVideo src={staticFile("source.mp4")} muted style={videoStyle(zoom)} />
     </AbsoluteFill>
   );
 };
@@ -114,12 +116,17 @@ const CutFlash: React.FC = () => {
 };
 
 const Shade: React.FC = () => (
-  <AbsoluteFill
-    style={{
-      background:
-        "linear-gradient(to bottom, rgba(0,0,0,0.35) 0%, rgba(0,0,0,0) 22%, rgba(0,0,0,0) 60%, rgba(0,0,0,0.5) 100%)",
-    }}
-  />
+  <>
+    <AbsoluteFill
+      style={{
+        background:
+          "linear-gradient(to bottom, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0) 22%, rgba(0,0,0,0) 60%, rgba(0,0,0,0.5) 100%)",
+      }}
+    />
+    <AbsoluteFill
+      style={{ background: "radial-gradient(ellipse at 50% 42%, rgba(0,0,0,0) 55%, rgba(0,0,0,0.38) 100%)" }}
+    />
+  </>
 );
 
 /* ---------------- animated captions ---------------- */
@@ -386,56 +393,178 @@ const WarningScene: React.FC = () => {
   );
 };
 
-const SubscribeScene: React.FC = () => {
+const fmtCount = (n: number) => n.toLocaleString("en-US");
+
+const Stat: React.FC<{ value: React.ReactNode; label: string }> = ({ value, label }) => (
+  <div style={{ display: "flex", flexDirection: "column", alignItems: "center", minWidth: 150 }}>
+    <div style={{ fontFamily: FONT, fontSize: 46, color: "#111", lineHeight: 1.1 }}>{value}</div>
+    <div dir="rtl" style={{ fontFamily: FONT, fontSize: 28, color: "#555" }}>
+      {label}
+    </div>
+  </div>
+);
+
+/* Instagram-style "follow" animation: profile card, a hand taps Follow. */
+const FollowScene: React.FC = () => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
   const clickAt = sec(13.5 - 11.4);
   const clicked = frame >= clickAt;
-  const press = spring({ frame: frame - clickAt, fps, config: { damping: 8, stiffness: 300 } });
-  const scale = clicked ? interpolate(press, [0, 0.5, 1], [1, 0.86, 1]) : 1;
-  const enter = usePop(2, 11);
-  const ring = clicked
-    ? Math.sin((frame - clickAt) * 1.4) *
-      interpolate(frame - clickAt, [0, 24], [22, 0], { extrapolateRight: "clamp" })
-    : 0;
+  const enter = usePop(1, 13);
+  const press = spring({ frame: frame - clickAt, fps, config: { damping: 9, stiffness: 320 } });
+  const btnScale = clicked ? interpolate(press, [0, 0.4, 1], [1, 0.9, 1]) : 1;
+
+  // hand moves in, taps the button, then leaves
+  const handIn = spring({ frame: frame - 30, fps, config: { damping: 16, stiffness: 120 } });
+  const handOut = interpolate(frame, [clickAt + 10, clickAt + 22], [0, 1], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
+  const tap = interpolate(frame - clickAt, [-4, 0, 4], [1, 0.82, 1], {
+    extrapolateLeft: "clamp",
+    extrapolateRight: "clamp",
+  });
+  const handX = interpolate(handIn, [0, 1], [1150, 600]) + handOut * 600;
+  const handY = interpolate(handIn, [0, 1], [900, 455]) + handOut * 300;
+
+  // ripple + follower counter
+  const ripple = interpolate(frame - clickAt, [0, 14], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  const countFlip = spring({ frame: frame - clickAt - 6, fps, config: { damping: 12, stiffness: 200 } });
+  const followers = PROFILE.followers + (frame >= clickAt + 6 ? 1 : 0);
+  const ringSpin = frame * 2;
+
+  if (useLayer() !== "back") return null;
+
   return (
     <>
-      <Back>
-        <div
-          style={{
-            position: "absolute",
-            top: 330,
-            left: 0,
-            right: 0,
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            gap: 26,
-            transform: `scale(${enter * scale})`,
-          }}
-        >
+      <div
+        style={{
+          position: "absolute",
+          left: 90,
+          top: 105,
+          width: 900,
+          height: 390,
+          background: "white",
+          borderRadius: 44,
+          boxShadow: "0 30px 60px rgba(0,0,0,0.35)",
+          transform: `translateY(${(1 - enter) * -260}px) scale(${0.85 + enter * 0.15})`,
+          opacity: Math.min(1, enter * 1.4),
+          padding: "34px 40px",
+          boxSizing: "border-box",
+        }}
+      >
+        <div style={{ display: "flex", alignItems: "center", gap: 34 }}>
+          {/* avatar with story ring */}
           <div
-            dir="rtl"
             style={{
-              fontFamily: FONT,
-              fontSize: 84,
-              color: "white",
-              background: clicked ? "#555" : RED,
-              padding: "4px 56px 16px",
-              borderRadius: 26,
-              boxShadow: "0 14px 0 rgba(0,0,0,0.35)",
+              width: 196,
+              height: 196,
+              borderRadius: 999,
+              padding: 7,
+              background: `conic-gradient(from ${ringSpin}deg, #FEDA75, #FA7E1E, #D62976, #962FBF, #4F5BD5, #FEDA75)`,
+              flexShrink: 0,
             }}
           >
-            {clicked ? "مشترك ✓" : "اشترك"}
+            <div style={{ width: "100%", height: "100%", borderRadius: 999, background: "white", padding: 6, boxSizing: "border-box" }}>
+              <Img
+                src={staticFile("profile.jpg")}
+                style={{ width: "100%", height: "100%", borderRadius: 999, objectFit: "cover" }}
+              />
+            </div>
           </div>
-          <Img
-            src={icon("1f514")}
-            style={{ width: 140, height: 140, transform: `rotate(${ring}deg)`, transformOrigin: "50% 10%" }}
+          <div style={{ flex: 1 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 14 }}>
+              <div style={{ fontFamily: "sans-serif", fontWeight: 700, fontSize: 46, color: "#111" }}>
+                {PROFILE.username}
+              </div>
+
+            </div>
+            <div style={{ display: "flex", justifyContent: "space-between" }} dir="rtl">
+              <Stat value={PROFILE.posts} label="منشور" />
+              <Stat
+                value={
+                  <span style={{ display: "inline-block", transform: `scale(${clicked ? 1 + (1 - countFlip) * 0.4 : 1})`, color: clicked && countFlip < 0.95 ? ACCENT : "#111" }}>
+                    {fmtCount(followers)}
+                  </span>
+                }
+                label="متابع"
+              />
+              <Stat value={PROFILE.following} label="يتابع" />
+            </div>
+          </div>
+        </div>
+        {/* follow button */}
+        <div
+          dir="rtl"
+          style={{
+            position: "relative",
+            marginTop: 26,
+            height: 92,
+            borderRadius: 22,
+            background: clicked ? "#EFEFEF" : "#0095F6",
+            color: clicked ? "#111" : "white",
+            fontFamily: FONT,
+            fontSize: 50,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            overflow: "hidden",
+            transform: `scale(${btnScale})`,
+          }}
+        >
+          {clicked ? "تتابعه ✓" : "متابعة"}
+          <div
+            style={{
+              position: "absolute",
+              left: 510 - 400 * ripple,
+              top: 46 - 400 * ripple,
+              width: 800 * ripple,
+              height: 800 * ripple,
+              borderRadius: 999,
+              background: "rgba(0,149,246,0.35)",
+              opacity: 1 - ripple,
+            }}
           />
         </div>
-      </Back>
-      <Sticker code="1f44d" x={190} y={560} size={140} delay={clickAt + 2} rot={-15} />
-      <Sticker code="2764" x={890} y={560} size={130} delay={clickAt + 6} rot={12} />
+      </div>
+      {/* hearts burst after following */}
+      {clicked &&
+        [0, 1, 2, 3, 4, 5].map((i) => {
+          const d = frame - clickAt - 3 - i * 2;
+          if (d < 0) return null;
+          const prog = d / 30;
+          const x = 950 + Math.sin(i * 2.1) * 50 * prog + (i % 2) * 30;
+          const y = 470 - prog * 420;
+          return (
+            <Img
+              key={i}
+              src={icon("2764")}
+              style={{
+                position: "absolute",
+                left: x,
+                top: y,
+                width: 70 + (i % 3) * 20,
+                height: 70 + (i % 3) * 20,
+                opacity: interpolate(prog, [0, 0.2, 1], [0, 1, 0], { extrapolateRight: "clamp" }),
+                transform: `rotate(${(i - 2.5) * 12}deg) scale(${Math.min(1, prog * 5)})`,
+              }}
+            />
+          );
+        })}
+      {/* tapping hand */}
+      <Img
+        src={icon("1f446")}
+        style={{
+          position: "absolute",
+          left: handX,
+          top: handY,
+          width: 170,
+          height: 170,
+          transform: `scale(${tap}) rotate(-20deg)`,
+          filter: "drop-shadow(0 12px 16px rgba(0,0,0,0.45))",
+          opacity: frame >= 30 ? 1 : 0,
+        }}
+      />
     </>
   );
 };
@@ -521,7 +650,7 @@ const SCENE_COMPONENTS: Record<Scene["kind"], React.FC> = {
   books: BooksScene,
   tips: TipsScene,
   warning: WarningScene,
-  subscribe: SubscribeScene,
+  subscribe: FollowScene,
   tip1: Tip1Scene,
   goal: GoalScene,
 };
@@ -657,9 +786,10 @@ export const Montage: React.FC = () => {
           <CaptionView cap={c} />
         </Sequence>
       ))}
+      <Audio src={staticFile("voice.wav")} />
       {SFX.map((s, i) => (
         <Sequence key={`sfx-${i}`} from={Math.max(0, sec(s.at))} layout="none">
-          <Audio src={staticFile(`sfx/${s.file}.wav`)} volume={s.volume} />
+          <Audio src={staticFile(`sfx/${s.file}.wav`)} volume={s.volume * SFX_GAIN} />
         </Sequence>
       ))}
       <Progress />

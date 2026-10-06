@@ -23,6 +23,15 @@ export const CAPTIONS: Caption[] = [
   { start: 21.7, end: 23.08, text: "والنتيجة اللي حاب توصلها", hl: ["توصلها"] },
 ];
 
+// Instagram account shown in the "follow" animation.
+// Replace public/profile.jpg with the real profile picture.
+export const PROFILE = {
+  username: "username",
+  followers: 12480,
+  following: 312,
+  posts: 86,
+};
+
 // Visual scenes (images / graphics) that follow what is being said.
 export type SceneKind =
   | "grade"
@@ -106,8 +115,9 @@ export const SFX: Sfx[] = [
   { at: 3.15 + 14 / 24, file: "pop", volume: 0.35 }, // chart
   { at: 6.05 + 4 / 24, file: "pop2", volume: 0.4 }, // "3 tips" label
   { at: 9.8 + 4 / 24, file: "pop2", volume: 0.4 }, // "warning" label
-  { at: 11.4 + 52 / 24, file: "pop", volume: 0.35 }, // thumbs up
-  { at: 11.4 + 56 / 24, file: "pop", volume: 0.35 }, // heart
+  { at: 11.4 + 30 / 24, file: "swipe", volume: 0.3 }, // hand moves in
+  { at: 13.5 + 4 / 24, file: "pop", volume: 0.3 }, // hearts burst
+  { at: 13.5 + 9 / 24, file: "pop2", volume: 0.25 }, // follower count +1
   { at: 14.72 + 2 / 24, file: "pop2", volume: 0.45 }, // "tip 1" badge
   { at: 14.72 + 8 / 24, file: "pop", volume: 0.4 }, // fire
   { at: 14.72 + 20 / 24, file: "pop", volume: 0.35 }, // brain
@@ -119,7 +129,7 @@ export const SFX: Sfx[] = [
   // b-roll title tags
   ...BROLLS.map((b) => ({ at: b.start + 5 / 24, file: "pop2", volume: 0.4 })),
   // grade counter 0 -> 12
-  ...Array.from({ length: 12 }, (_, k) => ({ at: (4 + 2 * (k + 1)) / 24, file: "blip", volume: 0.18 })),
+  ...Array.from({ length: 12 }, (_, k) => ({ at: (4 + 2 * (k + 1)) / 24, file: "blip", volume: 0.12 })),
   // a soft tick each time a new caption line appears
-  ...CAPTIONS.slice(1).map((c) => ({ at: c.start, file: "tick", volume: 0.22 })),
+  ...CAPTIONS.slice(1).map((c) => ({ at: c.start, file: "tick", volume: 0.14 })),
 ];
