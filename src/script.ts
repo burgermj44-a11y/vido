@@ -24,12 +24,13 @@ export const CAPTIONS: Caption[] = [
 ];
 
 // Instagram account shown in the "follow" animation.
-// Replace public/profile.jpg with the real profile picture.
+// Profile picture: public/profile.jpg
 export const PROFILE = {
-  username: "username",
-  followers: 12480,
-  following: 312,
-  posts: 86,
+  username: "abdelwahab__mj",
+  name: "wahab_mj || عبد الوهاب مجاج",
+  posts: "442",
+  followers: "498K",
+  following: "509",
 };
 
 // Visual scenes (images / graphics) that follow what is being said.

@@ -393,14 +393,12 @@ const WarningScene: React.FC = () => {
   );
 };
 
-const fmtCount = (n: number) => n.toLocaleString("en-US");
+const IG_FONT = '-apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif';
 
 const Stat: React.FC<{ value: React.ReactNode; label: string }> = ({ value, label }) => (
-  <div style={{ display: "flex", flexDirection: "column", alignItems: "center", minWidth: 150 }}>
-    <div style={{ fontFamily: FONT, fontSize: 46, color: "#111", lineHeight: 1.1 }}>{value}</div>
-    <div dir="rtl" style={{ fontFamily: FONT, fontSize: 28, color: "#555" }}>
-      {label}
-    </div>
+  <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", minWidth: 150 }}>
+    <div style={{ fontFamily: IG_FONT, fontWeight: 700, fontSize: 46, color: "white", lineHeight: 1.1 }}>{value}</div>
+    <div style={{ fontFamily: IG_FONT, fontSize: 30, color: "#E0E0E0" }}>{label}</div>
   </div>
 );
 
@@ -430,7 +428,6 @@ const FollowScene: React.FC = () => {
   // ripple + follower counter
   const ripple = interpolate(frame - clickAt, [0, 14], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
   const countFlip = spring({ frame: frame - clickAt - 6, fps, config: { damping: 12, stiffness: 200 } });
-  const followers = PROFILE.followers + (frame >= clickAt + 6 ? 1 : 0);
   const ringSpin = frame * 2;
 
   if (useLayer() !== "back") return null;
@@ -441,15 +438,16 @@ const FollowScene: React.FC = () => {
         style={{
           position: "absolute",
           left: 90,
-          top: 105,
+          top: 92,
           width: 900,
-          height: 390,
-          background: "white",
+          height: 410,
+          background: "#0C1014",
+          border: "2px solid #262A30",
           borderRadius: 44,
-          boxShadow: "0 30px 60px rgba(0,0,0,0.35)",
+          boxShadow: "0 30px 60px rgba(0,0,0,0.5)",
           transform: `translateY(${(1 - enter) * -260}px) scale(${0.85 + enter * 0.15})`,
           opacity: Math.min(1, enter * 1.4),
-          padding: "34px 40px",
+          padding: "30px 40px",
           boxSizing: "border-box",
         }}
       >
@@ -457,15 +455,15 @@ const FollowScene: React.FC = () => {
           {/* avatar with story ring */}
           <div
             style={{
-              width: 196,
-              height: 196,
+              width: 190,
+              height: 190,
               borderRadius: 999,
               padding: 7,
               background: `conic-gradient(from ${ringSpin}deg, #FEDA75, #FA7E1E, #D62976, #962FBF, #4F5BD5, #FEDA75)`,
               flexShrink: 0,
             }}
           >
-            <div style={{ width: "100%", height: "100%", borderRadius: 999, background: "white", padding: 6, boxSizing: "border-box" }}>
+            <div style={{ width: "100%", height: "100%", borderRadius: 999, background: "#0C1014", padding: 6, boxSizing: "border-box" }}>
               <Img
                 src={staticFile("profile.jpg")}
                 style={{ width: "100%", height: "100%", borderRadius: 999, objectFit: "cover" }}
@@ -473,38 +471,36 @@ const FollowScene: React.FC = () => {
             </div>
           </div>
           <div style={{ flex: 1 }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 14 }}>
-              <div style={{ fontFamily: "sans-serif", fontWeight: 700, fontSize: 46, color: "#111" }}>
-                {PROFILE.username}
-              </div>
-
+            <div style={{ fontFamily: IG_FONT, fontWeight: 700, fontSize: 40, color: "white", marginBottom: 2 }}>
+              {PROFILE.username}
             </div>
-            <div style={{ display: "flex", justifyContent: "space-between" }} dir="rtl">
-              <Stat value={PROFILE.posts} label="منشور" />
+            <div style={{ fontFamily: IG_FONT, fontSize: 28, color: "#A8A8A8", marginBottom: 14 }}>{PROFILE.name}</div>
+            <div style={{ display: "flex", justifyContent: "space-between", paddingRight: 10 }}>
+              <Stat value={PROFILE.posts} label="posts" />
               <Stat
                 value={
-                  <span style={{ display: "inline-block", transform: `scale(${clicked ? 1 + (1 - countFlip) * 0.4 : 1})`, color: clicked && countFlip < 0.95 ? ACCENT : "#111" }}>
-                    {fmtCount(followers)}
+                  <span style={{ display: "inline-block", transform: `scale(${clicked ? 1 + (1 - countFlip) * 0.4 : 1})`, color: clicked && countFlip < 0.95 ? ACCENT : "white" }}>
+                    {PROFILE.followers}
                   </span>
                 }
-                label="متابع"
+                label="followers"
               />
-              <Stat value={PROFILE.following} label="يتابع" />
+              <Stat value={PROFILE.following} label="following" />
             </div>
           </div>
         </div>
         {/* follow button */}
         <div
-          dir="rtl"
           style={{
             position: "relative",
-            marginTop: 26,
-            height: 92,
-            borderRadius: 22,
-            background: clicked ? "#EFEFEF" : "#0095F6",
-            color: clicked ? "#111" : "white",
-            fontFamily: FONT,
-            fontSize: 50,
+            marginTop: 24,
+            height: 88,
+            borderRadius: 20,
+            background: clicked ? "#363636" : "#0095F6",
+            color: "white",
+            fontFamily: IG_FONT,
+            fontWeight: 700,
+            fontSize: 42,
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
@@ -512,7 +508,7 @@ const FollowScene: React.FC = () => {
             transform: `scale(${btnScale})`,
           }}
         >
-          {clicked ? "تتابعه ✓" : "متابعة"}
+          {clicked ? "Following ✓" : "Follow"}
           <div
             style={{
               position: "absolute",
