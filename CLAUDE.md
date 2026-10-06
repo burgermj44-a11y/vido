@@ -2,8 +2,10 @@
 
 The owner sends raw vertical talking-head clips (Algerian Darija, education
 topics). For every new video, produce a montage in exactly this style without
-being asked again. The reference implementation is `src/Montage.tsx` +
-`src/script.ts`; copy its structure and only change the content per video.
+being asked again. Each video lives in its own folder with its own composition: video 1 is
+`src/Montage.tsx` + `src/script.ts`, video 2 is `src/v2/` (`Montage2`,
+assets in `public/v2/`). For a new video, copy the latest folder (`src/v2`)
+to `src/vN`, register it in `src/Root.tsx`, and only change the content.
 
 ## Editing rules
 
@@ -12,11 +14,14 @@ being asked again. The reference implementation is `src/Montage.tsx` +
    Do this on your own whenever the clip needs it. Keep the speech natural:
    leave ~0.08 s of padding around each kept segment. Do cuts with ffmpeg
    before building the montage, then re-transcribe the cut file for timings.
-2. **Captions** (`CaptionView`): Darija text, 2–5 words per line, word-by-word
-   spring pop-in, Cairo Black font, white with black stroke, ~78 px.
-   Key words highlighted with a coloured pill. Highlight colour is taken from
-   the clip's background (here rose `#E63E62` from the pink wall); sample the
-   wall colour for each new video. Captions sit at y≈1350 (chest area).
+2. **Captions** (latest style: `CaptionLegend` in `src/v2/Montage2.tsx`):
+   Darija text, 2–5 words per line, Cairo Black ~80 px, white with thick
+   black stroke and drop shadow. The line rises in from a blur; the word
+   being spoken glows in the accent colour (karaoke); key words sit on a
+   gradient badge with a moving shine; a one-word line ("100%") is shown
+   huge. Accent colour is picked to match the clip (video 1: rose `#E63E62`
+   on a pink wall; video 2: gold `#FFC233`→`#FF8A00` on a beige wall).
+   Captions sit at y≈1330 (chest area).
 3. **Punch-in zooms** on every new idea (scale 1.0 ↔ 1.14 ↔ 1.22), slow drift
    inside each scene, short white flash on each cut.
 4. **Depth layering:** graphics are drawn *between* the speaker and the wall.
@@ -32,6 +37,11 @@ being asked again. The reference implementation is `src/Montage.tsx` +
 7. **Instagram follow animation** whenever he says subscribe/follow:
    card with the real profile screenshot `public/profile_shot.png`, a blue
    "Follow" button, hand taps it → "Following ✓", ripple and hearts.
+7b. **Share animation** whenever he says share / partager (incl. "story"):
+   `ShareScene` in `src/v2/Montage2.tsx`, drawn behind the speaker: a big
+   share button with pulse rings is tapped, paper planes fly to friend
+   avatars that pop with a check mark; the story variant uses an Instagram
+   story ring around a phone.
 8. **Sound effects on every change** (`scripts/make_sfx.py` → `public/sfx`):
    whoosh on zooms, swipe on B-roll, pop on stickers, pop2 on labels, tick on
    each caption line, click + ding on follow, boom on warnings, blips on
