@@ -6,11 +6,13 @@
   "license": "UNLICENSED",
   "private": true,
   "dependencies": {
+    "@fontsource/cairo": "^5.3.0",
     "@remotion/cli": "4.0.533",
+    "@remotion/tailwind-v4": "4.0.533",
+    "@twemoji/svg": "^15.0.0",
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "remotion": "4.0.533",
-    "@remotion/tailwind-v4": "4.0.533",
     "tailwindcss": "4.0.0"
   },
   "devDependencies": {
