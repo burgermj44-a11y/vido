@@ -1,6 +1,7 @@
-import React from "react";
+import React, { createContext, useContext } from "react";
 import {
   AbsoluteFill,
+  Audio,
   Img,
   OffthreadVideo,
   Sequence,
@@ -10,7 +11,7 @@ import {
   useCurrentFrame,
   useVideoConfig,
 } from "remotion";
-import { CAPTIONS, SCENES, Caption, Scene } from "./script";
+import { BROLLS, CAPTIONS, SCENES, SFX, Broll, Caption, Scene } from "./script";
 import { FONT, loadFonts } from "./fonts";
 
 export const FPS = 24;
@@ -19,41 +20,83 @@ export const DURATION_SEC = 23.08;
 loadFonts();
 
 const YELLOW = "#FFD400";
+// highlight colour picked from the rose/red wall behind the speaker
+const ACCENT = "#E63E62";
 const RED = "#FF2E4D";
 const sec = (s: number) => Math.round(s * FPS);
 const icon = (code: string) => staticFile(`img/${code}.svg`);
+const pad4 = (n: number) => String(n).padStart(4, "0");
 
-/* ---------------- base video with punch-in zooms ---------------- */
+/* ---------------- depth layers ----------------
+ * Graphics are drawn on the "back" layer, between the wall and the speaker.
+ * Text labels are drawn on the "front" layer so they stay readable.
+ */
+type Layer = "back" | "front";
+const LayerCtx = createContext<Layer>("back");
+const useLayer = () => useContext(LayerCtx);
 
-const BaseVideo: React.FC = () => {
+/* ---------------- shared zoom (punch-in per scene) ---------------- */
+
+const useZoom = () => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
   const t = frame / fps;
-  const idx = Math.max(
-    0,
-    SCENES.findIndex((s) => t >= s.start && t < s.end),
-  );
+  let idx = SCENES.findIndex((s) => t >= s.start && t < s.end);
+  if (idx < 0) idx = SCENES.length - 1;
   const scene = SCENES[idx];
   const prevZoom = idx > 0 ? SCENES[idx - 1].zoom : scene.zoom;
   const local = frame - sec(scene.start);
   const snap = spring({ frame: local, fps, config: { damping: 18, stiffness: 220 } });
-  // slow push-in during each scene keeps the shot alive
-  const drift = interpolate(local, [0, sec(scene.end - scene.start)], [0, 0.035]);
-  const zoom = interpolate(snap, [0, 1], [prevZoom, scene.zoom]) + drift;
+  const drift = interpolate(local, [0, sec(scene.end - scene.start)], [0, 0.035], {
+    extrapolateRight: "clamp",
+  });
+  return interpolate(snap, [0, 1], [prevZoom, scene.zoom]) + drift;
+};
 
+const videoStyle = (zoom: number): React.CSSProperties => ({
+  position: "absolute",
+  inset: 0,
+  width: "100%",
+  height: "100%",
+  objectFit: "cover",
+  transform: `scale(${zoom})`,
+  transformOrigin: "50% 38%",
+  filter: "saturate(1.12) contrast(1.06)",
+});
+
+const BackgroundVideo: React.FC = () => {
+  const zoom = useZoom();
   return (
     <AbsoluteFill style={{ overflow: "hidden" }}>
-      <OffthreadVideo
-        src={staticFile("source.mp4")}
+      <OffthreadVideo src={staticFile("source.mp4")} style={videoStyle(zoom)} />
+    </AbsoluteFill>
+  );
+};
+
+/* The speaker cut out with a per-frame matte, drawn above the graphics. */
+const SpeakerCutout: React.FC = () => {
+  const frame = useCurrentFrame();
+  const zoom = useZoom();
+  const matte = `url(${staticFile(`matte/${pad4(frame)}.jpg`)})`;
+  return (
+    <AbsoluteFill style={{ overflow: "hidden" }}>
+      <AbsoluteFill
         style={{
-          width: "100%",
-          height: "100%",
-          objectFit: "cover",
           transform: `scale(${zoom})`,
           transformOrigin: "50% 38%",
-          filter: "saturate(1.12) contrast(1.06)",
+          maskImage: matte,
+          WebkitMaskImage: matte,
+          maskMode: "luminance",
+          maskSize: "100% 100%",
+          WebkitMaskSize: "100% 100%",
         }}
-      />
+      >
+        <OffthreadVideo
+          src={staticFile("source.mp4")}
+          muted
+          style={{ ...videoStyle(1), transform: "none" }}
+        />
+      </AbsoluteFill>
     </AbsoluteFill>
   );
 };
@@ -65,18 +108,16 @@ const CutFlash: React.FC = () => {
   let opacity = 0;
   for (const s of SCENES.slice(1)) {
     const d = frame - sec(s.start);
-    if (d >= 0 && d < 5) opacity = interpolate(d, [0, 4], [0.45, 0]);
+    if (d >= 0 && d < 5) opacity = interpolate(d, [0, 4], [0.4, 0]);
   }
   return <AbsoluteFill style={{ backgroundColor: "white", opacity }} />;
 };
-
-/* ---------------- shading for readability ---------------- */
 
 const Shade: React.FC = () => (
   <AbsoluteFill
     style={{
       background:
-        "linear-gradient(to bottom, rgba(0,0,0,0.45) 0%, rgba(0,0,0,0) 28%, rgba(0,0,0,0) 58%, rgba(0,0,0,0.55) 100%)",
+        "linear-gradient(to bottom, rgba(0,0,0,0.35) 0%, rgba(0,0,0,0) 22%, rgba(0,0,0,0) 60%, rgba(0,0,0,0.5) 100%)",
     }}
   />
 );
@@ -88,7 +129,6 @@ const CaptionView: React.FC<{ cap: Caption }> = ({ cap }) => {
   const { fps } = useVideoConfig();
   const words = cap.text.split(" ");
   const total = sec(cap.end - cap.start);
-  // reveal words quickly so the full line is readable well before it leaves
   const step = Math.max(2, Math.min(5, Math.floor((total * 0.5) / words.length)));
   const out = interpolate(frame, [total - 3, total], [1, 0], {
     extrapolateLeft: "clamp",
@@ -96,17 +136,18 @@ const CaptionView: React.FC<{ cap: Caption }> = ({ cap }) => {
   });
 
   return (
-    <AbsoluteFill style={{ justifyContent: "flex-start", alignItems: "center" }}>
+    <AbsoluteFill>
       <div
         dir="rtl"
         style={{
           position: "absolute",
-          top: 1330,
-          width: 980,
+          top: 1350,
+          left: 70,
+          right: 70,
           display: "flex",
           flexWrap: "wrap",
           justifyContent: "center",
-          gap: "6px 22px",
+          gap: "4px 18px",
           opacity: out,
         }}
       >
@@ -123,17 +164,17 @@ const CaptionView: React.FC<{ cap: Caption }> = ({ cap }) => {
               style={{
                 fontFamily: FONT,
                 fontWeight: 900,
-                fontSize: isHl ? 112 : 98,
-                lineHeight: 1.25,
-                color: isHl ? "#111" : "white",
-                background: isHl ? YELLOW : "transparent",
-                borderRadius: 22,
-                padding: isHl ? "0 22px" : 0,
-                WebkitTextStroke: isHl ? "0" : "4px #000",
+                fontSize: isHl ? 86 : 78,
+                lineHeight: 1.3,
+                color: "white",
+                background: isHl ? ACCENT : "transparent",
+                borderRadius: 18,
+                padding: isHl ? "0 18px" : 0,
+                WebkitTextStroke: isHl ? "0" : "3px #000",
                 paintOrder: "stroke fill",
-                textShadow: isHl ? "none" : "0 8px 0 rgba(0,0,0,0.55)",
-                boxShadow: isHl ? "0 10px 0 rgba(0,0,0,0.35)" : "none",
-                transform: `scale(${s}) translateY(${(1 - s) * 40}px) rotate(${isHl ? -2 : 0}deg)`,
+                textShadow: isHl ? "none" : "0 6px 0 rgba(0,0,0,0.5)",
+                boxShadow: isHl ? "0 8px 0 rgba(120,10,35,0.55)" : "none",
+                transform: `scale(${s}) translateY(${(1 - s) * 30}px) rotate(${isHl ? -2 : 0}deg)`,
                 opacity: Math.min(1, s * 1.5),
                 display: "inline-block",
               }}
@@ -155,6 +196,9 @@ const usePop = (delay = 0, damping = 10) => {
   return spring({ frame: frame - delay, fps, config: { damping, stiffness: 200, mass: 0.7 } });
 };
 
+const Back: React.FC<{ children: React.ReactNode }> = ({ children }) =>
+  useLayer() === "back" ? <>{children}</> : null;
+
 const Sticker: React.FC<{
   code: string;
   x: number;
@@ -165,6 +209,7 @@ const Sticker: React.FC<{
 }> = ({ code, x, y, size, delay = 0, rot = 0 }) => {
   const frame = useCurrentFrame();
   const p = usePop(delay);
+  if (useLayer() !== "back") return null;
   const float = Math.sin((frame + delay * 7) / 9) * 10;
   return (
     <Img
@@ -189,19 +234,13 @@ const Label: React.FC<{
   color?: string;
   size?: number;
   delay?: number;
-}> = ({ text, y, bg = "white", color = "#111", size = 74, delay = 0 }) => {
+}> = ({ text, y, bg = "white", color = "#111", size = 64, delay = 0 }) => {
   const p = usePop(delay, 12);
+  if (useLayer() !== "front") return null;
   return (
     <div
       dir="rtl"
-      style={{
-        position: "absolute",
-        top: y,
-        left: 0,
-        right: 0,
-        display: "flex",
-        justifyContent: "center",
-      }}
+      style={{ position: "absolute", top: y, left: 0, right: 0, display: "flex", justifyContent: "center" }}
     >
       <div
         style={{
@@ -210,9 +249,9 @@ const Label: React.FC<{
           fontSize: size,
           color,
           background: bg,
-          padding: "4px 40px 12px",
-          borderRadius: 28,
-          boxShadow: "0 12px 0 rgba(0,0,0,0.3), 0 20px 40px rgba(0,0,0,0.35)",
+          padding: "2px 36px 10px",
+          borderRadius: 26,
+          boxShadow: "0 10px 0 rgba(0,0,0,0.3), 0 20px 40px rgba(0,0,0,0.35)",
           transform: `scale(${p}) rotate(${(1 - p) * 8 - 1.5}deg)`,
         }}
       >
@@ -222,85 +261,94 @@ const Label: React.FC<{
   );
 };
 
-/* ---------------- scenes (images that follow the speech) ---------------- */
+/* ---------------- scenes (graphics that follow the speech) ----------------
+ * The speaker's head starts around y=520, so the main graphic of each scene
+ * sits just above it and slides behind the head for a depth effect.
+ */
 
 const GradeCard: React.FC = () => {
   const frame = useCurrentFrame();
-  const p = usePop(2, 9);
-  const count = Math.round(interpolate(frame, [4, 30], [0, 12], { extrapolateRight: "clamp", extrapolateLeft: "clamp" }));
+  const p = usePop(1, 9);
+  const count = Math.round(
+    interpolate(frame, [4, 28], [0, 12], { extrapolateRight: "clamp", extrapolateLeft: "clamp" }),
+  );
   return (
     <>
-      <div
-        style={{
-          position: "absolute",
-          left: 540 - 230,
-          top: 90,
-          width: 460,
-          height: 330,
-          background: "#FFFDF4",
-          borderRadius: 36,
-          border: "8px solid #111",
-          boxShadow: "0 18px 0 #111",
-          transform: `scale(${p}) rotate(${-4 + (1 - p) * 20}deg)`,
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          justifyContent: "center",
-        }}
-      >
-        <div style={{ fontFamily: FONT, fontSize: 52, color: "#555", marginBottom: -20 }} dir="rtl">
-          المعدل
+      <Back>
+        <div
+          style={{
+            position: "absolute",
+            left: 540 - 240,
+            top: 200,
+            width: 480,
+            height: 400,
+            background: "#FFFDF4",
+            borderRadius: 40,
+            border: "8px solid #111",
+            boxShadow: "0 18px 0 #111",
+            transform: `scale(${p}) rotate(${-4 + (1 - p) * 20}deg)`,
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            paddingTop: 18,
+          }}
+        >
+          <div style={{ fontFamily: FONT, fontSize: 50, color: "#555", marginBottom: -24 }} dir="rtl">
+            المعدل
+          </div>
+          <div style={{ fontFamily: FONT, fontSize: 180, color: "#18A558", lineHeight: 1.05 }}>
+            {count}
+            <span style={{ fontSize: 86, color: "#111" }}>/20</span>
+          </div>
         </div>
-        <div style={{ fontFamily: FONT, fontSize: 190, color: "#18A558", lineHeight: 1.05 }}>
-          {count}
-          <span style={{ fontSize: 90, color: "#111" }}>/20</span>
-        </div>
-      </div>
-      <Sticker code="1f393" x={830} y={110} size={190} delay={10} rot={14} />
-      <Sticker code="2705" x={250} y={400} size={120} delay={22} rot={-10} />
+      </Back>
+      <Sticker code="1f393" x={830} y={230} size={180} delay={10} rot={14} />
+      <Sticker code="2705" x={210} y={560} size={130} delay={20} rot={-10} />
     </>
   );
 };
 
 const BooksScene: React.FC = () => (
   <>
-    <Sticker code="1f4da" x={540} y={250} size={290} />
-    <Sticker code="270d" x={280} y={200} size={150} delay={8} rot={-12} />
-    <Sticker code="1f4c8" x={810} y={210} size={160} delay={14} rot={10} />
-    <Label text="ضامن 12 من البداية" y={430} bg={YELLOW} size={64} delay={18} />
+    <Sticker code="1f4da" x={540} y={420} size={330} />
+    <Sticker code="270d" x={220} y={520} size={150} delay={8} rot={-12} />
+    <Sticker code="1f4c8" x={860} y={500} size={160} delay={14} rot={10} />
+    <Label text="ضامن 12 من البداية" y={110} bg={YELLOW} delay={10} />
   </>
 );
 
 const Bulb: React.FC<{ i: number }> = ({ i }) => {
   const frame = useCurrentFrame();
   const p = usePop(6 + i * 9, 9);
+  if (useLayer() !== "back") return null;
   const glow = 0.5 + 0.5 * Math.sin((frame - i * 6) / 4);
+  const lift = i === 1 ? 0 : 70;
   return (
     <div
       style={{
         position: "absolute",
-        left: 210 + i * 330 - 120,
-        top: 120,
-        width: 240,
-        height: 240,
+        left: 210 + i * 330 - 130,
+        top: 250 + lift,
+        width: 260,
+        height: 260,
         borderRadius: 999,
-        background: `radial-gradient(circle, rgba(255,212,0,${0.55 * glow}) 0%, rgba(255,212,0,0) 70%)`,
+        background: `radial-gradient(circle, rgba(255,212,0,${0.6 * glow}) 0%, rgba(255,212,0,0) 70%)`,
         transform: `scale(${p})`,
       }}
     >
-      <Img src={icon("1f4a1")} style={{ width: 180, height: 180, margin: 30 }} />
+      <Img src={icon("1f4a1")} style={{ width: 200, height: 200, margin: 30 }} />
       <div
         style={{
           position: "absolute",
-          right: 10,
-          bottom: 0,
+          right: 14,
+          bottom: 6,
           width: 84,
           height: 84,
           borderRadius: 999,
-          background: RED,
+          background: ACCENT,
           color: "white",
           fontFamily: FONT,
-          fontSize: 56,
+          fontSize: 54,
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
@@ -318,19 +366,22 @@ const TipsScene: React.FC = () => (
     {[0, 1, 2].map((i) => (
       <Bulb key={i} i={i} />
     ))}
-    <Label text="3 نصائح ذهبية" y={400} bg={RED} color="white" delay={30} />
+    <Label text="3 نصائح ذهبية" y={110} bg={ACCENT} color="white" delay={4} />
   </>
 );
 
 const WarningScene: React.FC = () => {
   const frame = useCurrentFrame();
-  const shake = Math.sin(frame * 1.9) * interpolate(frame, [0, 20], [14, 3], { extrapolateRight: "clamp" });
+  const shake =
+    Math.sin(frame * 1.9) * interpolate(frame, [0, 20], [16, 3], { extrapolateRight: "clamp" });
   return (
     <>
-      <div style={{ position: "absolute", left: 0, right: 0, top: 0, transform: `translateX(${shake}px)` }}>
-        <Sticker code="26a0" x={540} y={240} size={270} />
-      </div>
-      <Label text="انتبه!" y={420} bg={RED} color="white" size={80} delay={6} />
+      <Back>
+        <div style={{ position: "absolute", inset: 0, transform: `translateX(${shake}px)` }}>
+          <Sticker code="26a0" x={540} y={360} size={330} />
+        </div>
+      </Back>
+      <Label text="انتبه!" y={110} bg={RED} color="white" size={74} delay={4} />
     </>
   );
 };
@@ -343,116 +394,124 @@ const SubscribeScene: React.FC = () => {
   const press = spring({ frame: frame - clickAt, fps, config: { damping: 8, stiffness: 300 } });
   const scale = clicked ? interpolate(press, [0, 0.5, 1], [1, 0.86, 1]) : 1;
   const enter = usePop(2, 11);
-  const ring = clicked ? Math.sin((frame - clickAt) * 1.4) * interpolate(frame - clickAt, [0, 24], [22, 0], { extrapolateRight: "clamp" }) : 0;
+  const ring = clicked
+    ? Math.sin((frame - clickAt) * 1.4) *
+      interpolate(frame - clickAt, [0, 24], [22, 0], { extrapolateRight: "clamp" })
+    : 0;
   return (
     <>
-      <div
-        style={{
-          position: "absolute",
-          top: 190,
-          left: 0,
-          right: 0,
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          gap: 30,
-          transform: `scale(${enter * scale})`,
-        }}
-      >
+      <Back>
         <div
-          dir="rtl"
           style={{
-            fontFamily: FONT,
-            fontSize: 92,
-            color: "white",
-            background: clicked ? "#555" : RED,
-            padding: "6px 60px 18px",
-            borderRadius: 26,
-            boxShadow: "0 14px 0 rgba(0,0,0,0.35)",
+            position: "absolute",
+            top: 330,
+            left: 0,
+            right: 0,
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            gap: 26,
+            transform: `scale(${enter * scale})`,
           }}
         >
-          {clicked ? "مشترك ✓" : "اشترك"}
+          <div
+            dir="rtl"
+            style={{
+              fontFamily: FONT,
+              fontSize: 84,
+              color: "white",
+              background: clicked ? "#555" : RED,
+              padding: "4px 56px 16px",
+              borderRadius: 26,
+              boxShadow: "0 14px 0 rgba(0,0,0,0.35)",
+            }}
+          >
+            {clicked ? "مشترك ✓" : "اشترك"}
+          </div>
+          <Img
+            src={icon("1f514")}
+            style={{ width: 140, height: 140, transform: `rotate(${ring}deg)`, transformOrigin: "50% 10%" }}
+          />
         </div>
-        <Img
-          src={icon("1f514")}
-          style={{ width: 150, height: 150, transform: `rotate(${ring}deg)`, transformOrigin: "50% 10%" }}
-        />
-      </div>
-      <Sticker code="1f44d" x={200} y={140} size={140} delay={clickAt + 2} rot={-15} />
-      <Sticker code="2764" x={880} y={420} size={130} delay={clickAt + 6} rot={12} />
+      </Back>
+      <Sticker code="1f44d" x={190} y={560} size={140} delay={clickAt + 2} rot={-15} />
+      <Sticker code="2764" x={890} y={560} size={130} delay={clickAt + 6} rot={12} />
     </>
+  );
+};
+
+const NumberBadge: React.FC = () => {
+  const p = usePop(2, 8);
+  if (useLayer() !== "front") return null;
+  return (
+    <div style={{ position: "absolute", top: 100, left: 0, right: 0, display: "flex", justifyContent: "center" }}>
+      <div
+        dir="rtl"
+        style={{
+          fontFamily: FONT,
+          fontSize: 76,
+          color: "white",
+          background: `linear-gradient(135deg, ${ACCENT}, #8E2DE2)`,
+          padding: "6px 46px 18px",
+          borderRadius: 36,
+          border: "6px solid white",
+          boxShadow: "0 14px 0 rgba(0,0,0,0.3)",
+          transform: `scale(${p}) rotate(${(1 - p) * -25 + 2}deg)`,
+        }}
+      >
+        النصيحة رقم 1
+      </div>
+    </div>
   );
 };
 
 const Tip1Scene: React.FC = () => (
   <>
-    <div style={{ position: "absolute", top: 90, left: 0, right: 0, display: "flex", justifyContent: "center" }}>
-      <NumberBadge />
-    </div>
-    <Sticker code="1f525" x={250} y={230} size={150} delay={20} rot={-12} />
-    <Sticker code="1f9e0" x={830} y={230} size={150} delay={26} rot={12} />
-    <Label text="مهمة بزاف" y={430} bg={YELLOW} size={66} delay={sec(16.6 - 14.72)} />
+    <NumberBadge />
+    <Sticker code="1f525" x={540} y={430} size={280} delay={8} />
+    <Sticker code="1f9e0" x={220} y={520} size={150} delay={20} rot={-12} />
+    <Sticker code="2b50" x={860} y={500} size={150} delay={26} rot={12} />
+    <Label text="مهمة بزاف" y={270} bg={YELLOW} size={60} delay={sec(16.6 - 14.72)} />
   </>
 );
-
-const NumberBadge: React.FC = () => {
-  const p = usePop(2, 8);
-  return (
-    <div
-      dir="rtl"
-      style={{
-        fontFamily: FONT,
-        fontSize: 86,
-        color: "white",
-        background: "linear-gradient(135deg,#6C3BFF,#FF2E89)",
-        padding: "10px 50px 22px",
-        borderRadius: 40,
-        border: "6px solid white",
-        boxShadow: "0 16px 0 rgba(0,0,0,0.3)",
-        transform: `scale(${p}) rotate(${(1 - p) * -25 + 2}deg)`,
-      }}
-    >
-      النصيحة رقم 1
-    </div>
-  );
-};
 
 const GoalScene: React.FC = () => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
   const hitAt = 22;
-  const fly = spring({ frame: frame - 8, fps, config: { damping: 200 }, durationInFrames: hitAt - 8 });
+  const fly = spring({ frame: frame - 6, fps, config: { damping: 200 }, durationInFrames: hitAt - 6 });
   const boom = spring({ frame: frame - hitAt, fps, config: { damping: 7, stiffness: 260 } });
   return (
     <>
-      <Sticker code="1f3af" x={540} y={250} size={290} />
-      {/* rocket flies into the target */}
-      <Img
-        src={icon("1f680")}
-        style={{
-          position: "absolute",
-          width: 150,
-          height: 150,
-          left: interpolate(fly, [0, 1], [-160, 400]),
-          top: interpolate(fly, [0, 1], [520, 200]),
-          opacity: frame < hitAt + 2 ? 1 : 0,
-        }}
-      />
-      <div
-        style={{
-          position: "absolute",
-          left: 540 - 220,
-          top: 250 - 220,
-          width: 440,
-          height: 440,
-          borderRadius: 999,
-          border: `12px solid ${YELLOW}`,
-          opacity: frame >= hitAt ? interpolate(boom, [0, 1], [1, 0]) : 0,
-          transform: `scale(${0.4 + boom * 0.9})`,
-        }}
-      />
-      <Sticker code="1f3c6" x={850} y={190} size={160} delay={hitAt + 4} rot={12} />
-      <Label text="حدد هدفك 🎯" y={440} bg="white" size={70} delay={hitAt + 8} />
+      <Sticker code="1f3af" x={540} y={400} size={330} />
+      <Back>
+        <Img
+          src={icon("1f680")}
+          style={{
+            position: "absolute",
+            width: 150,
+            height: 150,
+            left: interpolate(fly, [0, 1], [-160, 390]),
+            top: interpolate(fly, [0, 1], [700, 330]),
+            opacity: frame < hitAt + 2 ? 1 : 0,
+          }}
+        />
+        <div
+          style={{
+            position: "absolute",
+            left: 540 - 240,
+            top: 400 - 240,
+            width: 480,
+            height: 480,
+            borderRadius: 999,
+            border: `12px solid ${YELLOW}`,
+            opacity: frame >= hitAt ? interpolate(boom, [0, 1], [1, 0]) : 0,
+            transform: `scale(${0.4 + boom * 0.9})`,
+          }}
+        />
+      </Back>
+      <Sticker code="1f3c6" x={880} y={540} size={160} delay={hitAt + 4} rot={12} />
+      <Label text="حدد هدفك" y={110} bg="white" delay={hitAt + 6} />
     </>
   );
 };
@@ -473,14 +532,106 @@ const SceneOut: React.FC<{ dur: number; children: React.ReactNode }> = ({ dur, c
   return <AbsoluteFill style={{ opacity: o, transform: `scale(${0.9 + o * 0.1})` }}>{children}</AbsoluteFill>;
 };
 
+const SceneLayer: React.FC<{ layer: Layer }> = ({ layer }) => (
+  <LayerCtx.Provider value={layer}>
+    {SCENES.map((s) => {
+      const C = SCENE_COMPONENTS[s.kind];
+      const from = s.gfxStart ?? s.start;
+      const dur = sec(s.end - from);
+      return (
+        <Sequence key={s.kind} from={sec(from)} durationInFrames={dur} layout="none">
+          <SceneOut dur={dur}>
+            <C />
+          </SceneOut>
+        </Sequence>
+      );
+    })}
+  </LayerCtx.Provider>
+);
+
+/* ---------------- B-roll cutaways ---------------- */
+
+const BrollView: React.FC<{ b: Broll }> = ({ b }) => {
+  const frame = useCurrentFrame();
+  const { fps } = useVideoConfig();
+  const dur = sec(b.end - b.start);
+  const enter = spring({ frame, fps, config: { damping: 20, stiffness: 180 } });
+  const exit = interpolate(frame, [dur - 6, dur], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  const x = (1 - enter) * 1080 - exit * 1080;
+  const kb = interpolate(frame, [0, dur], [1.0, 1.1]);
+  const tagPop = spring({ frame: frame - 4, fps, config: { damping: 10, stiffness: 220 } });
+  return (
+    <AbsoluteFill style={{ transform: `translateX(${x}px)` }}>
+      <AbsoluteFill
+        style={{
+          background: "radial-gradient(circle at 50% 40%, #FFF7F9 0%, #FBD3DD 55%, #F29BB0 100%)",
+        }}
+      />
+      {/* soft decorative blobs */}
+      <div
+        style={{
+          position: "absolute",
+          width: 700,
+          height: 700,
+          borderRadius: 999,
+          background: "rgba(230,62,98,0.12)",
+          left: -260 + frame * 2,
+          top: 160,
+        }}
+      />
+      <div
+        style={{
+          position: "absolute",
+          width: 520,
+          height: 520,
+          borderRadius: 999,
+          background: "rgba(255,255,255,0.5)",
+          right: -180 - frame * 1.5,
+          top: 980,
+        }}
+      />
+      <AbsoluteFill style={{ justifyContent: "center", alignItems: "center" }}>
+        <Img
+          src={staticFile(`broll/${b.img}.svg`)}
+          style={{
+            width: 860,
+            height: 860,
+            objectFit: "contain",
+            marginTop: -140,
+            transform: `scale(${kb})`,
+            filter: "drop-shadow(0 30px 40px rgba(120,10,35,0.25))",
+          }}
+        />
+      </AbsoluteFill>
+      <div style={{ position: "absolute", top: 170, left: 0, right: 0, display: "flex", justifyContent: "center" }}>
+        <div
+          dir="rtl"
+          style={{
+            fontFamily: FONT,
+            fontSize: 70,
+            color: "white",
+            background: ACCENT,
+            padding: "4px 44px 14px",
+            borderRadius: 999,
+            boxShadow: "0 12px 0 rgba(120,10,35,0.45)",
+            transform: `scale(${tagPop})`,
+          }}
+        >
+          {b.tag}
+        </div>
+      </div>
+    </AbsoluteFill>
+  );
+};
+
 /* ---------------- progress bar ---------------- */
 
 const Progress: React.FC = () => {
   const frame = useCurrentFrame();
   const { durationInFrames } = useVideoConfig();
   return (
-    <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 14, background: "rgba(255,255,255,0.25)" }}>
-      <div style={{ height: "100%", width: `${(frame / durationInFrames) * 100}%`, background: YELLOW }} />
+    <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 12, background: "rgba(255,255,255,0.25)" }}>
+      <div style={{ height: "100%", width: `${(frame / durationInFrames) * 100}%`, background: ACCENT }} />
     </div>
   );
 };
@@ -490,25 +641,27 @@ const Progress: React.FC = () => {
 export const Montage: React.FC = () => {
   return (
     <AbsoluteFill style={{ backgroundColor: "black" }}>
-      <BaseVideo />
+      <BackgroundVideo />
+      <SceneLayer layer="back" />
+      <SpeakerCutout />
       <Shade />
-      {SCENES.map((s) => {
-        const C = SCENE_COMPONENTS[s.kind];
-        const dur = sec(s.end - s.start);
-        return (
-          <Sequence key={s.kind} from={sec(s.start)} durationInFrames={dur} layout="none">
-            <SceneOut dur={dur}>
-              <C />
-            </SceneOut>
-          </Sequence>
-        );
-      })}
+      <SceneLayer layer="front" />
+      <CutFlash />
+      {BROLLS.map((b) => (
+        <Sequence key={b.img} from={sec(b.start)} durationInFrames={sec(b.end - b.start)} layout="none">
+          <BrollView b={b} />
+        </Sequence>
+      ))}
       {CAPTIONS.map((c, i) => (
         <Sequence key={i} from={sec(c.start)} durationInFrames={sec(c.end - c.start)} layout="none">
           <CaptionView cap={c} />
         </Sequence>
       ))}
-      <CutFlash />
+      {SFX.map((s, i) => (
+        <Sequence key={`sfx-${i}`} from={Math.max(0, sec(s.at))} layout="none">
+          <Audio src={staticFile(`sfx/${s.file}.wav`)} volume={s.volume} />
+        </Sequence>
+      ))}
       <Progress />
     </AbsoluteFill>
   );

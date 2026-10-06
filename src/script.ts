@@ -33,14 +33,69 @@ export type SceneKind =
   | "tip1"
   | "goal";
 
-export type Scene = { start: number; end: number; kind: SceneKind; zoom: number };
+export type Scene = {
+  start: number;
+  end: number;
+  kind: SceneKind;
+  zoom: number;
+  // when the graphics start (defaults to `start`), e.g. after a B-roll cutaway
+  gfxStart?: number;
+};
 
 export const SCENES: Scene[] = [
   { start: 0.0, end: 1.95, kind: "grade", zoom: 1.0 },
-  { start: 1.95, end: 6.05, kind: "books", zoom: 1.14 },
+  { start: 1.95, end: 6.05, kind: "books", zoom: 1.14, gfxStart: 3.15 },
   { start: 6.05, end: 9.8, kind: "tips", zoom: 1.0 },
   { start: 9.8, end: 11.4, kind: "warning", zoom: 1.22 },
   { start: 11.4, end: 14.72, kind: "subscribe", zoom: 1.0 },
   { start: 14.72, end: 17.8, kind: "tip1", zoom: 1.14 },
-  { start: 17.8, end: 23.1, kind: "goal", zoom: 1.04 },
+  { start: 17.8, end: 21.75, kind: "goal", zoom: 1.04, gfxStart: 19.4 },
+];
+
+// Full-screen illustrated cutaways that show what is being talked about.
+export type Broll = { start: number; end: number; img: string; tag: string };
+
+export const BROLLS: Broll[] = [
+  { start: 1.95, end: 3.15, img: "exam-prep", tag: "📚 الدراسة" },
+  { start: 7.6, end: 8.85, img: "road-to-knowledge", tag: "✅ طبّق النصائح" },
+  { start: 17.8, end: 19.4, img: "target", tag: "🎯 الهدف" },
+  { start: 21.75, end: 23.1, img: "education", tag: "🎓 النتيجة" },
+];
+
+// Sound effects (files in public/sfx).
+export type Sfx = { at: number; file: string; volume: number };
+
+export const SFX: Sfx[] = [
+  // grade card
+  { at: 0.05, file: "pop", volume: 0.5 },
+  { at: 0.45, file: "pop", volume: 0.35 },
+  { at: 1.25, file: "sparkle", volume: 0.35 },
+  // b-roll swipes in and out
+  ...BROLLS.flatMap((b) => [
+    { at: b.start, file: "swipe", volume: 0.55 },
+    { at: b.end - 0.25, file: "whoosh_out", volume: 0.4 },
+  ]),
+  // books
+  { at: 3.2, file: "pop", volume: 0.45 },
+  // zoom cuts
+  { at: 6.0, file: "whoosh_out", volume: 0.45 },
+  { at: 9.75, file: "whoosh_in", volume: 0.5 },
+  { at: 11.35, file: "whoosh_out", volume: 0.45 },
+  { at: 14.67, file: "whoosh_in", volume: 0.5 },
+  // three bulbs
+  { at: 6.05 + 6 / 24, file: "pop", volume: 0.45 },
+  { at: 6.05 + 15 / 24, file: "pop", volume: 0.45 },
+  { at: 6.05 + 24 / 24, file: "pop", volume: 0.45 },
+  // warning
+  { at: 9.8, file: "boom", volume: 0.6 },
+  // subscribe
+  { at: 11.45, file: "pop", volume: 0.45 },
+  { at: 13.5, file: "click", volume: 0.7 },
+  { at: 13.55, file: "ding", volume: 0.35 },
+  // tip 1
+  { at: 14.8, file: "sparkle", volume: 0.35 },
+  // goal: rocket flies and hits the target
+  { at: 19.4 + 6 / 24, file: "whoosh_in", volume: 0.45 },
+  { at: 19.4 + 22 / 24, file: "boom", volume: 0.5 },
+  { at: 19.4 + 24 / 24, file: "sparkle", volume: 0.3 },
 ];
