@@ -66,3 +66,6 @@ to `src/vN`, register it in `src/Root.tsx`, and only change the content.
 - Render with the Playwright headless shell:
   `npx remotion render Montage out/x.mp4 --browser-executable=/opt/pw-browsers/chromium_headless_shell-1194/chrome-linux/headless_shell --codec=h264 --crf=18 --audio-bitrate=256k`
 - `npm run lint` must pass before rendering.
+- Files sent to the user must be under 30 MB: if the render is larger,
+  make a 2-pass x264 copy at ~6 Mbps (`-b:v 6200k -maxrate 8000k
+  -bufsize 12000k`, audio copied) and send that.
