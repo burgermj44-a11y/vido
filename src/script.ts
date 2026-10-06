@@ -98,4 +98,28 @@ export const SFX: Sfx[] = [
   { at: 19.4 + 6 / 24, file: "whoosh_in", volume: 0.45 },
   { at: 19.4 + 22 / 24, file: "boom", volume: 0.5 },
   { at: 19.4 + 24 / 24, file: "sparkle", volume: 0.3 },
+
+  // every remaining sticker / label that appears on screen
+  { at: 0.83, file: "pop", volume: 0.35 }, // check mark
+  { at: 3.15 + 8 / 24, file: "pop", volume: 0.35 }, // pen
+  { at: 3.15 + 10 / 24, file: "pop2", volume: 0.4 }, // label
+  { at: 3.15 + 14 / 24, file: "pop", volume: 0.35 }, // chart
+  { at: 6.05 + 4 / 24, file: "pop2", volume: 0.4 }, // "3 tips" label
+  { at: 9.8 + 4 / 24, file: "pop2", volume: 0.4 }, // "warning" label
+  { at: 11.4 + 52 / 24, file: "pop", volume: 0.35 }, // thumbs up
+  { at: 11.4 + 56 / 24, file: "pop", volume: 0.35 }, // heart
+  { at: 14.72 + 2 / 24, file: "pop2", volume: 0.45 }, // "tip 1" badge
+  { at: 14.72 + 8 / 24, file: "pop", volume: 0.4 }, // fire
+  { at: 14.72 + 20 / 24, file: "pop", volume: 0.35 }, // brain
+  { at: 14.72 + 26 / 24, file: "pop", volume: 0.35 }, // star
+  { at: 16.6, file: "pop2", volume: 0.4 }, // "very important" label
+  { at: 19.4, file: "pop", volume: 0.45 }, // target
+  { at: 19.4 + 26 / 24, file: "pop", volume: 0.35 }, // trophy
+  { at: 19.4 + 28 / 24, file: "pop2", volume: 0.4 }, // "set your goal" label
+  // b-roll title tags
+  ...BROLLS.map((b) => ({ at: b.start + 5 / 24, file: "pop2", volume: 0.4 })),
+  // grade counter 0 -> 12
+  ...Array.from({ length: 12 }, (_, k) => ({ at: (4 + 2 * (k + 1)) / 24, file: "blip", volume: 0.18 })),
+  // a soft tick each time a new caption line appears
+  ...CAPTIONS.slice(1).map((c) => ({ at: c.start, file: "tick", volume: 0.22 })),
 ];
