@@ -315,43 +315,23 @@ const Rays: React.FC<{ x: number; y: number; size: number; delay?: number; color
 /* ---------------- scenes ---------------- */
 
 
-const BrandCard: React.FC<{ y?: number; scale?: number; delay?: number }> = ({ y = 90, scale = 1, delay = 1 }) => {
+/* the real MJ Burger logo (cut out from its background) */
+const BrandCard: React.FC<{ y?: number; scale?: number; delay?: number }> = ({ y = 40, scale = 1, delay = 1 }) => {
+  const frame = useCurrentFrame();
   const p = usePop(delay, 9);
+  const h = 430 * scale;
   return (
-    <div
+    <Img
+      src={staticFile("v3/logo.png")}
       style={{
         position: "absolute",
-        left: 540 - 270,
-        top: y,
-        width: 540,
-        height: 300,
-        borderRadius: 44,
-        background: `linear-gradient(160deg, ${KETCHUP}, #8E1410)`,
-        border: `7px solid ${GOLD}`,
-        boxShadow: "0 22px 50px rgba(0,0,0,0.45)",
-        transform: `scale(${p * scale}) rotate(${-3 + (1 - p) * 18}deg)`,
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "center",
+        left: 540 - (h * 562) / 637 / 2,
+        top: y + Math.sin(frame / 12) * 6,
+        height: h,
+        transform: `scale(${p}) rotate(${(1 - p) * -14}deg)`,
+        filter: "drop-shadow(0 18px 26px rgba(0,0,0,0.5))",
       }}
-    >
-      <Img src={icon("1f354")} style={{ width: 110, height: 110, marginBottom: -6 }} />
-      <div
-        style={{
-          fontFamily: FONT,
-          fontSize: 88,
-          lineHeight: 1.05,
-          letterSpacing: 1,
-          whiteSpace: "nowrap",
-          background: GOLD_GRAD,
-          WebkitBackgroundClip: "text",
-          color: "transparent",
-        }}
-      >
-        {SHOP.name}
-      </div>
-    </div>
+    />
   );
 };
 
@@ -362,7 +342,7 @@ const Intro: React.FC = () => (
     </Back>
     <Sticker code="1f4cd" x={170} y={470} size={140} delay={12} rot={-10} />
     <Sticker code="1f35f" x={910} y={470} size={140} delay={18} rot={10} />
-    <Label text={`📍 ${SHOP.city}`} y={30} delay={10} />
+    <Label text={`📍 ${SHOP.city}`} y={500} delay={10} size={48} />
   </>
 );
 
@@ -466,11 +446,11 @@ const Quality: React.FC = () => {
 const Welcome: React.FC = () => (
   <>
     <Back>
-      <BrandCard y={70} scale={0.9} delay={1} />
+      <BrandCard y={40} scale={0.95} delay={1} />
     </Back>
     <Sticker code="1f917" x={180} y={450} size={150} delay={8} rot={-10} />
     <Sticker code="1f389" x={900} y={450} size={150} delay={14} rot={10} />
-    <Label text="مرحبا بيكم 🤗" y={30} delay={6} />
+    <Label text="مرحبا بيكم 🤗" y={500} delay={6} size={50} />
   </>
 );
 
@@ -615,7 +595,10 @@ const EndCard: React.FC = () => {
   const ring = Math.sin(frame * 1.6) * interpolate((frame - 32) % 40, [0, 16], [16, 0], { extrapolateRight: "clamp", extrapolateLeft: "clamp" });
   return (
     <AbsoluteFill style={{ transform: `translateY(${(1 - enter) * 1920}px)` }}>
-      <AbsoluteFill style={{ background: `radial-gradient(circle at 50% 30%, ${KETCHUP} 0%, #7A100C 55%, #2A0605 100%)` }} />
+      <AbsoluteFill style={{ background: "radial-gradient(circle at 50% 30%, #6B3218 0%, #3A1709 55%, #160703 100%)" }} />
+      <AbsoluteFill style={{ opacity: 0.45, mixBlendMode: "overlay" }}>
+        <Img src={staticFile("v3/leather.jpg")} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+      </AbsoluteFill>
       <AbsoluteFill style={{ opacity: 0.18 }}>
         <div style={{ position: "absolute", inset: 0, display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8, transform: `translateY(${-frame * 1.5}px)` }}>
           {[...COLLAGE3, ...COLLAGE3, ...COLLAGE3].map((src, i) => (
@@ -623,25 +606,17 @@ const EndCard: React.FC = () => {
           ))}
         </div>
       </AbsoluteFill>
-      <Rays x={540} y={470} size={900} color="255,210,80" />
+      <Rays x={540} y={400} size={950} color="255,200,90" />
       <div style={{ position: "absolute", top: 230, left: 0, right: 0, display: "flex", flexDirection: "column", alignItems: "center" }}>
-        <Img src={icon("1f354")} style={{ width: 230, height: 230, transform: `scale(${row(2)}) rotate(${Math.sin(frame / 8) * 6}deg)`, filter: "drop-shadow(0 18px 24px rgba(0,0,0,0.5))" }} />
-        <div
+        <Img
+          src={staticFile("v3/logo.png")}
           style={{
-            fontFamily: FONT,
-            fontSize: 150,
-            lineHeight: 1.05,
-            letterSpacing: 3,
-            whiteSpace: "nowrap",
-            background: GOLD_GRAD,
-            WebkitBackgroundClip: "text",
-            color: "transparent",
-            filter: "drop-shadow(0 8px 0 #5A0906)",
-            transform: `scale(${row(6)})`,
+            height: 560,
+            marginTop: -110,
+            transform: `scale(${row(2)}) rotate(${Math.sin(frame / 10) * 2}deg)`,
+            filter: "drop-shadow(0 22px 30px rgba(0,0,0,0.6))",
           }}
-        >
-          {SHOP.name}
-        </div>
+        />
         <div dir="rtl" style={{ fontFamily: FONT, fontSize: 62, color: "white", marginTop: 6, transform: `scale(${row(10)})` }}>
           أحسن بنّة في {SHOP.city} 🔥
         </div>
@@ -665,7 +640,7 @@ const EndCard: React.FC = () => {
             }}
           >
             <Img src={icon(r.code)} style={{ width: 96, height: 96, transform: r.code === "1f4de" ? `rotate(${ring}deg)` : "none" }} />
-            <div style={{ fontFamily: FONT, fontSize: 70, color: "#2A0605", letterSpacing: r.code === "1f4de" ? 4 : 0 }} dir="rtl">
+            <div style={{ fontFamily: FONT, fontSize: 70, color: "#3A1709", letterSpacing: r.code === "1f4de" ? 4 : 0 }} dir="rtl">
               {r.text}
             </div>
           </div>
@@ -682,7 +657,7 @@ const EndCard: React.FC = () => {
             padding: "6px 60px 16px",
             borderRadius: 999,
             border: "5px solid white",
-            boxShadow: "0 12px 0 #5A0906",
+            boxShadow: "0 12px 0 #3A1709",
             transform: `scale(${row(32) * (1 + Math.sin(frame / 6) * 0.03)})`,
           }}
         >
@@ -700,6 +675,18 @@ const Progress: React.FC = () => {
     <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 12, background: "rgba(255,255,255,0.25)" }}>
       <div style={{ height: "100%", width: `${(frame / durationInFrames) * 100}%`, background: GOLD_GRAD }} />
     </div>
+  );
+};
+
+const Watermark: React.FC = () => {
+  const frame = useCurrentFrame();
+  const o = interpolate(frame, [sec(END_START3) - 6, sec(END_START3)], [0.95, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  const p = spring({ frame: frame - 10, fps: FPS3, config: { damping: 12, stiffness: 160 } });
+  return (
+    <Img
+      src={staticFile("v3/logo.png")}
+      style={{ position: "absolute", right: 28, top: 30, height: 130, opacity: o * p, filter: "drop-shadow(0 6px 10px rgba(0,0,0,0.5))" }}
+    />
   );
 };
 
@@ -743,6 +730,7 @@ export const Montage3: React.FC = () => {
           <Audio src={staticFile(sfxSrc(s.file))} volume={s.volume * SFX_GAIN} />
         </Sequence>
       ))}
+      <Watermark />
       <Progress />
     </AbsoluteFill>
   );
