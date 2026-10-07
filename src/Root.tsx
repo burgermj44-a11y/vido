@@ -5,6 +5,8 @@ import { Montage2 } from "./v2/Montage2";
 import { DURATION2, FPS2 } from "./v2/script2";
 import { Montage3 } from "./v3/Montage3";
 import { DURATION3, FPS3 } from "./v3/script3";
+import { Montage4 } from "./v4/Montage4";
+import { DURATION4, FPS4 } from "./v4/script4";
 
 export const RemotionRoot: React.FC = () => {
   return (
@@ -30,6 +32,14 @@ export const RemotionRoot: React.FC = () => {
         component={Montage3}
         durationInFrames={Math.round(DURATION3 * FPS3)}
         fps={FPS3}
+        width={1080}
+        height={1920}
+      />
+      <Composition
+        id="Montage4"
+        component={Montage4}
+        durationInFrames={Math.round(DURATION4 * FPS4)}
+        fps={FPS4}
         width={1080}
         height={1920}
       />

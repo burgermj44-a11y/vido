@@ -4,8 +4,25 @@ The owner sends raw vertical talking-head clips (Algerian Darija, education
 topics). For every new video, produce a montage in exactly this style without
 being asked again. Each video lives in its own folder with its own composition: video 1 is
 `src/Montage.tsx` + `src/script.ts`, video 2 is `src/v2/` (`Montage2`,
-assets in `public/v2/`). For a new video, copy the latest folder (`src/v2`)
-to `src/vN`, register it in `src/Root.tsx`, and only change the content.
+assets in `public/v2/`), video 3 is the MJ Burger ad (`src/v3/`), video 4 is
+series episode 1 (`src/v4/`). For a new talking-head video, copy the latest
+folder (`src/v4`) to `src/vN`, register it in `src/Root.tsx`, and only change
+the content.
+
+## Series "الطريقة الصحيحة للدراسة" (keep it in every episode)
+
+- Reusable intro + logo: `src/series/SeriesSting.tsx` (`SeriesSting`,
+  `SeriesLogo`, 2.2 s). Play it full-screen when he announces the series /
+  episode, with title "الطريقة الصحيحة للدراسة", subtitle "سلسلة مع عبد
+  الوهاب" and the episode number. Hide captions while it plays. Sounds:
+  whoosh_in before, boom + sparkle on the logo, whoosh_out on exit.
+- After the intro a small series badge (logo + "الحلقة N") sits at the
+  bottom centre (y≈1770). Add an episode card ("الحلقة N") when he says
+  which episode it is, a name lower-third for "أنا عبد الوهاب", and the
+  follow card when he says "أبوني".
+- Every video starts with the riser (`scripts/make_riser.py` →
+  `public/vN/riser.wav`, volume ~0.55) whose impact lands on the first
+  punch-in (~2 s).
 
 ## Editing rules
 
@@ -16,7 +33,8 @@ to `src/vN`, register it in `src/Root.tsx`, and only change the content.
    before building the montage, then re-transcribe the cut file for timings.
 2. **Captions** (latest style: `CaptionLegend` in `src/v2/Montage2.tsx`):
    Darija text, 2–5 words per line, Cairo Black ~80 px, white with thick
-   black stroke and drop shadow. The line rises in from a blur; the word
+   black stroke and drop shadow. Since video 4 captions are smaller:
+   64 px (key words 70 px, single-word lines 116 px). The line rises in from a blur; the word
    being spoken glows in the accent colour (karaoke); key words sit on a
    gradient badge with a moving shine; a one-word line ("100%") is shown
    huge. Accent colour is picked to match the clip (video 1: rose `#E63E62`
@@ -45,9 +63,11 @@ to `src/vN`, register it in `src/Root.tsx`, and only change the content.
 8. **Sound effects on every change** (`scripts/make_sfx.py` → `public/sfx`):
    whoosh on zooms, swipe on B-roll, pop on stickers, pop2 on labels, tick on
    each caption line, click + ding on follow, boom on warnings, blips on
-   counters. Effects are mixed under the voice (`SFX_GAIN` 0.6).
-9. **Voice first:** voice track processed to `public/voice.wav` with
-   highpass 80 Hz + compressor + loudnorm I=-14 LUFS; the video's own audio
+   counters. Effects are mixed well under the voice (`SFX_GAIN` 0.4 since
+   video 4; caption ticks 0.1). He asked for quieter effects.
+9. **Voice first, clean and clear:** voice track processed with
+   `highpass=f=85,afftdn=nr=18:nf=-40:tn=1,agate=threshold=0.012:ratio=4:range=0.12:attack=3:release=120,equalizer=f=250:t=q:w=1.2:g=-2.5,equalizer=f=3200:t=q:w=1.0:g=3.5,equalizer=f=9000:t=h:w=0.7:g=1.5,deesser=i=0.35,acompressor=threshold=-22dB:ratio=3.5:attack=4:release=70:makeup=2.5,loudnorm=I=-14:TP=-1.5:LRA=7`
+   (denoise, gate, presence EQ, de-ess, compression); the video's own audio
    is muted. After rendering, apply
    `alimiter=limit=0.84:attack=3:release=50:level=false` (copy video stream).
 10. Soft vignette, slight saturation/contrast boost, progress bar on top in
