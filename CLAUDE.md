@@ -5,9 +5,13 @@ topics). For every new video, produce a montage in exactly this style without
 being asked again. Each video lives in its own folder with its own composition: video 1 is
 `src/Montage.tsx` + `src/script.ts`, video 2 is `src/v2/` (`Montage2`,
 assets in `public/v2/`), video 3 is the MJ Burger ad (`src/v3/`), video 4 is
-series episode 1 (`src/v4/`). For a new talking-head video, copy the latest
+series episode 1 (`src/v4/`), video 5 is a standalone video (`src/v5/`). For a new talking-head video, copy the latest
 folder (`src/v4`) to `src/vN`, register it in `src/Root.tsx`, and only change
 the content.
+
+Not every video is a series episode. When he says a video is NOT part of the
+series, use no series intro, logo, badge or "الحلقة" wording (copy `src/v5`).
+Always trim app outros (e.g. a CapCut logo on black) from the end of clips.
 
 ## Series "الطريقة الصحيحة للدراسة" (keep it in every episode)
 
