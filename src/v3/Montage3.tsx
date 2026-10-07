@@ -21,7 +21,6 @@ loadFonts();
 const GOLD = "#FFC72C";
 const ORANGE = "#FF5A1F";
 const GOLD_GRAD = `linear-gradient(135deg, #FFE066 0%, ${GOLD} 45%, ${ORANGE} 100%)`;
-const KETCHUP = "#D7261E";
 const SFX_GAIN = 0.6;
 
 const sec = (s: number) => Math.round(s * FPS3);
@@ -65,7 +64,7 @@ const BackgroundVideo: React.FC = () => {
   const zoom = useZoom();
   return (
     <AbsoluteFill style={{ overflow: "hidden" }}>
-      <OffthreadVideo src={staticFile("v3/source.mp4")} muted style={videoStyle(zoom)} />
+      <OffthreadVideo src={staticFile("v3/source_cut.mp4")} muted style={videoStyle(zoom)} />
     </AbsoluteFill>
   );
 };
@@ -73,7 +72,7 @@ const BackgroundVideo: React.FC = () => {
 const SpeakerCutout: React.FC = () => {
   const frame = useCurrentFrame();
   const zoom = useZoom();
-  const matte = `url(${staticFile(`v3/matte/${pad4(Math.min(frame, 762))}.jpg`)})`;
+  const matte = `url(${staticFile(`v3/matte_cut/${pad4(Math.min(frame, 524))}.jpg`)})`;
   return (
     <AbsoluteFill style={{ overflow: "hidden" }}>
       <AbsoluteFill
@@ -87,7 +86,7 @@ const SpeakerCutout: React.FC = () => {
           WebkitMaskSize: "100% 100%",
         }}
       >
-        <OffthreadVideo src={staticFile("v3/source.mp4")} muted style={{ ...videoStyle(1), transform: "none" }} />
+        <OffthreadVideo src={staticFile("v3/source_cut.mp4")} muted style={{ ...videoStyle(1), transform: "none" }} />
       </AbsoluteFill>
     </AbsoluteFill>
   );
@@ -356,58 +355,6 @@ const MenuTease: React.FC = () => (
   </>
 );
 
-const Look: React.FC = () => (
-  <>
-    <Sticker code="26bd" x={880} y={440} size={140} delay={3} rot={10} />
-  </>
-);
-
-/* the Ronaldo joke: whistle, crowd, SIUUU, then the laugh */
-const Siuuu: React.FC = () => {
-  const frame = useCurrentFrame();
-  const big = usePop(10, 7);
-  const laughAt = 30;
-  const bounce = Math.abs(Math.sin(frame / 5)) * -70;
-  const shake = frame < laughAt ? Math.sin(frame * 2.2) * interpolate(frame, [10, 26], [10, 2], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }) : 0;
-  const layer = useLayer();
-  return (
-    <>
-      <Rays x={540} y={270} size={700} color="255,200,40" />
-      {layer === "back" && (
-        <>
-          <div
-            style={{
-              position: "absolute",
-              top: 120,
-              left: 0,
-              right: 0,
-              textAlign: "center",
-              fontFamily: FONT,
-              fontSize: 190,
-              lineHeight: 1,
-              letterSpacing: 4,
-              background: GOLD_GRAD,
-              WebkitBackgroundClip: "text",
-              color: "transparent",
-              filter: "drop-shadow(0 10px 0 #8E1410) drop-shadow(0 20px 30px rgba(0,0,0,0.4))",
-              transform: `translateX(${shake}px) scale(${big}) rotate(-5deg)`,
-            }}
-          >
-            SIUUU
-          </div>
-          <Img
-            src={icon("26bd")}
-            style={{ position: "absolute", left: 120, top: 380 + bounce, width: 150, height: 150, transform: `rotate(${frame * 12}deg)` }}
-          />
-        </>
-      )}
-      <Sticker code="1f410" x={910} y={450} size={150} delay={14} rot={10} />
-      <Sticker code="1f923" x={870} y={180} size={150} delay={laughAt} rot={14} />
-      <Label text="رونالدو تاع الشلف 😂" delay={laughAt + 4} bg={`linear-gradient(135deg, #FF5A36, ${KETCHUP})`} color="white" />
-    </>
-  );
-};
-
 const Best: React.FC = () => (
   <>
     <Rays x={540} y={280} size={560} />
@@ -454,28 +401,15 @@ const Welcome: React.FC = () => (
   </>
 );
 
-const Chefs: React.FC = () => (
-  <>
-    <Rays x={540} y={280} size={520} />
-    <Sticker code="1f468-200d-1f373" x={540} y={270} size={300} delay={2} />
-    <Sticker code="26bd" x={190} y={440} size={130} delay={10} rot={-10} />
-    <Sticker code="1f354" x={890} y={440} size={140} delay={14} rot={10} />
-    <Label text="في الخدمة 👨‍🍳" delay={6} />
-  </>
-);
-
 const None: React.FC = () => null;
 
 const SCENE_COMPONENTS: Record<Scene3["kind"], React.FC> = {
   intro: Intro,
   menuTease: MenuTease,
-  look: Look,
-  siuuu: Siuuu,
   best: Best,
   quality: Quality,
   menu: None,
   welcome: Welcome,
-  chefs: Chefs,
 };
 
 const SceneOut: React.FC<{ dur: number; children: React.ReactNode }> = ({ dur, children }) => {
@@ -715,14 +649,17 @@ export const Montage3: React.FC = () => {
           <CaptionLegend cap={c} />
         </Sequence>
       ))}
-      <Audio src={staticFile("v3/voice.wav")} />
+      <Audio src={staticFile("v3/voice_cut.wav")} />
       {/* background beat: quiet under the voice, rises on the end card */}
       <Audio
         src={staticFile("v3/sfx/beat.wav")}
         volume={(f) =>
-          interpolate(f, [0, sec(SPEECH_END3) - 6, sec(SPEECH_END3), sec(DURATION3)], [0.1, 0.1, 0.35, 0.35], {
-            extrapolateRight: "clamp",
-          })
+          interpolate(
+            f,
+            [0, sec(SPEECH_END3) - 6, sec(SPEECH_END3), sec(DURATION3) - 30, sec(DURATION3)],
+            [0.1, 0.1, 0.35, 0.35, 0],
+            { extrapolateRight: "clamp" },
+          )
         }
       />
       {SFX3.map((s, i) => (
