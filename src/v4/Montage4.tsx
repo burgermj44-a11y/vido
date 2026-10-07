@@ -27,7 +27,7 @@ const SKY = "#4FC3F7";
 const NAVY = "#0B1530";
 const SKY_GRAD = `linear-gradient(135deg, #8FDFFF 0%, ${SKY} 45%, #1E88E5 100%)`;
 // effects kept low so they never cover the voice
-const SFX_GAIN = 0.4;
+const SFX_GAIN = 0.22;
 
 const sec = (s: number) => Math.round(s * FPS4);
 const icon = (code: string) => staticFile(`v4/img/${code}.svg`);

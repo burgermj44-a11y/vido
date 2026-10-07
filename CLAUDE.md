@@ -63,13 +63,13 @@ the content.
 8. **Sound effects on every change** (`scripts/make_sfx.py` → `public/sfx`):
    whoosh on zooms, swipe on B-roll, pop on stickers, pop2 on labels, tick on
    each caption line, click + ding on follow, boom on warnings, blips on
-   counters. Effects are mixed well under the voice (`SFX_GAIN` 0.4 since
-   video 4; caption ticks 0.1). He asked for quieter effects.
+   counters. Effects are mixed well under the voice (`SFX_GAIN` 0.22 since
+   video 4 v2; caption ticks 0.1). He asked twice for quieter effects.
 9. **Voice first, clean and clear:** voice track processed with
-   `highpass=f=85,afftdn=nr=18:nf=-40:tn=1,agate=threshold=0.012:ratio=4:range=0.12:attack=3:release=120,equalizer=f=250:t=q:w=1.2:g=-2.5,equalizer=f=3200:t=q:w=1.0:g=3.5,equalizer=f=9000:t=h:w=0.7:g=1.5,deesser=i=0.35,acompressor=threshold=-22dB:ratio=3.5:attack=4:release=70:makeup=2.5,loudnorm=I=-14:TP=-1.5:LRA=7`
+   `highpass=f=85,afftdn=nr=18:nf=-40:tn=1,agate=threshold=0.012:ratio=4:range=0.12:attack=3:release=120,equalizer=f=250:t=q:w=1.2:g=-2.5,equalizer=f=3200:t=q:w=1.0:g=3.5,equalizer=f=9000:t=h:w=0.7:g=1.5,deesser=i=0.35,acompressor=threshold=-22dB:ratio=3.5:attack=4:release=70:makeup=2.5,loudnorm=I=-11.5:TP=-1.0:LRA=7` (he wants the voice loud)
    (denoise, gate, presence EQ, de-ess, compression); the video's own audio
    is muted. After rendering, apply
-   `alimiter=limit=0.84:attack=3:release=50:level=false` (copy video stream).
+   `alimiter=limit=0.89:attack=3:release=50:level=false` (copy video stream).
 10. Soft vignette, slight saturation/contrast boost, progress bar on top in
     the accent colour. Output 1080×1920, same fps as the source.
 
