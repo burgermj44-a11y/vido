@@ -16,14 +16,19 @@ Always trim app outros (e.g. a CapCut logo on black) from the end of clips.
 
 ## Paper style (when he asks for "ستايل الورقي")
 
-`src/v6/Montage6.tsx`: notebook-paper background replacing the wall, the
-speaker as a white-bordered cut-out, emoji stickers as paper cut-outs that
-unfold (rotateX) and fold closed, animated on twos with stop-motion jitter,
-handwritten labels (Aref Ruqaa) on torn strips with tape, captions on torn
-white strips with plain dark text + yellow marker on key words, full-screen
-paper sheets sweeping across at section changes, cutaways as taped pages on
-kraft paper. Textures and sounds come from `scripts/make_paper_assets.py`
-(page flip, tear, crumple, slide, fold, rustle; paper gain 0.32).
+`src/v6/Montage6.tsx` + `src/v6/Dioramas.tsx`. NEVER remove the real
+background for the whole video: the room stays as it is. Only at a few key
+moments (when he names a place or a big moment, e.g. "القراية تبدا من
+المسيد") the room is replaced by a pop-up paper diorama (`SchoolScene`,
+`HomeScene`, `StageScene`: layered paper cut-outs that pop up one by one and
+fold down, paper grain on top), and only then the speaker gets a white
+paper cut-out border. Everything else is paper too: emoji stickers as paper
+cut-outs that unfold (rotateX) and fold closed, animated on twos with
+stop-motion jitter; handwritten labels (Aref Ruqaa) on torn strips with
+tape; captions on torn white strips with plain dark text + yellow marker on
+key words; full-screen paper sheets sweeping across at section changes.
+Textures and sounds come from `scripts/make_paper_assets.py` (page flip,
+tear, crumple, slide, fold, rustle; paper gain 0.32).
 
 ## Series "الطريقة الصحيحة للدراسة" (keep it in every episode)
 

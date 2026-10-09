@@ -20,10 +20,11 @@ import {
   useCurrentFrame,
   useVideoConfig,
 } from "remotion";
-import type { Broll, Caption } from "../script";
+import type { Caption } from "../script";
 import { FONT, loadFonts } from "../fonts";
-import { BROLLS5, CAPTIONS5, SCENES5, Scene5 } from "../v5/script5";
-import { FPS6, SFX6, WIPES6, WIPE_FRAMES } from "./script6";
+import { CAPTIONS5, Scene5 } from "../v5/script5";
+import { HomeScene, SchoolScene, StageScene } from "./Dioramas";
+import { DIORAMAS, FPS6, SCENES6, SFX6, WIPES6, WIPE_FRAMES } from "./script6";
 
 loadFonts();
 
@@ -89,50 +90,89 @@ type Layer = "back" | "front";
 const LayerCtx = createContext<Layer>("back");
 const useLayer = () => useContext(LayerCtx);
 
-/* ---------------- zoom (cut-out only, paper stays still for parallax) ---------------- */
+/* ---------------- dioramas: when is the room replaced by paper ---------------- */
+const useDiorama = () => {
+  const frame = useCurrentFrame();
+  let v = 0;
+  for (const d of DIORAMAS) {
+    const a = sec(d.start);
+    const b = sec(d.end);
+    v = Math.max(v, interpolate(frame, [a, a + 8, b - 8, b], [0, 1, 1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }));
+  }
+  return v;
+};
+
+/* ---------------- zoom shared by the real background and the cut-out ---------------- */
 const useZoom = () => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
   const t = frame / fps;
-  let idx = SCENES5.findIndex((s) => t >= s.start && t < s.end);
-  if (idx < 0) idx = SCENES5.length - 1;
-  const scene = SCENES5[idx];
-  const prev = idx > 0 ? SCENES5[idx - 1].zoom : scene.zoom;
+  let idx = SCENES6.findIndex((s) => t >= s.start && t < s.end);
+  if (idx < 0) idx = SCENES6.length - 1;
+  const scene = SCENES6[idx];
+  const prev = idx > 0 ? SCENES6[idx - 1].zoom : scene.zoom;
   const local = frame - sec(scene.start);
   const snap = spring({ frame: local, fps, config: { damping: 18, stiffness: 220 } });
-  const drift = interpolate(local, [0, sec(scene.end - scene.start)], [0, 0.03], { extrapolateRight: "clamp" });
-  // the paper look works best with the speaker a bit smaller, so zooms are gentler
-  return 0.9 + (interpolate(snap, [0, 1], [prev, scene.zoom]) - 1) * 0.7 + drift;
+  const drift = interpolate(local, [0, sec(scene.end - scene.start)], [0, 0.035], { extrapolateRight: "clamp" });
+  return interpolate(snap, [0, 1], [prev, scene.zoom]) + drift;
 };
 
-const PaperBackground: React.FC = () => {
-  const frame = useCurrentFrame();
+const videoStyle = (zoom: number): React.CSSProperties => ({
+  position: "absolute",
+  inset: 0,
+  width: "100%",
+  height: "100%",
+  objectFit: "cover",
+  transform: `scale(${zoom})`,
+  transformOrigin: "50% 38%",
+  filter: "saturate(1.1) contrast(1.05)",
+});
+
+/* the real room stays as the background */
+const RealBackground: React.FC = () => {
+  const zoom = useZoom();
   return (
     <AbsoluteFill style={{ overflow: "hidden" }}>
-      <Img
-        src={staticFile("v6/paper_notebook.jpg")}
-        style={{ width: "100%", height: "100%", objectFit: "cover", transform: `scale(${1.03 + Math.sin(frame / 90) * 0.01})` }}
-      />
+      <OffthreadVideo src={staticFile("v5/source.mp4")} muted style={videoStyle(zoom)} />
     </AbsoluteFill>
   );
 };
 
-/* speaker as a paper cut-out: white border + soft shadow */
+const Dioramas: React.FC = () => (
+  <>
+    {DIORAMAS.map((d) => {
+      const dur = sec(d.end - d.start);
+      const C = d.kind === "school" ? SchoolScene : d.kind === "home" ? HomeScene : StageScene;
+      return (
+        <Sequence key={d.kind} from={sec(d.start)} durationInFrames={dur} layout="none">
+          <C dur={dur} />
+        </Sequence>
+      );
+    })}
+  </>
+);
+
+/* speaker on top of the graphics; in diorama moments he becomes a paper cut-out */
 const SpeakerCutout: React.FC = () => {
   const frame = useCurrentFrame();
   const zoom = useZoom();
+  const dio = useDiorama();
   const matte = `url(${staticFile(`v5/matte/${pad4(Math.min(frame, 956))}.jpg`)})`;
-  const o = 7;
+  const o = 7 * dio;
   return (
     <AbsoluteFill
       style={{
-        filter: `drop-shadow(${o}px 0 0 #fff) drop-shadow(-${o}px 0 0 #fff) drop-shadow(0 ${o}px 0 #fff) drop-shadow(0 -${o}px 0 #fff) drop-shadow(0 18px 22px rgba(60,40,20,0.35))`,
+        overflow: "hidden",
+        filter:
+          dio > 0.01
+            ? `drop-shadow(${o}px 0 0 #fff) drop-shadow(-${o}px 0 0 #fff) drop-shadow(0 ${o}px 0 #fff) drop-shadow(0 -${o}px 0 #fff) drop-shadow(0 18px 22px rgba(40,25,10,${0.4 * dio}))`
+            : "none",
       }}
     >
       <AbsoluteFill
         style={{
-          transform: `scale(${zoom}) translateY(${60}px)`,
-          transformOrigin: "50% 100%",
+          transform: `scale(${zoom})`,
+          transformOrigin: "50% 38%",
           maskImage: matte,
           WebkitMaskImage: matte,
           maskMode: "luminance",
@@ -140,13 +180,22 @@ const SpeakerCutout: React.FC = () => {
           WebkitMaskSize: "100% 100%",
         }}
       >
-        <OffthreadVideo
-          src={staticFile("v5/source.mp4")}
-          muted
-          style={{ width: "100%", height: "100%", objectFit: "cover", filter: "saturate(1.08) contrast(1.05)" }}
-        />
+        <OffthreadVideo src={staticFile("v5/source.mp4")} muted style={{ ...videoStyle(1), transform: "none" }} />
       </AbsoluteFill>
     </AbsoluteFill>
+  );
+};
+
+/* soft vignette over the real room (not over the paper scenes) */
+const Shade: React.FC = () => {
+  const dio = useDiorama();
+  return (
+    <AbsoluteFill
+      style={{
+        opacity: 1 - dio,
+        background: "radial-gradient(ellipse at 50% 42%, rgba(0,0,0,0) 55%, rgba(0,0,0,0.35) 100%)",
+      }}
+    />
   );
 };
 
@@ -681,7 +730,7 @@ const SceneFold: React.FC<{ dur: number; children: React.ReactNode }> = ({ dur, 
 
 const SceneLayer: React.FC<{ layer: Layer }> = ({ layer }) => (
   <LayerCtx.Provider value={layer}>
-    {SCENES5.map((s) => {
+    {SCENES6.map((s) => {
       const C = SCENE_COMPONENTS[s.kind];
       const from = s.gfxStart ?? s.start;
       const dur = sec(s.end - from);
@@ -695,39 +744,6 @@ const SceneLayer: React.FC<{ layer: Layer }> = ({ layer }) => (
     })}
   </LayerCtx.Provider>
 );
-
-/* ---------------- cutaways: a taped page on kraft paper ---------------- */
-const PaperBroll: React.FC<{ b: Broll }> = ({ b }) => {
-  const frame = useCurrentFrame();
-  const { fps } = useVideoConfig();
-  const dur = sec(b.end - b.start);
-  const enter = spring({ frame: onTwos(frame), fps, config: { damping: 16, stiffness: 170 } });
-  const tear = interpolate(onTwos(frame), [dur - 8, dur], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
-  return (
-    <AbsoluteFill>
-      <AbsoluteFill style={{ opacity: Math.min(1, enter * 2) * (1 - tear) }}>
-        <Img src={staticFile("v6/paper_kraft.jpg")} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-      </AbsoluteFill>
-      <div
-        style={{
-          position: "absolute",
-          left: 90,
-          top: 300,
-          transform: `translateX(${(1 - enter) * 1100 - tear * 1300}px) translateY(${tear * 200}px) rotate(${(1 - enter) * 12 - 2 - tear * 18 + jitter(frame, 90, 0.6)}deg)`,
-        }}
-      >
-        <Sheet w={900} h={1000} seed={3}>
-          <Img src={staticFile(`v6/broll/${b.img}.svg`)} style={{ position: "absolute", left: 70, right: 70, top: 160, width: 760, height: 760, objectFit: "contain" }} />
-          <div dir="rtl" style={{ position: "absolute", top: 40, left: 0, right: 0, textAlign: "center", fontFamily: HAND, fontWeight: 700, fontSize: 70, color: INK }}>
-            {b.tag.replace(/^\S+\s/, "")}
-          </div>
-          <Tape x={90} y={20} w={170} rot={-28} />
-          <Tape x={810} y={20} w={170} rot={26} />
-        </Sheet>
-      </div>
-    </AbsoluteFill>
-  );
-};
 
 /* pencil-line progress */
 const Progress: React.FC = () => {
@@ -744,15 +760,12 @@ const sfxSrc = (file: string) => (file.startsWith("v5/") || file.startsWith("v6/
 
 export const Montage6: React.FC = () => (
   <AbsoluteFill style={{ backgroundColor: "#EFE8D8" }}>
-    <PaperBackground />
+    <RealBackground />
+    <Dioramas />
     <SceneLayer layer="back" />
     <SpeakerCutout />
+    <Shade />
     <SceneLayer layer="front" />
-    {BROLLS5.map((b) => (
-      <Sequence key={b.img} from={sec(b.start)} durationInFrames={sec(b.end - b.start)} layout="none">
-        <PaperBroll b={b} />
-      </Sequence>
-    ))}
     {CAPTIONS5.map((c, i) => (
       <Sequence key={i} from={sec(c.start)} durationInFrames={Math.max(1, sec(c.end - c.start))} layout="none">
         <PaperCaption cap={c} idx={i} />
