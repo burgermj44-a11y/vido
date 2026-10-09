@@ -13,6 +13,7 @@ import { Montage6 } from "./v6/Montage6";
 import { DURATION6, FPS6 } from "./v6/script6";
 import { YT1, YT1_FPS, YT1_FRAMES } from "./yt1/YT1";
 import { YT1Thumb } from "./yt1/Thumb";
+import { YT2, YT2Thumb, YT2_FPS, YT2_FRAMES } from "./yt2/YT2";
 
 export const RemotionRoot: React.FC = () => {
   return (
@@ -67,6 +68,8 @@ export const RemotionRoot: React.FC = () => {
       />
       <Composition id="YT1" component={YT1} durationInFrames={YT1_FRAMES} fps={YT1_FPS} width={1920} height={1080} />
       <Composition id="YT1Thumb" component={YT1Thumb} durationInFrames={1} fps={30} width={1280} height={720} />
+      <Composition id="YT2" component={YT2} durationInFrames={YT2_FRAMES} fps={YT2_FPS} width={1920} height={1080} />
+      <Composition id="YT2Thumb" component={YT2Thumb} durationInFrames={1} fps={30} width={1280} height={720} />
     </>
   );
 };

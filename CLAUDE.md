@@ -65,6 +65,16 @@ lip-sync of his face (he agreed to a TTS voice instead).
   yellow marker on key words, section chip top-right, MJ wipe between
   sections, follow card at the end, gold MJ end card.
 - Also render a 1280×720 thumbnail (`YT1Thumb`) and send it with the video.
+- Long version with his face (`src/yt2/`, Pomodoro, ~7 min): a paper
+  study-room "setup" (`src/yt2/Setup.tsx`, 3840×2160 world) that the camera
+  travels through (one station per section, MJ wipe at the big sections),
+  plus a paper cut-out of him at the bottom-left made from stills of his own
+  clips (`public/yt2/host/pNN.png`: frame + matte, white paper border),
+  swapped per sentence and bobbing with the voice envelope (`env.ts`). No
+  fake lip-sync. Shared paper kit in `src/yt2/kit.tsx`; extra sounds from
+  `scripts/make_pomodoro_sfx.py` (tick, wind-up, bell ring, click, sparkle).
+- He wants small files: send a 2-pass x264 copy that fits under 30 MB
+  (720p ~500 kbps for a 7-minute video).
 
 ## Editing rules
 
