@@ -19,17 +19,21 @@ export const DIORAMAS: { kind: DioramaKind; start: number; end: number }[] = [
 
 // full-screen paper sheets sweep across at the big section changes
 export const WIPES6 = [8.1, 12.6, 16.15, 20.7, 29.5];
-export const WIPE_FRAMES = 18;
+export const WIPE_FRAMES = 24; // MJ sheet: in 9, hold 6, out 9; scene cut at frame 12
 
 const f = (frames: number) => frames / FPS6;
-const wipeAt = (t: number) => t - f(WIPE_FRAMES / 2);
+const wipeAt = (t: number) => t - f(12);
 
 export const SFX6: Sfx[] = [
   // opening riser + a page flip as the first sticker unfolds
   { at: 0, file: "v5/riser", volume: 0.45 },
   { at: f(2), file: "v6/paper_flip", volume: 0.7 },
   // paper sheet transitions
-  ...WIPES6.map((t) => ({ at: wipeAt(t), file: "v6/paper_flip", volume: 0.9 })),
+  ...WIPES6.flatMap((t) => [
+    { at: wipeAt(t), file: "v6/mj_whoosh", volume: 0.9 },
+    { at: wipeAt(t) + f(2), file: "v6/paper_flip", volume: 0.55 },
+    { at: wipeAt(t) + f(10), file: "v6/mj_hit", volume: 0.75 },
+  ]),
   // other scene cuts: a soft paper slide
   ...SCENES6.slice(1)
     .filter((s) => !WIPES6.some((w) => Math.abs(w - s.start) < 0.2))

@@ -26,7 +26,10 @@ paper cut-out border. Everything else is paper too: emoji stickers as paper
 cut-outs that unfold (rotateX) and fold closed, animated on twos with
 stop-motion jitter; handwritten labels (Aref Ruqaa) on torn strips with
 tape; captions on torn white strips with plain dark text + yellow marker on
-key words; full-screen paper sheets sweeping across at section changes.
+key words. Section-change transitions are the MJ wipe (`MJWipe`): a yellow
+paper sheet leads, a dark textured sheet follows and holds while a gold
+"MJ" monogram lands with an underline (smooth easing, professional, not
+childish), sounds `mj_whoosh` + `paper_flip` + `mj_hit`.
 Textures and sounds come from `scripts/make_paper_assets.py` (page flip,
 tear, crumple, slide, fold, rustle; paper gain 0.32).
 

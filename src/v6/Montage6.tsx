@@ -12,6 +12,7 @@ import {
   Img,
   OffthreadVideo,
   Sequence,
+  Easing,
   continueRender,
   delayRender,
   interpolate,
@@ -404,21 +405,74 @@ const PaperCaption: React.FC<{ cap: Caption; idx: number }> = ({ cap, idx }) => 
   );
 };
 
-/* ---------------- full-screen paper sheet transition ---------------- */
-const PaperWipe: React.FC<{ seed: number }> = ({ seed }) => {
+/* ---------------- MJ transition: yellow sheet leads, dark sheet carries "MJ" ---------------- */
+const MJ_GOLD = "linear-gradient(180deg, #FFE68A 0%, #FFC93C 45%, #E09A00 100%)";
+
+const MJWipe: React.FC<{ seed: number }> = ({ seed }) => {
   const frame = useCurrentFrame();
-  const t = onTwos(frame) / WIPE_FRAMES;
-  const x = interpolate(t, [0, 1], [1150, -1700]);
-  const rot = interpolate(t, [0, 1], [8, -6]);
+  const ease = Easing.bezier(0.65, 0, 0.35, 1);
+  // sheet path: slides in, holds while "MJ" lands, slides out
+  const sheetX = (lag: number) =>
+    interpolate(frame - lag, [0, 9, 15, WIPE_FRAMES], [1180, 0, 0, -1300], { extrapolateLeft: "clamp", extrapolateRight: "clamp", easing: ease });
+  const tilt = (lag: number) => interpolate(frame - lag, [0, 9, 15, WIPE_FRAMES], [6, 0, 0, -5], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  const yellowX = sheetX(-2);
+  const darkX = sheetX(1);
+  const mj = interpolate(frame, [7, 12], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp", easing: Easing.out(Easing.cubic) });
+  const line = interpolate(frame, [10, 15], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp", easing: Easing.out(Easing.cubic) });
+  const flip = seed % 2 ? -1 : 1;
   return (
-    <AbsoluteFill style={{ pointerEvents: "none" }}>
-      <div style={{ position: "absolute", left: x, top: -200, transform: `rotate(${rot}deg)` }}>
-        <Sheet w={1600} h={2400} tex={seed % 2 ? "kraft" : "white"} seed={seed}>
-          {seed % 2 === 0 &&
-            Array.from({ length: 30 }, (_, i) => (
-              <div key={i} style={{ position: "absolute", left: 40, right: 40, top: 120 + i * 76, height: 3, background: "rgba(120,160,215,0.45)" }} />
-            ))}
-        </Sheet>
+    <AbsoluteFill style={{ pointerEvents: "none", transform: `scaleX(${flip})` }}>
+      {/* leading yellow sheet */}
+      <div style={{ position: "absolute", left: yellowX - 140, top: -160, transform: `rotate(${tilt(-2)}deg)` }}>
+        <div style={{ position: "relative", width: 1500, height: 2300, filter: "drop-shadow(-18px 0 30px rgba(0,0,0,0.35))" }}>
+          <div style={{ position: "absolute", inset: 0, maskImage: MASKS[seed % MASKS.length], WebkitMaskImage: MASKS[seed % MASKS.length], maskSize: "100% 100%", WebkitMaskSize: "100% 100%", background: "#FFC93C", overflow: "hidden" }}>
+            <Img src={staticFile("v6/paper_white.jpg")} style={{ width: "100%", height: "100%", objectFit: "cover", mixBlendMode: "multiply", opacity: 0.9 }} />
+          </div>
+        </div>
+      </div>
+      {/* dark sheet with the MJ monogram */}
+      <div style={{ position: "absolute", left: darkX - 60, top: -160, transform: `rotate(${tilt(1)}deg)` }}>
+        <div style={{ position: "relative", width: 1400, height: 2300, filter: "drop-shadow(-24px 0 40px rgba(0,0,0,0.5))" }}>
+          <div style={{ position: "absolute", inset: 0, maskImage: MASKS[(seed + 3) % MASKS.length], WebkitMaskImage: MASKS[(seed + 3) % MASKS.length], maskSize: "100% 100%", WebkitMaskSize: "100% 100%", background: "#151515", overflow: "hidden" }}>
+            <Img src={staticFile("v6/paper_kraft.jpg")} style={{ width: "100%", height: "100%", objectFit: "cover", mixBlendMode: "overlay", opacity: 0.5 }} />
+            {/* thin gold rules */}
+            <div style={{ position: "absolute", left: 60, right: 60, top: 140, height: 3, background: "#FFC93C", opacity: 0.55 }} />
+            <div style={{ position: "absolute", left: 60, right: 60, bottom: 140, height: 3, background: "#FFC93C", opacity: 0.55 }} />
+          </div>
+          {/* monogram (kept upright when the wipe is mirrored) */}
+          <div
+            style={{
+              position: "absolute",
+              left: 60,
+              top: 160,
+              width: 1080,
+              height: 1920,
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+              transform: `scaleX(${flip})`,
+            }}
+          >
+            <div
+              style={{
+                fontFamily: FONT,
+                fontSize: 380,
+                lineHeight: 1,
+                letterSpacing: interpolate(mj, [0, 1], [60, -6]),
+                background: MJ_GOLD,
+                WebkitBackgroundClip: "text",
+                color: "transparent",
+                filter: "drop-shadow(0 2px 0 rgba(255,255,255,0.25)) drop-shadow(0 14px 22px rgba(0,0,0,0.55))",
+                opacity: mj,
+                transform: `scale(${interpolate(mj, [0, 1], [1.12, 1])})`,
+              }}
+            >
+              MJ
+            </div>
+            <div style={{ width: 360 * line, height: 6, borderRadius: 3, background: "#FFC93C", marginTop: 10 }} />
+          </div>
+        </div>
       </div>
     </AbsoluteFill>
   );
@@ -772,8 +826,8 @@ export const Montage6: React.FC = () => (
       </Sequence>
     ))}
     {WIPES6.map((t, i) => (
-      <Sequence key={`w${i}`} from={sec(t) - WIPE_FRAMES / 2} durationInFrames={WIPE_FRAMES} layout="none">
-        <PaperWipe seed={i} />
+      <Sequence key={`w${i}`} from={sec(t) - 12} durationInFrames={WIPE_FRAMES} layout="none">
+        <MJWipe seed={i} />
       </Sequence>
     ))}
     <Audio src={staticFile("v5/voice.wav")} />

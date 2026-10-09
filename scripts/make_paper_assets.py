@@ -138,3 +138,21 @@ d = 0.18
 tt = t(d)
 wsave("paper_rustle", crackles(d, 300, 1500, 7000) * np.sin(np.pi * tt / d), peak=0.6)
 print("ok")
+
+# ---------------------------------------------------------------- MJ transition sounds
+# deep, airy whoosh that rises then falls (sheet passing the camera)
+d = 0.7
+tt = t(d)
+nz = rng.standard_normal(len(tt))
+lo = band(nz, 120, 900) * np.sin(np.pi * tt / d) ** 2
+hi = band(rng.standard_normal(len(tt)), 2500, 9000) * np.sin(np.pi * np.clip(tt / d * 1.3 - 0.15, 0, 1)) ** 4 * 0.35
+wsave("mj_whoosh", lo + hi, peak=0.8)
+
+# soft premium hit when "MJ" settles: sub thump + short shimmer
+d = 1.0
+tt = t(d)
+sub = np.sin(2 * np.pi * np.cumsum(np.linspace(85, 45, len(tt))) / SR) * np.exp(-tt * 6)
+click = band(rng.standard_normal(len(tt)), 1500, 6000) * np.exp(-tt * 60) * 0.5
+shimmer = sum(np.sin(2 * np.pi * fr * tt) * np.exp(-tt * k) for fr, k in [(1760, 5), (2637, 6), (3520, 8)]) * 0.12
+wsave("mj_hit", sub + click + shimmer, peak=0.8)
+print("mj sounds ok")
