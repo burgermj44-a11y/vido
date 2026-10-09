@@ -1,6 +1,7 @@
 """Build the narration for YouTube video 2 with the Arabic piper voice.
 Usage: python3 yt2_tts.py <piper_model_dir> <out_dir> <timing_ts_path>
 Writes <out_dir>/narration_raw.wav, per-sentence wavs, and a TS timing file."""
+import glob
 import json
 import os
 import sys
@@ -17,15 +18,16 @@ os.makedirs(out, exist_ok=True)
 cfg = sherpa_onnx.OfflineTtsConfig(
     model=sherpa_onnx.OfflineTtsModelConfig(
         vits=sherpa_onnx.OfflineTtsVitsModelConfig(
-            model=f"{M}/ar_JO-kareem-medium.onnx", tokens=f"{M}/tokens.txt", data_dir=f"{M}/espeak-ng-data"
+            model=glob.glob(f"{M}/*.onnx")[0], tokens=f"{M}/tokens.txt", data_dir=f"{M}/espeak-ng-data"
         ),
         num_threads=4,
     )
 )
 tts = sherpa_onnx.OfflineTts(cfg)
 
+SPEED = float(os.environ.get("TTS_SPEED", "0.93"))
 LEAD_IN = 2.2  # title + riser before the first sentence
-GAP = 0.38  # between sentences
+GAP = float(os.environ.get("TTS_GAP", "0.38"))  # between sentences
 SECTION_GAP = 1.15  # room for the MJ transition between sections
 TAIL = 4.0  # end card
 
@@ -35,7 +37,7 @@ t = LEAD_IN
 sr = None
 prev_section = None
 for i, (section, plain, voc) in enumerate(SCRIPT):
-    a = tts.generate(voc, sid=0, speed=0.93)
+    a = tts.generate(voc, sid=0, speed=SPEED)
     sr = a.sample_rate
     x = np.array(a.samples, dtype=np.float32)
     # trim leading / trailing near-silence

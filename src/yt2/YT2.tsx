@@ -258,13 +258,13 @@ const S_Dictionary: React.FC<SceneProps> = ({ from }) => (
         <Tape x={450} y={6} />
       </Sheet>
     </Unfold>
-    <Sticker code="1f345" x={CX - 330} y={CY + 130} size={190} delay={word(from, 9, "معناها")} rot={-10} seed={19} />
+    <Sticker code="1f345" x={CX - 330} y={CY + 130} size={190} delay={word(from, 11, "معناها")} rot={-10} seed={19} />
   </AbsoluteFill>
 );
 
 const S_Millions: React.FC<SceneProps> = ({ from }) => {
   const frame = useCurrentFrame();
-  const t0 = word(from, 10, "ملايين");
+  const t0 = word(from, 12, "ملايين");
   return (
     <AbsoluteFill>
       <Sticker code="1f30d" x={CX} y={CY - 40} size={330} delay={2} seed={20} />
@@ -288,17 +288,17 @@ const S_Reasons: React.FC<SceneProps> = ({ from }) => (
   <AbsoluteFill>
     <Label text="لماذا تنجح؟" x={CX} y={CY - 250} delay={2} size={70} />
     {[0, 1, 2].map((i) => (
-      <NumberBadge key={i} n={i + 1} x={CX + 330 - i * 330} y={CY + 80} delay={word(from, 11, "لثلاثة") + i * 5} size={230} seed={i + 1} />
+      <NumberBadge key={i} n={i + 1} x={CX + 330 - i * 330} y={CY + 80} delay={word(from, 13, "لثلاثة") + i * 5} size={230} seed={i + 1} />
     ))}
   </AbsoluteFill>
 );
 
 const S_Battery: React.FC<SceneProps> = ({ from }) => {
   const frame = useCurrentFrame();
-  const drain = interpolate(frame, [word(from, 12, "يفرغ"), word(from, 12, "ويحتاج")], [1, 0.12], clamp);
-  const charge = interpolate(frame, [at(from, 13, 0.2), at(from, 13, 0.95)], [0, 0.88], clamp);
+  const drain = interpolate(frame, [word(from, 14, "يفرغ"), word(from, 14, "ويحتاج")], [1, 0.12], clamp);
+  const charge = interpolate(frame, [at(from, 15, 0.2), at(from, 15, 0.95)], [0, 0.88], clamp);
   const lvl = drain + charge;
-  const charging = frame > at(from, 13, 0.2);
+  const charging = frame > at(from, 15, 0.2);
   return (
     <AbsoluteFill>
       <NumberBadge n={1} x={CX + 500} y={CY - 250} delay={0} size={130} seed={4} />
@@ -310,16 +310,16 @@ const S_Battery: React.FC<SceneProps> = ({ from }) => {
           {charging && <div style={{ position: "absolute", left: 230, top: 40, fontSize: 180, lineHeight: 1, filter: "drop-shadow(0 4px 4px rgba(0,0,0,0.3))" }}>⚡</div>}
         </div>
       </Unfold>
-      <Label text="التركيز = بطارية" x={CX - 40} y={CY - 260} delay={word(from, 12, "التركيز")} size={56} tx="kraft" />
-      <Card x={CX + 30} y={CY + 330} delay={at(from, 13, 0.1)} title="استراحة = شحن" code="2615" seed={22} w={460} h={200} />
+      <Label text="التركيز = بطارية" x={CX - 40} y={CY - 260} delay={word(from, 14, "التركيز")} size={56} tx="kraft" />
+      <Card x={CX + 30} y={CY + 330} delay={at(from, 15, 0.1)} title="استراحة = شحن" code="2615" seed={22} w={460} h={200} />
     </AbsoluteFill>
   );
 };
 
 const S_Deadline: React.FC<SceneProps> = ({ from }) => {
   const frame = useCurrentFrame();
-  const t0 = word(from, 14, "محدود");
-  const left = interpolate(frame, [t0, at(from, 15, 0.8)], [25, 0.2], clamp);
+  const t0 = word(from, 16, "محدود");
+  const left = interpolate(frame, [t0, at(from, 17, 0.8)], [25, 0.2], clamp);
   const mm = Math.floor(left);
   const ss = Math.floor((left - mm) * 60);
   return (
@@ -332,9 +332,9 @@ const S_Deadline: React.FC<SceneProps> = ({ from }) => {
           </div>
         </Sheet>
       </Unfold>
-      {frame > t0 && frame < at(from, 15, 0.8) && <Sfx at={t0} name="ticktock" vol={0.15} />}
-      <Sticker code="1f525" x={CX + 330} y={CY + 230} size={150} delay={word(from, 14, "بجدية")} rot={10} seed={24} />
-      <Stamp text="لا تأجيل" x={CX - 120} y={CY + 260} delay={word(from, 15, "فلا")} />
+      {frame > t0 && frame < at(from, 17, 0.8) && <Sfx at={t0} name="ticktock" vol={0.15} />}
+      <Sticker code="1f525" x={CX + 330} y={CY + 230} size={150} delay={word(from, 16, "بجدية")} rot={10} seed={24} />
+      <Stamp text="لا تأجيل" x={CX - 120} y={CY + 260} delay={word(from, 17, "فلا")} />
     </AbsoluteFill>
   );
 };
@@ -342,11 +342,11 @@ const S_Deadline: React.FC<SceneProps> = ({ from }) => {
 const S_EasyStart: React.FC<SceneProps> = ({ from }) => (
   <AbsoluteFill>
     <NumberBadge n={3} x={CX + 500} y={CY - 250} delay={0} size={130} seed={6} />
-    <Label text="البداية تصبح سهلة" x={CX} y={CY - 250} delay={word(from, 16, "البداية")} size={56} tx="kraft" />
-    <Card x={CX + 230} y={CY + 60} delay={word(from, 17, "أربع")} title="4 ساعات" code="1f92f" seed={25} w={420} h={400} color={RED} />
-    <Stamp text="مخيف" x={CX + 230} y={CY + 290} delay={word(from, 17, "يخيفك")} rot={-8} size={60} />
-    <Card x={CX - 260} y={CY + 60} delay={word(from, 18, "خمسا")} title="25 دقيقة" code="1f60e" seed={26} w={420} h={400} color={GREEN} />
-    <Stamp text="سهل ✓" x={CX - 260} y={CY + 290} delay={word(from, 18, "سهل")} color={GREEN} rot={6} size={60} />
+    <Label text="البداية تصبح سهلة" x={CX} y={CY - 250} delay={word(from, 18, "البداية")} size={56} tx="kraft" />
+    <Card x={CX + 230} y={CY + 60} delay={word(from, 19, "أربع")} title="4 ساعات" code="1f92f" seed={25} w={420} h={400} color={RED} />
+    <Stamp text="مخيف" x={CX + 230} y={CY + 290} delay={word(from, 19, "يخيفك")} rot={-8} size={60} />
+    <Card x={CX - 260} y={CY + 60} delay={word(from, 20, "خمسا")} title="25 دقيقة" code="1f60e" seed={26} w={420} h={400} color={GREEN} />
+    <Stamp text="سهل ✓" x={CX - 260} y={CY + 290} delay={word(from, 20, "سهل")} color={GREEN} rot={6} size={60} />
   </AbsoluteFill>
 );
 
@@ -371,28 +371,28 @@ const S_StepsIntro: React.FC<SceneProps> = ({ from }) => (
     <Label text="خطوة بخطوة" x={CX} y={CY - 200} delay={4} size={80} />
     {[0, 1, 2, 3, 4].map((i) => (
       <React.Fragment key={i}>
-        <Sticker code="1f345" x={CX + 440 - i * 220} y={CY + 120} size={150} delay={at(from, 19, 0.35) + i * 4} seed={i + 40} sound={i === 0 ? "paper_fold" : null} />
+        <Sticker code="1f345" x={CX + 440 - i * 220} y={CY + 120} size={150} delay={at(from, 22, 0.35) + i * 4} seed={i + 40} sound={i === 0 ? "paper_fold" : null} />
       </React.Fragment>
     ))}
   </AbsoluteFill>
 );
 
 const S_Step1: React.FC<SceneProps> = ({ from }) => {
-  const cross = word(from, 21, "بل");
+  const cross = word(from, 24, "بل");
   return (
     <AbsoluteFill>
       <StepHeader n={1} text="حدد مهمة واحدة واضحة" />
-      <Card x={CX + 250} y={CY + 120} delay={word(from, 21, "سأدرس")} title="سأدرس الرياضيات" code="1f4d0" seed={41} w={460} h={380} />
+      <Card x={CX + 250} y={CY + 120} delay={word(from, 24, "سأدرس")} title="سأدرس الرياضيات" code="1f4d0" seed={41} w={460} h={380} />
       <DrawMark kind="cross" x={CX + 250} y={CY + 120} size={300} at={cross} />
       <Card x={CX - 270} y={CY + 120} delay={cross + 6} title="أحل 3 تمارين في الدوال" code="1f3af" seed={42} w={460} h={380} color={GREEN} />
-      <DrawMark kind="check" x={CX - 100} y={CY + 280} size={120} at={at(from, 21, 0.95)} />
+      <DrawMark kind="check" x={CX - 100} y={CY + 280} size={120} at={at(from, 24, 0.95)} />
     </AbsoluteFill>
   );
 };
 
 const S_Step2: React.FC<SceneProps> = ({ from }) => {
   const frame = useCurrentFrame();
-  const t0 = word(from, 22, "اضبط");
+  const t0 = word(from, 25, "اضبط");
   const mins = interpolate(frame, [t0, t0 + 30], [0, 25], { ...clamp, easing: Easing.out(Easing.back(1.2)) });
   return (
     <AbsoluteFill>
@@ -414,9 +414,9 @@ const S_Step2: React.FC<SceneProps> = ({ from }) => {
 
 const S_Step3: React.FC<SceneProps> = ({ from }) => {
   const frame = useCurrentFrame();
-  const mins = interpolate(frame, [0, at(from, 25, 1)], [25, 17], clamp);
-  const tPhone = word(from, 24, "الهاتف");
-  const tPaper = word(from, 25, "اكتبه");
+  const mins = interpolate(frame, [0, at(from, 28, 1)], [25, 17], clamp);
+  const tPhone = word(from, 27, "الهاتف");
+  const tPaper = word(from, 28, "اكتبه");
   const items = ["أرسل رسالة لصديقي", "أبحث عن فيلم", "أشتري قلمًا"];
   return (
     <AbsoluteFill>
@@ -429,7 +429,7 @@ const S_Step3: React.FC<SceneProps> = ({ from }) => {
       {frame < tPaper - 4 && (
         <>
           <Sticker code="1f4f5" x={CX + 120} y={CY + 120} size={220} delay={tPhone} seed={46} />
-          <Sticker code="1f515" x={CX + 420} y={CY + 120} size={180} delay={word(from, 24, "والإشعارات")} seed={47} rot={8} />
+          <Sticker code="1f515" x={CX + 420} y={CY + 120} size={180} delay={word(from, 27, "والإشعارات")} seed={47} rot={8} />
         </>
       )}
       {frame >= tPaper - 4 && (
@@ -454,9 +454,9 @@ const S_Step3: React.FC<SceneProps> = ({ from }) => {
 
 const S_Step4: React.FC<SceneProps> = ({ from }) => {
   const frame = useCurrentFrame();
-  const ring = word(from, 26, "يرن");
+  const ring = word(from, 30, "يرن");
   const shake = frame >= ring && frame < ring + 40 ? 1 : 0;
-  const tBreak = word(from, 26, "وخذ");
+  const tBreak = word(from, 30, "وخذ");
   return (
     <AbsoluteFill>
       <StepHeader n={4} text="توقف، واستراحة 5 دقائق" />
@@ -470,7 +470,7 @@ const S_Step4: React.FC<SceneProps> = ({ from }) => {
         ))}
       <Card x={CX + 230} y={CY + 60} delay={tBreak} title="5 دقائق راحة" code="2615" seed={50} w={420} h={300} color={GREEN} />
       {["1f4a7", "1f6b6", "1f9d8"].map((c, i) => (
-        <Sticker key={c} code={c} x={CX + 60 + i * 170} y={CY + 330} size={130} delay={at(from, 27, 0.1 + i * 0.3)} seed={51 + i} rot={i * 6 - 6} />
+        <Sticker key={c} code={c} x={CX + 60 + i * 170} y={CY + 330} size={130} delay={at(from, 31, 0.1 + i * 0.3)} seed={51 + i} rot={i * 6 - 6} />
       ))}
     </AbsoluteFill>
   );
@@ -514,18 +514,18 @@ const CycleBar: React.FC<{ start: number; dur: number; show: number }> = ({ star
 
 const S_Step5: React.FC<SceneProps> = ({ from }) => {
   const frame = useCurrentFrame();
-  const t4 = word(from, 28, "أربع");
-  const tLong = word(from, 28, "طويلة");
+  const t4 = word(from, 32, "أربع");
+  const tLong = word(from, 32, "طويلة");
   const show = frame < t4 ? 0 : frame < tLong ? Math.min(7, Math.floor((frame - t4) / 4) + 1) : 8;
   return (
     <AbsoluteFill>
       <StepHeader n={5} text="بعد 4 جلسات: استراحة طويلة" />
-      <CycleBar start={at(from, 29, 0.05)} dur={at(from, 29, 0.95) - at(from, 29, 0.05)} show={show} />
+      <CycleBar start={at(from, 33, 0.05)} dur={at(from, 33, 0.95) - at(from, 33, 0.05)} show={show} />
       {[0, 1, 2, 3, 4, 5, 6].map((i) => (
         <Sfx key={i} at={t4 + i * 4} name="paper_fold" vol={0.12} />
       ))}
       <Sfx at={tLong} name="sparkle" vol={0.18} />
-      <Label text="هذه هي الدورة الكاملة" x={CX} y={CY + 340} delay={at(from, 29, 0)} size={52} tx="kraft" />
+      <Label text="هذه هي الدورة الكاملة" x={CX} y={CY + 340} delay={at(from, 33, 0)} size={52} tx="kraft" />
     </AbsoluteFill>
   );
 };
@@ -533,7 +533,7 @@ const S_Step5: React.FC<SceneProps> = ({ from }) => {
 /* ---- the 17 section ---- */
 const S_17Q: React.FC<SceneProps> = ({ from }) => {
   const frame = useCurrentFrame();
-  const t = word(from, 30, "سبعة");
+  const t = word(from, 34, "سبعة");
   const p = spring({ frame: frame - t, fps: FPS, config: { damping: 7, stiffness: 120 } });
   return (
     <AbsoluteFill>
@@ -550,7 +550,7 @@ const S_17Q: React.FC<SceneProps> = ({ from }) => {
           const r = interpolate(frame - t, [0, 20], [100, 360], clamp);
           return <div key={i} style={{ position: "absolute", left: CX + Math.cos(a) * r, top: CY + Math.sin(a) * r * 0.7, width: 16, height: 16, borderRadius: 4, background: [TOMATO, GOLD, GREEN, PEN][i % 4], opacity: interpolate(frame - t, [10, 30], [1, 0], clamp), transform: `rotate(${i * 30}deg)` }} />;
         })}
-      <Sticker code="1f345" x={CX + 380} y={CY + 230} size={160} delay={word(from, 30, "بهذه")} rot={12} seed={60} />
+      <Sticker code="1f345" x={CX + 380} y={CY + 230} size={160} delay={word(from, 34, "بهذه")} rot={12} seed={60} />
     </AbsoluteFill>
   );
 };
@@ -558,17 +558,17 @@ const S_17Q: React.FC<SceneProps> = ({ from }) => {
 const S_Secret: React.FC<SceneProps> = ({ from }) => (
   <AbsoluteFill>
     <Label text="السر" x={CX} y={CY - 260} delay={2} size={72} />
-    <Card x={CX + 250} y={CY + 60} delay={word(from, 31, "عدد")} title="عدد الساعات" code="23f0" seed={61} w={440} h={380} />
-    <DrawMark kind="cross" x={CX + 250} y={CY + 60} size={260} at={word(from, 31, "بل")} />
-    <Card x={CX - 260} y={CY + 60} delay={word(from, 31, "بل")} title="الجلسات المركزة" code="1f345" seed={62} w={440} h={380} color={GREEN} />
-    <DrawMark kind="check" x={CX - 90} y={CY + 220} size={120} at={at(from, 31, 0.95)} />
+    <Card x={CX + 250} y={CY + 60} delay={word(from, 35, "عدد")} title="عدد الساعات" code="23f0" seed={61} w={440} h={380} />
+    <DrawMark kind="cross" x={CX + 250} y={CY + 60} size={260} at={word(from, 35, "بل")} />
+    <Card x={CX - 260} y={CY + 60} delay={word(from, 35, "بل")} title="الجلسات المركزة" code="1f345" seed={62} w={440} h={380} color={GREEN} />
+    <DrawMark kind="check" x={CX - 90} y={CY + 220} size={120} at={at(from, 35, 0.95)} />
   </AbsoluteFill>
 );
 
 const S_SixSessions: React.FC<SceneProps> = ({ from }) => {
   const frame = useCurrentFrame();
-  const t6 = word(from, 32, "ست");
-  const tCompare = at(from, 33, 0.05);
+  const t6 = word(from, 36, "ست");
+  const tCompare = at(from, 37, 0.05);
   return (
     <AbsoluteFill>
       <Unfold x={CX} y={CY - 140} delay={2} seed={63}>
@@ -600,17 +600,17 @@ const S_SixSessions: React.FC<SceneProps> = ({ from }) => {
           </div>
         </Sheet>
       </Unfold>
-      <Stamp text="أضعف" x={CX + 420} y={CY + 300} delay={word(from, 33, "وأنت") + 6} size={60} />
+      <Stamp text="أضعف" x={CX + 420} y={CY + 300} delay={word(from, 37, "وأنت") + 6} size={60} />
     </AbsoluteFill>
   );
 };
 
 const S_Week: React.FC<SceneProps> = ({ from }) => {
   const frame = useCurrentFrame();
-  const t0 = word(from, 34, "ستة");
+  const t0 = word(from, 38, "ستة");
   const days = ["السبت", "الأحد", "الإثنين", "الثلاثاء", "الأربعاء", "الخميس"];
   const filled = Math.max(0, Math.floor((frame - t0) / 1.6));
-  const tTotal = word(from, 34, "ستا");
+  const tTotal = word(from, 38, "ستا");
   return (
     <AbsoluteFill>
       <Unfold x={CX} y={CY + 10} delay={2} seed={65}>
@@ -652,7 +652,7 @@ const S_Coef: React.FC<SceneProps> = ({ from }) => {
     ["المادة الثالثة", 3, GOLD],
     ["مادة أخرى", 2, GREEN],
   ];
-  const t0 = word(from, 35, "حسب");
+  const t0 = word(from, 39, "حسب");
   return (
     <AbsoluteFill>
       <Label text="حسب المعامل" x={CX} y={CY - 280} delay={2} size={60} tx="kraft" />
@@ -672,25 +672,25 @@ const S_Coef: React.FC<SceneProps> = ({ from }) => {
           ))}
         </Sheet>
       </Unfold>
-      <Stamp text="معامل كبير = جلسات أكثر" x={CX - 220} y={CY + 380} delay={word(from, 35, "تأخذ")} color={PEN} rot={-4} size={46} />
+      <Stamp text="معامل كبير = جلسات أكثر" x={CX - 220} y={CY + 380} delay={word(from, 39, "تأخذ")} color={PEN} rot={-4} size={46} />
     </AbsoluteFill>
   );
 };
 
 const S_Pair: React.FC<SceneProps> = ({ from }) => (
   <AbsoluteFill>
-    <Card x={CX + 260} y={CY - 30} delay={word(from, 36, "الأولى")} title="الجلسة 1: الفهم" code="1f4d6" seed={67} w={480} h={400} />
-    <Sticker code="2795" x={CX} y={CY - 30} size={90} delay={word(from, 36, "والثانية") - 4} seed={68} sound={null} />
-    <Card x={CX - 260} y={CY - 30} delay={word(from, 36, "والثانية")} title="الجلسة 2: اختبر نفسك" code="1f9e0" seed={69} w={480} h={400} color={PEN} />
-    <Label text="حل تمارين ✏️" x={CX + 230} y={CY + 330} delay={word(from, 37, "حل")} size={48} />
-    <Label text="اكتب من الذاكرة 📝" x={CX - 260} y={CY + 330} delay={word(from, 37, "اكتب")} size={48} tx="kraft" />
+    <Card x={CX + 260} y={CY - 30} delay={word(from, 41, "الأولى")} title="الجلسة 1: الفهم" code="1f4d6" seed={67} w={480} h={400} />
+    <Sticker code="2795" x={CX} y={CY - 30} size={90} delay={word(from, 41, "والثانية") - 4} seed={68} sound={null} />
+    <Card x={CX - 260} y={CY - 30} delay={word(from, 41, "والثانية")} title="الجلسة 2: اختبر نفسك" code="1f9e0" seed={69} w={480} h={400} color={PEN} />
+    <Label text="حل تمارين ✏️" x={CX + 230} y={CY + 330} delay={word(from, 42, "حل")} size={48} />
+    <Label text="اكتب من الذاكرة 📝" x={CX - 260} y={CY + 330} delay={word(from, 42, "اكتب")} size={48} tx="kraft" />
   </AbsoluteFill>
 );
 
 const S_Tracker: React.FC<SceneProps> = ({ from }) => {
   const frame = useCurrentFrame();
-  const t0 = word(from, 38, "ارسم");
-  const t1 = at(from, 39, 0.1);
+  const t0 = word(from, 43, "ارسم");
+  const t1 = at(from, 44, 0.1);
   const marks = frame < t0 ? 0 : Math.min(42, Math.floor((frame - t0) / 3) + (frame > t1 ? Math.floor((frame - t1) / 1.5) : 0));
   return (
     <AbsoluteFill>
@@ -716,21 +716,21 @@ const S_Tracker: React.FC<SceneProps> = ({ from }) => {
         <Sfx key={i} at={t0 + i * 3} name="paper_rustle" vol={0.08} />
       ))}
       <Sticker code="1f525" x={CX + 470} y={CY + 340} size={150} delay={t1} seed={71} rot={8} />
-      <Sticker code="2764" x={CX + 330} y={CY + 360} size={110} delay={word(from, 39, "ستحب")} seed={72} rot={-8} />
+      <Sticker code="2764" x={CX + 330} y={CY + 360} size={110} delay={word(from, 44, "ستحب")} seed={72} rot={-8} />
     </AbsoluteFill>
   );
 };
 
 const S_GradeChart: React.FC<SceneProps> = ({ from }) => {
   const frame = useCurrentFrame();
-  const p = interpolate(frame, [at(from, 40, 0.1), at(from, 40, 0.95)], [0, 1], { ...clamp, easing: Easing.inOut(Easing.cubic) });
+  const p = interpolate(frame, [at(from, 45, 0.1), at(from, 45, 0.95)], [0, 1], { ...clamp, easing: Easing.inOut(Easing.cubic) });
   const pts = [10.5, 11.8, 12.6, 13.9, 15.1, 16.2, 17.4];
   const X = (i: number) => 120 + i * 150;
   const Y = (g: number) => 560 - (g - 9) * 52;
   const shown = pts.slice(0, Math.max(1, Math.ceil(p * pts.length)));
   const last = Math.min(pts.length - 1, Math.floor(p * (pts.length - 1)));
   const g = interpolate(p, [0, 1], [10.5, 17.4]);
-  const big = at(from, 40, 0.95);
+  const big = at(from, 45, 0.95);
   return (
     <AbsoluteFill>
       <Unfold x={CX} y={CY} delay={2} seed={73}>
@@ -764,11 +764,11 @@ const S_GradeChart: React.FC<SceneProps> = ({ from }) => {
 
 const S_NotGenius: React.FC<SceneProps> = ({ from }) => {
   const frame = useCurrentFrame();
-  const eq = at(from, 42, 0.1);
+  const eq = at(from, 48, 0.1);
   return (
     <AbsoluteFill>
       <Card x={CX} y={CY - 70} delay={2} title="17 و 18" code="1f3c6" seed={74} w={480} h={380} />
-      <Stamp text="ليسوا عباقرة" x={CX} y={CY + 100} delay={word(from, 41, "ليسوا")} size={74} />
+      <Stamp text="ليسوا عباقرة" x={CX} y={CY + 100} delay={word(from, 47, "ليسوا")} size={74} />
       {frame >= eq && (
         <Unfold x={CX} y={CY + 330} delay={eq} seed={75} sound="paper_slide">
           <Sheet w={1100} h={150} tx="kraft" seed={75}>
@@ -813,14 +813,14 @@ const S_MistakesIntro: React.FC<SceneProps> = () => (
 
 const S_M1: React.FC<SceneProps> = ({ from }) => {
   const frame = useCurrentFrame();
-  const t0 = word(from, 45, "تصبح");
+  const t0 = word(from, 60, "تصبح");
   const mins = interpolate(frame, [t0 - 10, t0 + 20], [5, 60], clamp);
   return (
     <AbsoluteFill>
       <MistakeHead n={1} />
-      <Card x={CX + 270} y={CY + 120} delay={word(from, 44, "الاستراحة")} title="الاستراحة على الهاتف" code="1f4f1" seed={82} w={460} h={380} />
-      <DrawMark kind="cross" x={CX + 270} y={CY + 120} size={280} at={at(from, 44, 0.9)} />
-      <Unfold x={CX - 270} y={CY + 120} delay={at(from, 45, 0)} seed={83}>
+      <Card x={CX + 270} y={CY + 120} delay={word(from, 59, "الاستراحة")} title="الاستراحة على الهاتف" code="1f4f1" seed={82} w={460} h={380} />
+      <DrawMark kind="cross" x={CX + 270} y={CY + 120} size={280} at={at(from, 59, 0.9)} />
+      <Unfold x={CX - 270} y={CY + 120} delay={at(from, 60, 0)} seed={83}>
         <Sheet w={440} h={380} seed={83}>
           <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
             <Img src={icon("23f0")} style={{ width: 140, height: 140, transform: `rotate(${frame > t0 - 10 && frame < t0 + 20 ? Math.sin(frame) * 8 : 0}deg)` }} />
@@ -837,32 +837,32 @@ const S_M1: React.FC<SceneProps> = ({ from }) => {
 
 const S_M2: React.FC<SceneProps> = ({ from }) => {
   const frame = useCurrentFrame();
-  const lvl = interpolate(frame, [at(from, 47, 0), at(from, 47, 0.7)], [0.9, 0.05], clamp);
+  const lvl = interpolate(frame, [at(from, 62, 0), at(from, 62, 0.7)], [0.9, 0.05], clamp);
   return (
     <AbsoluteFill>
       <MistakeHead n={2} />
-      <Card x={CX + 270} y={CY + 120} delay={word(from, 46, "تتجاهل")} title="بدون استراحة" sub="لأنك متحمس" code="1f525" seed={84} w={460} h={380} />
-      <Unfold x={CX - 270} y={CY + 120} delay={at(from, 47, 0)} seed={85}>
+      <Card x={CX + 270} y={CY + 120} delay={word(from, 61, "تتجاهل")} title="بدون استراحة" sub="لأنك متحمس" code="1f525" seed={84} w={460} h={380} />
+      <Unfold x={CX - 270} y={CY + 120} delay={at(from, 62, 0)} seed={85}>
         <div style={{ position: "relative", width: 420, height: 220 }}>
           <div style={{ position: "absolute", left: 0, top: 0, width: 390, height: 220, borderRadius: 30, border: `12px solid ${INK}`, background: "#fff" }} />
           <div style={{ position: "absolute", left: 398, top: 70, width: 26, height: 80, borderRadius: 8, background: INK }} />
           <div style={{ position: "absolute", left: 22, top: 22, height: 176, width: 346 * lvl, borderRadius: 16, background: lvl < 0.3 ? RED : GOLD }} />
         </div>
       </Unfold>
-      <Sticker code="1f62b" x={CX - 270} y={CY + 340} size={130} delay={at(from, 47, 0.6)} seed={86} />
+      <Sticker code="1f62b" x={CX - 270} y={CY + 340} size={130} delay={at(from, 62, 0.6)} seed={86} />
     </AbsoluteFill>
   );
 };
 
 const S_M3: React.FC<SceneProps> = ({ from }) => {
   const frame = useCurrentFrame();
-  const split = word(from, 49, "إلى");
+  const split = word(from, 64, "إلى");
   const s = ramp(frame, split, split + 14, Easing.out(Easing.back(1.4)));
   return (
     <AbsoluteFill>
       <MistakeHead n={3} />
       {/* one big block that breaks into four */}
-      <Unfold x={CX} y={CY + 140} delay={word(from, 48, "مهمة")} seed={87}>
+      <Unfold x={CX} y={CY + 140} delay={word(from, 63, "مهمة")} seed={87}>
         <div style={{ position: "relative", width: 700, height: 400 }}>
           {[0, 1, 2, 3].map((k) => (
             <div
@@ -916,8 +916,8 @@ const S_Prepare: React.FC<SceneProps> = ({ from }) => (
       ] as const
     ).map(([c, t, w], i) => (
       <React.Fragment key={c}>
-        <Card x={CX + 380 - i * 380} y={CY + 80} delay={word(from, 51, w)} title={t} code={c === "1f9f4" ? "1f4a7" : c} seed={91 + i} w={330} h={330} />
-        <DrawMark kind="check" x={CX + 470 - i * 380} y={CY + 220} size={100} at={word(from, 51, w) + 10} />
+        <Card x={CX + 380 - i * 380} y={CY + 80} delay={word(from, 66, w)} title={t} code={c === "1f9f4" ? "1f4a7" : c} seed={91 + i} w={330} h={330} />
+        <DrawMark kind="check" x={CX + 470 - i * 380} y={CY + 220} size={100} at={word(from, 66, w) + 10} />
       </React.Fragment>
     ))}
   </AbsoluteFill>
@@ -925,21 +925,21 @@ const S_Prepare: React.FC<SceneProps> = ({ from }) => (
 
 const S_PhoneAway: React.FC<SceneProps> = ({ from }) => {
   const frame = useCurrentFrame();
-  const t0 = word(from, 52, "غرفة");
+  const t0 = word(from, 67, "غرفة");
   const go = ramp(frame, t0, t0 + 20, Easing.in(Easing.cubic));
   return (
     <AbsoluteFill>
       <Sticker code="1f6aa" x={CX + 400} y={CY} size={300} delay={2} seed={94} />
       <Img src={icon("1f4f1")} style={{ position: "absolute", left: CX - 300 + go * 680, top: CY - 80, width: 160, height: 160, opacity: 1 - go * 0.9, transform: `rotate(${go * 40}deg) scale(${1 - go * 0.6})`, filter: stickerFilter(5) }} />
       <Sfx at={t0} name="paper_slide" vol={0.25} />
-      <Card x={CX - 260} y={CY + 280} delay={word(from, 52, "واستعمل")} title="مؤقت بسيط" code="23f2" seed={95} w={380} h={240} />
+      <Card x={CX - 260} y={CY + 280} delay={word(from, 67, "واستعمل")} title="مؤقت بسيط" code="23f2" seed={95} w={380} h={240} />
     </AbsoluteFill>
   );
 };
 
 const S_5010: React.FC<SceneProps> = ({ from }) => {
   const frame = useCurrentFrame();
-  const t0 = word(from, 53, "خمسين");
+  const t0 = word(from, 70, "خمسين");
   const mins = interpolate(frame, [t0 - 6, t0 + 30], [25, 50], { ...clamp, easing: Easing.out(Easing.cubic) });
   return (
     <AbsoluteFill>
@@ -955,7 +955,7 @@ const S_5010: React.FC<SceneProps> = ({ from }) => {
           </div>
         </Sheet>
       </Unfold>
-      <Unfold x={CX} y={CY + 320} delay={at(from, 54, 0.1)} seed={98} sound="paper_slide">
+      <Unfold x={CX} y={CY + 320} delay={at(from, 71, 0.1)} seed={98} sound="paper_slide">
         <Sheet w={1000} h={140} seed={98}>
           <div dir="rtl" style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", gap: 24 }}>
             <Hand size={52}>تركيز كامل</Hand>
@@ -976,10 +976,10 @@ const S_5010: React.FC<SceneProps> = ({ from }) => {
 const S_Recap: React.FC<SceneProps> = ({ from }) => {
   const frame = useCurrentFrame();
   const items: [string, string, number][] = [
-    ["حدد مهمة واحدة", "1f3af", 56],
-    ["25 دقيقة بتركيز كامل", "1f345", 57],
-    ["5 دقائق راحة، وراحة طويلة بعد 4", "2615", 58],
-    ["سجّل جلساتك كل يوم", "1f4dd", 59],
+    ["حدد مهمة واحدة", "1f3af", 79],
+    ["25 دقيقة بتركيز كامل", "1f345", 80],
+    ["5 دقائق راحة، وراحة طويلة بعد 4", "2615", 81],
+    ["سجّل جلساتك كل يوم", "1f4dd", 82],
   ];
   return (
     <AbsoluteFill>
@@ -1015,7 +1015,7 @@ const S_Recap: React.FC<SceneProps> = ({ from }) => {
 /* ---- call to action ---- */
 const S_TryNow: React.FC<SceneProps> = ({ from }) => {
   const frame = useCurrentFrame();
-  const press = word(from, 60, "الآن");
+  const press = word(from, 83, "الآن");
   const pressed = frame >= press;
   const mins = interpolate(frame, [press, press + 200], [25, 24.2], clamp);
   return (
@@ -1033,11 +1033,11 @@ const S_TryNow: React.FC<SceneProps> = ({ from }) => {
       <Sfx at={press} name="click" vol={0.3} />
       <Sfx at={press + 2} name="windup" vol={0.25} />
       <Img src={icon("1f446")} style={{ position: "absolute", left: interpolate(frame, [press - 14, press], [CX + 600, CX + 330], clamp), top: interpolate(frame, [press - 14, press], [CY + 300, CY + 20], clamp), width: 130, height: 130, opacity: frame > press - 16 ? 1 : 0 }} />
-      <Unfold x={CX} y={CY + 330} delay={at(from, 61, 0.05)} seed={102} sound="paper_slide">
+      <Unfold x={CX} y={CY + 330} delay={at(from, 85, 0.05)} seed={102} sound="paper_slide">
         <div dir="rtl" style={{ background: "#fff", borderRadius: 26, padding: "18px 30px", boxShadow: "0 12px 16px rgba(0,0,0,0.25)", display: "flex", alignItems: "center", gap: 18, border: `4px solid ${INK}` }}>
           <Img src={icon("1f4ac")} style={{ width: 70, height: 70 }} />
           <Hand size={48}>كم جلسة أنجزت؟</Hand>
-          <span style={{ fontFamily: FONT, fontSize: 48, color: TOMATO }}>{frame > at(from, 61, 0.8) ? "🍅🍅🍅" : ""}</span>
+          <span style={{ fontFamily: FONT, fontSize: 48, color: TOMATO }}>{frame > at(from, 85, 0.8) ? "🍅🍅🍅" : ""}</span>
         </div>
       </Unfold>
     </AbsoluteFill>
@@ -1046,10 +1046,10 @@ const S_TryNow: React.FC<SceneProps> = ({ from }) => {
 
 const S_Subscribe: React.FC<SceneProps> = ({ from }) => {
   const frame = useCurrentFrame();
-  const tap = word(from, 62, "اشترك") + 10;
+  const tap = word(from, 86, "اشترك") + 10;
   const sub = frame >= tap;
-  const bell = word(from, 62, "القناة") + 6;
-  const share = word(from, 62, "وشارك");
+  const bell = word(from, 86, "القناة") + 6;
+  const share = word(from, 86, "وشارك");
   return (
     <AbsoluteFill>
       <Sfx at={tap} name="click" vol={0.3} />
@@ -1078,6 +1078,166 @@ const S_Subscribe: React.FC<SceneProps> = ({ from }) => {
     </AbsoluteFill>
   );
 };
+
+
+/* ---- added for the 8-minute version ---- */
+const S_Insight: React.FC<SceneProps> = ({ from }) => (
+  <AbsoluteFill>
+    <Card x={CX + 260} y={CY} delay={word(from, 9, "يركز")} title="وقت قصير = تركيز" code="23f1" seed={110} w={460} h={400} />
+    <Card x={CX - 260} y={CY} delay={word(from, 10, "الراحة")} title="راحة = عودة أقوى" code="1f4aa" seed={111} w={460} h={400} color={GREEN} />
+  </AbsoluteFill>
+);
+
+const S_Achieve: React.FC<SceneProps> = ({ from }) => {
+  const frame = useCurrentFrame();
+  const t0 = word(from, 21, "أنهيت");
+  return (
+    <AbsoluteFill>
+      <Sticker code="1f3c6" x={CX + 330} y={CY - 40} size={260} delay={word(from, 21, "بالإنجاز")} seed={112} />
+      <Unfold x={CX - 200} y={CY - 20} delay={t0} seed={113}>
+        <Sheet w={560} h={260} seed={113}>
+          <div dir="rtl" style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", gap: 18 }}>
+            {[0, 1, 2, 3].map((i) => (
+              <div key={i} style={{ position: "relative", width: 100, height: 100 }}>
+                <Img src={icon("1f345")} style={{ width: 100, height: 100, opacity: frame > t0 + 10 + i * 8 ? 1 : 0.25 }} />
+                <DrawMark kind="check" x={70} y={70} size={70} at={t0 + 10 + i * 8} />
+              </div>
+            ))}
+          </div>
+        </Sheet>
+      </Unfold>
+      <Label text="دافع للجلسة التالية 🔥" x={CX - 200} y={CY + 260} delay={word(from, 21, "دافعًا")} size={52} tx="kraft" />
+    </AbsoluteFill>
+  );
+};
+
+const DAY: { li: number; time: string; text: string; code: string; kind: "work" | "rest" | "sleep" }[] = [
+  { li: 50, time: "16:30", text: "راحة وأكل خفيف", code: "1f37d", kind: "rest" },
+  { li: 51, time: "17:00", text: "🍅 1: درس الرياضيات", code: "1f4d0", kind: "work" },
+  { li: 52, time: "17:30", text: "🍅 2: تمارين نفس الدرس", code: "270f", kind: "work" },
+  { li: 53, time: "18:00", text: "🍅 3: مراجعة الفيزياء", code: "1f9ea", kind: "work" },
+  { li: 54, time: "18:30", text: "🍅 4: ملخص من الذاكرة", code: "1f4dd", kind: "work" },
+  { li: 55, time: "20:30", text: "🍅 5-6: اللغات والحفظ", code: "1f4da", kind: "work" },
+  { li: 56, time: "22:00", text: "نوم مبكر", code: "1f634", kind: "sleep" },
+];
+
+const S_DayPlan: React.FC<SceneProps> = ({ from }) => {
+  const frame = useCurrentFrame();
+  return (
+    <AbsoluteFill>
+      <Unfold x={CX} y={CY + 30} delay={2} seed={114}>
+        <Sheet w={1180} h={800} seed={114}>
+          <div style={{ position: "absolute", top: 22, right: 50 }}>
+            <Hand size={58}>يوم دراسي بالبومودورو</Hand>
+          </div>
+          {DAY.map((d, i) => {
+            const ap = at(from, d.li, d.li === 56 ? 0.5 : 0.08);
+            const col = d.kind === "work" ? TOMATO : d.kind === "rest" ? GREEN : PEN;
+            return frame >= ap ? (
+              <div key={i} dir="rtl" style={{ position: "absolute", right: 50, left: 50, top: 120 + i * 92, height: 80, display: "flex", alignItems: "center", gap: 22, opacity: ramp(frame, ap, ap + 6), transform: `translateX(${(1 - ramp(frame, ap, ap + 8)) * -40}px)` }}>
+                <div style={{ fontFamily: "sans-serif", fontWeight: 800, fontSize: 40, color: col, width: 130 }}>{d.time}</div>
+                <div style={{ flex: 1, height: 70, borderRadius: 14, background: col, opacity: 0.16, position: "absolute", right: 150, left: 0 }} />
+                <Img src={icon(d.code)} style={{ width: 62, height: 62, position: "relative" }} />
+                <div style={{ fontFamily: FONT, fontSize: 40, color: INK, position: "relative" }}>{d.text}</div>
+              </div>
+            ) : null;
+          })}
+        </Sheet>
+      </Unfold>
+      {DAY.map((d, i) => (
+        <Sfx key={i} at={at(from, d.li, d.li === 56 ? 0.5 : 0.08)} name="paper_slide" vol={0.14} />
+      ))}
+    </AbsoluteFill>
+  );
+};
+
+const S_Sleep: React.FC<SceneProps> = ({ from }) => {
+  const frame = useCurrentFrame();
+  const t0 = word(from, 57, "يثبت");
+  return (
+    <AbsoluteFill>
+      <Sticker code="1f319" x={CX + 330} y={CY - 120} size={230} delay={2} seed={115} />
+      <Sticker code="1f6cc" x={CX + 260} y={CY + 170} size={250} delay={6} seed={116} />
+      <Sticker code="1f9e0" x={CX - 280} y={CY} size={260} delay={t0 - 6} seed={117} />
+      {frame > t0 &&
+        [0, 1, 2].map((k) => (
+          <div key={k} style={{ position: "absolute", left: CX - 280 - 60 + k * 50, top: CY - 220 - ((frame - t0 + k * 10) % 40) * 2, fontFamily: FONT, fontSize: 60, color: PEN, opacity: 1 - ((frame - t0 + k * 10) % 40) / 40 }}>
+            z
+          </div>
+        ))}
+      <Label text="النوم يثبت ما درسته" x={CX - 260} y={CY + 280} delay={t0} size={52} tx="kraft" />
+    </AbsoluteFill>
+  );
+};
+
+const S_Place: React.FC<SceneProps> = ({ from }) => (
+  <AbsoluteFill>
+    <Label text="مكان مرتب وهادئ" x={CX} y={CY - 250} delay={2} size={58} tx="kraft" />
+    <Card x={CX + 380} y={CY + 70} delay={word(from, 68, "مرتبًا")} title="مرتب" code="1f9f9" seed={118} w={330} h={330} />
+    <Card x={CX} y={CY + 70} delay={word(from, 68, "وهادئًا")} title="هادئ" code="1f92b" seed={119} w={330} h={330} />
+    <Card x={CX - 380} y={CY + 70} delay={word(from, 68, "إضاءة")} title="إضاءة جيدة" code="1f4a1" seed={120} w={330} h={330} />
+  </AbsoluteFill>
+);
+
+const S_Switch: React.FC<SceneProps> = ({ from }) => {
+  const frame = useCurrentFrame();
+  const t0 = word(from, 69, "غيّر");
+  const sw = ramp(frame, t0, t0 + 16, Easing.inOut(Easing.cubic));
+  return (
+    <AbsoluteFill>
+      <Sticker code="1f971" x={CX + 400} y={CY - 140} size={170} delay={2} seed={121} />
+      {[0, 1].map((i) => (
+        <Img key={i} src={icon("1f345")} style={{ position: "absolute", left: CX + 160 - i * 150, top: CY - 220, width: 120, height: 120 }} />
+      ))}
+      <div style={{ position: "absolute", left: CX - 380, top: CY - 40, width: 760, height: 300, perspective: 1200 }}>
+        <div style={{ position: "absolute", inset: 0, transform: `rotateY(${sw * 180}deg)`, transformStyle: "preserve-3d" }}>
+          <div style={{ position: "absolute", inset: 0, backfaceVisibility: "hidden" }}>
+            <Sheet w={760} h={300} seed={122}>
+              <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", gap: 20 }}>
+                <Img src={icon("1f4d0")} style={{ width: 120, height: 120 }} />
+                <Hand size={70}>الرياضيات</Hand>
+              </div>
+            </Sheet>
+          </div>
+          <div style={{ position: "absolute", inset: 0, backfaceVisibility: "hidden", transform: "rotateY(180deg)" }}>
+            <Sheet w={760} h={300} seed={123} tx="kraft">
+              <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", gap: 20 }}>
+                <Img src={icon("1f4d6")} style={{ width: 120, height: 120 }} />
+                <Hand size={70}>اللغة العربية</Hand>
+              </div>
+            </Sheet>
+          </div>
+        </div>
+      </div>
+      <Sfx at={t0} name="paper_flip" vol={0.3} />
+    </AbsoluteFill>
+  );
+};
+
+const FaqScene = (q: number, qText: string, aText: string, aCode: string): React.FC<SceneProps> => {
+  const C: React.FC<SceneProps> = ({ from }) => (
+    <AbsoluteFill>
+      <Sticker code="2753" x={CX + 520} y={CY - 230} size={150} delay={2} seed={124 + q} />
+      <Unfold x={CX + 80} y={CY - 150} delay={4} seed={125 + q} sound="paper_slide">
+        <div dir="rtl" style={{ maxWidth: 900, background: "#fff", borderRadius: 30, padding: "24px 40px", border: `5px solid ${INK}`, boxShadow: "0 12px 16px rgba(0,0,0,0.25)" }}>
+          <Hand size={52}>{qText}</Hand>
+        </div>
+      </Unfold>
+      <Unfold x={CX - 80} y={CY + 170} delay={at(from, q + 1, 0.05)} seed={126 + q}>
+        <div dir="rtl" style={{ maxWidth: 900, background: "#E8F6EC", borderRadius: 30, padding: "24px 40px", border: `5px solid ${GREEN}`, boxShadow: "0 12px 16px rgba(0,0,0,0.25)", display: "flex", alignItems: "center", gap: 20 }}>
+          <Img src={icon(aCode)} style={{ width: 90, height: 90 }} />
+          <Hand size={50} color="#1E6B3D">
+            {aText}
+          </Hand>
+        </div>
+      </Unfold>
+    </AbsoluteFill>
+  );
+  return C;
+};
+const S_Faq1 = FaqScene(72, "قاطعني أحد أثناء الجلسة؟", "سأكلمك بعد 10 دقائق، وأكمل", "1f64b");
+const S_Faq2 = FaqScene(74, "لا أستطيع التركيز 25 دقيقة؟", "ابدأ بـ 15 دقيقة، وزد كل أسبوع", "1f4c8");
+const S_Faq3 = FaqScene(76, "هل تصلح للحفظ؟", "احفظ في جلسة، واكتب من الذاكرة في التالية", "1f4dd");
 
 /* ======================= host (paper cut-out) ======================= */
 const POSES = ["p00", "p01", "p02", "p03", "p04", "p05", "p06", "p07", "p08", "p09", "p10", "p11", "p13"];
@@ -1138,7 +1298,9 @@ const SECTION_STATION: Record<string, keyof typeof ST> = {
   seventeen: "board",
   mistakes: "phone",
   tips: "notebook",
-  recap: "monitor",
+  day: "window",
+  faq: "shelf",
+  recap: "desk",
   cta: "wide",
 };
 
@@ -1150,6 +1312,8 @@ const SECTION_NAMES: Record<string, string> = {
   seventeen: "كيف تصل إلى 17؟",
   mistakes: "أخطاء شائعة",
   tips: "نصائح",
+  day: "يوم دراسي كامل",
+  faq: "أسئلة شائعة",
   recap: "الخلاصة",
   cta: "جرّبها الآن",
 };
@@ -1400,38 +1564,47 @@ const SCENES: SceneDef[] = [
   { first: 5, C: S_Italy },
   { first: 6, C: S_WeakFocus },
   { first: 7, C: S_Kitchen },
-  { first: 9, C: S_Dictionary },
-  { first: 10, C: S_Millions },
-  { first: 11, C: S_Reasons },
-  { first: 12, C: S_Battery },
-  { first: 14, C: S_Deadline },
-  { first: 16, C: S_EasyStart },
-  { first: 19, C: S_StepsIntro },
-  { first: 20, C: S_Step1 },
-  { first: 22, C: S_Step2 },
-  { first: 23, C: S_Step3 },
-  { first: 26, C: S_Step4 },
-  { first: 28, C: S_Step5 },
-  { first: 30, C: S_17Q },
-  { first: 31, C: S_Secret },
-  { first: 32, C: S_SixSessions },
-  { first: 34, C: S_Week },
-  { first: 35, C: S_Coef },
-  { first: 36, C: S_Pair },
-  { first: 38, C: S_Tracker },
-  { first: 40, C: S_GradeChart },
-  { first: 41, C: S_NotGenius },
-  { first: 43, C: S_MistakesIntro },
-  { first: 44, C: S_M1 },
-  { first: 46, C: S_M2 },
-  { first: 48, C: S_M3 },
-  { first: 50, C: S_TipsIntro },
-  { first: 51, C: S_Prepare },
-  { first: 52, C: S_PhoneAway },
-  { first: 53, C: S_5010 },
-  { first: 55, C: S_Recap },
-  { first: 60, C: S_TryNow },
-  { first: 62, C: S_Subscribe },
+  { first: 9, C: S_Insight },
+  { first: 11, C: S_Dictionary },
+  { first: 12, C: S_Millions },
+  { first: 13, C: S_Reasons },
+  { first: 14, C: S_Battery },
+  { first: 16, C: S_Deadline },
+  { first: 18, C: S_EasyStart },
+  { first: 21, C: S_Achieve },
+  { first: 22, C: S_StepsIntro },
+  { first: 23, C: S_Step1 },
+  { first: 25, C: S_Step2 },
+  { first: 26, C: S_Step3 },
+  { first: 30, C: S_Step4 },
+  { first: 32, C: S_Step5 },
+  { first: 34, C: S_17Q },
+  { first: 35, C: S_Secret },
+  { first: 36, C: S_SixSessions },
+  { first: 38, C: S_Week },
+  { first: 39, C: S_Coef },
+  { first: 41, C: S_Pair },
+  { first: 43, C: S_Tracker },
+  { first: 45, C: S_GradeChart },
+  { first: 47, C: S_NotGenius },
+  { first: 49, C: S_DayPlan },
+  { first: 57, C: S_Sleep },
+  { first: 58, C: S_MistakesIntro },
+  { first: 59, C: S_M1 },
+  { first: 61, C: S_M2 },
+  { first: 63, C: S_M3 },
+  { first: 65, C: S_TipsIntro },
+  { first: 66, C: S_Prepare },
+  { first: 67, C: S_PhoneAway },
+  { first: 68, C: S_Place },
+  { first: 69, C: S_Switch },
+  { first: 70, C: S_5010 },
+  { first: 72, C: S_Faq1 },
+  { first: 74, C: S_Faq2 },
+  { first: 76, C: S_Faq3 },
+  { first: 78, C: S_Recap },
+  { first: 83, C: S_TryNow },
+  { first: 86, C: S_Subscribe },
 ];
 
 const sceneFrom = (first: number) => {
