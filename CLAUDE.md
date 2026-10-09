@@ -48,6 +48,24 @@ tear, crumple, slide, fold, rustle; paper gain 0.32).
   `public/vN/riser.wav`, volume ~0.55) whose impact lands on the first
   punch-in (~2 s).
 
+## YouTube explainers with an MSA voice (no face), e.g. `src/yt1/`
+
+16:9 (1920×1080, 30 fps), paper style on a notebook-page background. No fake
+lip-sync of his face (he agreed to a TTS voice instead).
+- Script: `scripts/yt1_script.py` (section, plain text, fully diacritized
+  text). Voice: sherpa-onnx piper `vits-piper-ar_JO-kareem-medium` (GitHub
+  release), speed 0.93; it needs full tashkeel and is weak on ث/غ, so check
+  every sentence with Whisper and swap unclear words for synonyms.
+- `scripts/yt1_tts.py` builds the narration + `timing.ts` (LINES with
+  start/end); 1.15 s pause between sections for the MJ wipe. Master the voice
+  with the chain from rule 9 (loudnorm -15 LUFS here, music under it).
+- Music: `scripts/make_study_music.py` (calm lo-fi, ~0.09 under the voice).
+- Every line gets its own paper visual (stickers, torn cards, stamps,
+  animated charts/checklists), torn-strip subtitles at the bottom with
+  yellow marker on key words, section chip top-right, MJ wipe between
+  sections, follow card at the end, gold MJ end card.
+- Also render a 1280×720 thumbnail (`YT1Thumb`) and send it with the video.
+
 ## Editing rules
 
 1. **Cut dead air and filler.** Remove silences longer than ~0.3 s, false
