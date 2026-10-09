@@ -1,5 +1,7 @@
 # Video montage house style (Abdelwahab / @abdelwahab__mj)
 
+**Always write every message to him in Arabic** (no English sentences), even short status updates.
+
 The owner sends raw vertical talking-head clips (Algerian Darija, education
 topics). For every new video, produce a montage in exactly this style without
 being asked again. Each video lives in its own folder with its own composition: video 1 is
