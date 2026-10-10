@@ -16,6 +16,7 @@ import { DURATION7, FPS7 } from "./v7/script7";
 import { YT1, YT1_FPS, YT1_FRAMES } from "./yt1/YT1";
 import { YT1Thumb } from "./yt1/Thumb";
 import { YT2, YT2Thumb, YT2_FPS, YT2_FRAMES } from "./yt2/YT2";
+import { YT3, YT3Thumb, YT3_FPS, YT3_FRAMES } from "./yt3/YT3";
 
 export const RemotionRoot: React.FC = () => {
   return (
@@ -73,6 +74,8 @@ export const RemotionRoot: React.FC = () => {
       <Composition id="YT2" component={YT2} durationInFrames={YT2_FRAMES} fps={YT2_FPS} width={1920} height={1080} />
       <Composition id="YT2Thumb" component={YT2Thumb} durationInFrames={1} fps={30} width={1280} height={720} />
       <Composition id="Montage7" component={Montage7} durationInFrames={Math.round(DURATION7 * FPS7)} fps={FPS7} width={1080} height={1920} />
+      <Composition id="YT3" component={YT3} durationInFrames={YT3_FRAMES} fps={YT3_FPS} width={1920} height={1080} />
+      <Composition id="YT3Thumb" component={YT3Thumb} durationInFrames={1} fps={30} width={1280} height={720} />
     </>
   );
 };
