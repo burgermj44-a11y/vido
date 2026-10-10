@@ -542,13 +542,13 @@ const PaperShare: React.FC = () => {
   const p = usePaperIn(1);
   const layer = useLayer();
   const friends = [
-    { code: "1f468-200d-1f393", x: 150, y: 260 },
-    { code: "1f469-200d-1f393", x: 930, y: 260 },
+    { code: "1f468-200d-1f393", x: 150, y: 240 },
+    { code: "1f469-200d-1f393", x: 930, y: 240 },
     { code: "1f929", x: 160, y: 520 },
     { code: "1f465", x: 920, y: 520 },
   ];
   const cx = 540;
-  const cy = 290;
+  const cy = 240;
   return (
     <>
       {layer === "back" && (
@@ -721,10 +721,100 @@ const Hours: React.FC = () => (
   </>
 );
 
+/* Instagram follow card (real profile) taped on like paper; tapped on "أبوني" */
+const FollowPaper: React.FC = () => {
+  const frame = useCurrentFrame();
+  const { fps } = useVideoConfig();
+  const sceneStart = SCENES7.find((x) => x.kind === "follow")?.start ?? 0;
+  const clickAt = Math.max(8, Math.round((7.1 - sceneStart) * fps));
+  const clicked = frame >= clickAt;
+  const enter = usePaperIn(1);
+  const press = spring({ frame: frame - clickAt, fps, config: { damping: 9, stiffness: 320 } });
+  const btnScale = clicked ? interpolate(press, [0, 0.4, 1], [1, 0.9, 1]) : 1;
+  const handIn = spring({ frame: frame - (clickAt - 9), fps, config: { damping: 16, stiffness: 170 } });
+  const handOut = interpolate(frame, [clickAt + 8, clickAt + 18], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  const tap = interpolate(frame - clickAt, [-4, 0, 4], [1, 0.82, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  const handX = interpolate(handIn, [0, 1], [1150, 600]) + handOut * 600;
+  const handY = interpolate(handIn, [0, 1], [900, 470]) + handOut * 300;
+  const ripple = interpolate(frame - clickAt, [0, 14], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  if (useLayer() !== "front") return null;
+  return (
+    <div style={{ position: "absolute", inset: 0, transform: "scale(0.74)", transformOrigin: "540px 10px" }}>
+      <div style={{ position: "absolute", left: 90, top: 40, perspective: 1200 }}>
+        <div
+          style={{
+            width: 900,
+            background: "#0F1116",
+            border: "8px solid #fff",
+            borderRadius: 44,
+            boxShadow: "0 30px 60px rgba(0,0,0,0.5)",
+            transformOrigin: "50% 0%",
+            transform: `rotateX(${(1 - enter) * -92}deg) rotate(${-1.5 + jitter(frame, 77, 0.5)}deg)`,
+            padding: "26px 30px",
+            boxSizing: "border-box",
+            position: "relative",
+          }}
+        >
+          <Img src={staticFile("v7/profile_shot.png")} style={{ width: "100%", display: "block", borderRadius: 18 }} />
+          <div
+            style={{
+              position: "relative",
+              marginTop: 16,
+              height: 84,
+              borderRadius: 20,
+              background: clicked ? "#363636" : "#0095F6",
+              color: "white",
+              fontFamily: '-apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
+              fontWeight: 700,
+              fontSize: 42,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              overflow: "hidden",
+              transform: `scale(${btnScale})`,
+            }}
+          >
+            {clicked ? "Following ✓" : "Follow"}
+            <div style={{ position: "absolute", left: 420 - 400 * ripple, top: 42 - 400 * ripple, width: 800 * ripple, height: 800 * ripple, borderRadius: 999, background: "rgba(0,149,246,0.35)", opacity: 1 - ripple }} />
+          </div>
+          <Tape x={110} y={-4} w={150} rot={-24} />
+          <Tape x={790} y={-4} w={150} rot={22} />
+        </div>
+      </div>
+      {clicked &&
+        [0, 1, 2, 3, 4, 5].map((i) => {
+          const d = frame - clickAt - 3 - i * 2;
+          if (d < 0) return null;
+          const prog = d / 30;
+          return (
+            <Img
+              key={i}
+              src={icon("2764")}
+              style={{
+                position: "absolute",
+                left: 950 + Math.sin(i * 2.1) * 50 * prog + (i % 2) * 30,
+                top: 470 - prog * 420,
+                width: 70 + (i % 3) * 20,
+                height: 70 + (i % 3) * 20,
+                opacity: interpolate(prog, [0, 0.2, 1], [0, 1, 0], { extrapolateRight: "clamp" }),
+                transform: `rotate(${(i - 2.5) * 12}deg) scale(${Math.min(1, prog * 5)})`,
+              }}
+            />
+          );
+        })}
+      <Img
+        src={icon("1f446")}
+        style={{ position: "absolute", left: handX, top: handY, width: 170, height: 170, transform: `scale(${tap}) rotate(-20deg)`, filter: "drop-shadow(0 12px 16px rgba(0,0,0,0.45))", opacity: frame >= clickAt - 10 ? 1 : 0 }}
+      />
+    </div>
+  );
+};
+
 const SCENE_COMPONENTS: Record<Scene7["kind"], React.FC> = {
   program: ProgramScene,
   sixteen: Sixteen,
   share: PaperShare,
+  follow: FollowPaper,
   noready: NoReady,
   point1: Point1,
   exercises: ExercisesScene,

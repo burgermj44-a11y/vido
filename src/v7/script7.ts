@@ -11,10 +11,12 @@ const CAPTIONS_RAW: Caption[] = [
   { start: 0.0, end: 1.64, text: "شفت هاد البروغرام", hl: ["البروغرام"] },
   { start: 1.7, end: 3.11, text: "اللي عطيناهولك؟" },
   { start: 3.36, end: 4.63, text: "راح تدي 16", hl: ["16"] },
-  { start: 4.7, end: 6.43, text: "ما تنساش تبارطاجي الفيديو", hl: ["تبارطاجي"] },
-  { start: 6.52, end: 7.0, text: "لصحابك", hl: ["لصحابك"] },
-  { start: 7.07, end: 8.93, text: "وفي هاد الفيديو" },
-  { start: 9.03, end: 11.06, text: "ما جيتش نعطيك بروغرام", hl: ["بروغرام"] },
+  { start: 4.7, end: 6.43, text: "بارطاجي هاد الفيديو", hl: ["بارطاجي"] },
+  { start: 6.52, end: 7.0, text: "لكاع صحابك", hl: ["صحابك"] },
+  { start: 7.07, end: 8.14, text: "أبوني للكونت تاعي", hl: ["أبوني"] },
+  { start: 8.23, end: 9.0, text: "يفيدك في كاع حياتك", hl: ["حياتك"] },
+  { start: 9.03, end: 10.0, text: "وفي هاد الفيديو" },
+  { start: 10.0, end: 11.06, text: "ما جيتش نعطيك بروغرام", hl: ["بروغرام"] },
   { start: 11.34, end: 12.82, text: "جيت نعلمك كيفاش تصنع" },
   { start: 12.89, end: 14.13, text: "بروغرام يليق بيك انتايا", hl: ["بيك"] },
   { start: 14.23, end: 15.55, text: "أول حاجة لازم تديرها", hl: ["أول"] },
@@ -39,15 +41,16 @@ export const CAPTIONS7: Caption[] = CAPTIONS_RAW.map((c) => ({ ...c, start: Math
 const SCENE_LEAD = 0.25;
 const CUT_LEAD = 0.3;
 
-export type SceneKind7 = "program" | "sixteen" | "share" | "noready" | "point1" | "exercises" | "subjects" | "point3" | "hours";
+export type SceneKind7 = "program" | "sixteen" | "share" | "follow" | "noready" | "point1" | "exercises" | "subjects" | "point3" | "hours";
 export type Scene7 = { start: number; end: number; kind: SceneKind7; zoom: number };
 
 // speaker scenes (the cut-aways cover 11.2-15.0, 20.3-24.0 and 33.2-end)
 const SCENES_RAW: Scene7[] = [
   { start: 0.0, end: 3.25, kind: "program", zoom: 1.0 },
-  { start: 3.25, end: 6.45, kind: "sixteen", zoom: 1.2 },
-  { start: 6.45, end: 9.5, kind: "share", zoom: 1.0 },
-  { start: 9.5, end: 11.2, kind: "noready", zoom: 1.14 },
+  { start: 3.25, end: 4.65, kind: "sixteen", zoom: 1.2 },
+  { start: 4.65, end: 6.98, kind: "share", zoom: 1.0 },
+  { start: 6.98, end: 9.0, kind: "follow", zoom: 1.0 },
+  { start: 9.0, end: 11.2, kind: "noready", zoom: 1.14 },
   { start: 11.2, end: 15.0, kind: "noready", zoom: 1.0 },
   { start: 15.0, end: 18.9, kind: "point1", zoom: 1.0 },
   { start: 18.9, end: 20.3, kind: "exercises", zoom: 1.14 },
@@ -101,11 +104,14 @@ export const SFX7: Sfx[] = [
   ...Array.from({ length: 8 }, (_, k) => ({ at: 3.25 - SCENE_LEAD + f(2 + k * 2), file: "blip", volume: 0.12 })),
   { at: 3.25 - SCENE_LEAD + f(20), file: "boom", volume: 0.4 },
   { at: 3.25 - SCENE_LEAD + f(21), file: "sparkle", volume: 0.3 },
-  // share: planes fly out
-  { at: 6.45 - SCENE_LEAD + f(12), file: "click", volume: 0.5 },
-  ...[0, 1, 2, 3].map((i) => ({ at: 6.45 - SCENE_LEAD + f(16 + i * 3), file: "v6/paper_slide", volume: 0.45 })),
+  // share: button tapped, planes fly out to friends
+  { at: 4.65 - SCENE_LEAD + f(12), file: "click", volume: 0.5 },
+  ...[0, 1, 2, 3].map((i) => ({ at: 4.65 - SCENE_LEAD + f(16 + i * 3), file: "v6/paper_slide", volume: 0.45 })),
+  // follow: tap on "Follow" exactly on "أبوني", then hearts
+  { at: 7.1, file: "click", volume: 0.55 },
+  { at: 7.15, file: "ding", volume: 0.4 },
   // "not a ready-made program": red cross
-  { at: 9.5 - SCENE_LEAD + f(14), file: "v6/paper_crumple", volume: 0.5 },
+  { at: 9.0 - SCENE_LEAD + f(14), file: "v6/paper_crumple", volume: 0.5 },
   // numbered points
   { at: 15.0 - SCENE_LEAD + f(1), file: "boom", volume: 0.35 },
   { at: 26.4 - SCENE_LEAD + f(1), file: "boom", volume: 0.35 },
