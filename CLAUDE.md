@@ -80,6 +80,11 @@ lip-sync of his face (he agreed to a TTS voice instead).
 
 ## Editing rules
 
+0. **Sync graphics to the words.** Snap caption boundaries to the real pauses
+   (`silencedetect=noise=-32dB:d=0.06`), show captions ~0.1 s early and
+   start scenes/stickers ~0.25 s early (cut-aways 0.3 s, so the MJ wipe
+   reveals them on the word). He noticed graphics lagging his speech.
+
 1. **Cut dead air and filler.** Remove silences longer than ~0.3 s, false
    starts, repeated words and fillers (e.g. "eeh", "ya3ni" when not needed).
    Do this on your own whenever the clip needs it. Keep the speech natural:
