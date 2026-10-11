@@ -1027,6 +1027,106 @@ const TitleScene = (n: number): React.FC<SceneProps> => {
 };
 
 
+/* ======================= silent subscribe reminder (around 1:00) ======================= */
+const MiniPromo: React.FC = () => {
+  const frame = useCurrentFrame();
+  const enter = spring({ frame: onTwos(frame), fps: FPS, config: { damping: 13, stiffness: 160 } });
+  const exit = ramp(frame, 228, 240, Easing.in(Easing.cubic));
+  const stage = frame < 90 ? 0 : frame < 150 ? 1 : 2;
+  const stageStart = [0, 90, 150][stage];
+  const local = frame - stageStart;
+  const tap = 34;
+  const tapped = local >= tap;
+  const pop = spring({ frame: local, fps: FPS, config: { damping: 12, stiffness: 180 } });
+  const press = spring({ frame: local - tap, fps: FPS, config: { damping: 9, stiffness: 320 } });
+  const btnScale = tapped ? interpolate(press, [0, 0.4, 1], [1, 0.88, 1]) : 1;
+  const handIn = spring({ frame: local - (tap - 10), fps: FPS, config: { damping: 16, stiffness: 180 } });
+  return (
+    <div style={{ position: "absolute", left: 40, top: 96, width: 560, transformOrigin: "0% 0%", transform: `scale(${enter * (1 - exit)}) rotate(${-1.5 + jitter(frame, 5, 0.4)}deg)` }}>
+      <div style={{ position: "relative", background: "#fff", borderRadius: 26, padding: 14, boxShadow: "0 18px 26px rgba(40,25,10,0.35)", border: "6px solid #fff" }}>
+        <div style={{ transform: `scale(${0.9 + pop * 0.1})`, opacity: Math.min(1, pop * 1.5) }}>
+          {stage === 0 && (
+            <div style={{ borderRadius: 16, overflow: "hidden", background: "#0F0F0F" }}>
+              <Img src={staticFile("promo/banner.png")} style={{ width: "100%", display: "block" }} />
+              <div style={{ display: "flex", alignItems: "center", gap: 14, padding: "12px 14px" }}>
+                <Img src={staticFile("promo/avatar.png")} style={{ width: 70, height: 70, borderRadius: 35, border: "3px solid #fff", flexShrink: 0 }} />
+                <div style={{ flex: 1, minWidth: 0, fontFamily: "Roboto, Arial, sans-serif", color: "#fff" }}>
+                  <div style={{ fontWeight: 800, fontSize: 24, whiteSpace: "nowrap" }}>Abdelwahab Mj</div>
+                  <div style={{ fontSize: 18, color: "#AAA" }}>160K subscribers</div>
+                </div>
+                <div style={{ flexShrink: 0, height: 52, padding: "0 20px", borderRadius: 26, background: tapped ? "#272727" : "#FF0033", color: "#fff", display: "flex", alignItems: "center", gap: 8, fontFamily: "Roboto, Arial, sans-serif", fontWeight: 700, fontSize: 22, transform: `scale(${btnScale})` }}>
+                  {tapped && <span style={{ display: "inline-block", transform: `rotate(${local > tap + 8 && local < tap + 30 ? Math.sin(local * 1.6) * 20 : 0}deg)` }}>🔔</span>}
+                  {tapped ? "Subscribed" : "Subscribe"}
+                </div>
+              </div>
+            </div>
+          )}
+          {stage === 1 && (
+            <div style={{ height: 200, borderRadius: 16, background: "#F3E9D8", position: "relative", overflow: "hidden" }}>
+              <div style={{ position: "absolute", left: 40, top: 30, width: 140, height: 140, borderRadius: 70, background: "#C99A63", display: "flex", alignItems: "center", justifyContent: "center", transform: `scale(${btnScale})`, boxShadow: "0 8px 10px rgba(0,0,0,0.2)" }}>
+                <svg width="110" height="110" viewBox="0 0 24 24">
+                  <path d="M13.5 6.5 19.5 11.5 13.5 16.5V13.6C9.5 13.6 6.8 14.8 4.8 18 5.6 13.4 8.3 10 13.5 9.3Z" fill="white" stroke={INK} strokeWidth="0.7" strokeLinejoin="round" />
+                </svg>
+              </div>
+              {["1f468-200d-1f393", "1f469-200d-1f393", "1f929"].map((c, i) => {
+                const t = ramp(local, tap + 2 + i * 3, tap + 14 + i * 3);
+                const tx = 230 + i * 100;
+                const ty = 50 + (i % 2) * 60;
+                return (
+                  <React.Fragment key={c}>
+                    {t > 0 && t < 1 && (
+                      <svg width="44" height="44" viewBox="0 0 24 24" style={{ position: "absolute", left: 110 + (tx - 110) * t - 22, top: 100 + (ty - 100) * t - 22 - Math.sin(t * Math.PI) * 40 }}>
+                        <path d="M2 11.5 22 3 15.5 21 11.5 13.2Z" fill="white" stroke={INK} strokeWidth="1" strokeLinejoin="round" />
+                      </svg>
+                    )}
+                    {t >= 1 && <Img src={icon(c)} style={{ position: "absolute", left: tx - 40, top: ty - 10, width: 80, height: 80 }} />}
+                  </React.Fragment>
+                );
+              })}
+              <div style={{ position: "absolute", left: 200, bottom: 10, right: 10, textAlign: "center" }}>
+                <Hand size={30}>شارك مع صحابك</Hand>
+              </div>
+            </div>
+          )}
+          {stage === 2 && (
+            <div style={{ borderRadius: 16, overflow: "hidden", background: "#0F1116", padding: 10 }}>
+              <Img src={staticFile("promo/profile_shot.png")} style={{ width: "100%", display: "block", borderRadius: 10 }} />
+              <div style={{ marginTop: 8, height: 50, borderRadius: 12, background: tapped ? "#363636" : "#0095F6", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "Roboto, Arial, sans-serif", fontWeight: 700, fontSize: 24, transform: `scale(${btnScale})` }}>
+                {tapped ? "Following ✓" : "Follow"}
+              </div>
+            </div>
+          )}
+        </div>
+        <Tape x={70} y={-6} w={110} rot={-20} />
+        <Tape x={490} y={-6} w={110} rot={18} />
+        {/* tapping hand */}
+        {local > tap - 12 && local < tap + 16 && (
+          <Img
+            src={icon("1f446")}
+            style={{
+              position: "absolute",
+              left: interpolate(handIn, [0, 1], [620, stage === 0 ? 430 : stage === 1 ? 100 : 260]),
+              top: interpolate(handIn, [0, 1], [380, stage === 0 ? 175 : stage === 1 ? 90 : 185]),
+              width: 90,
+              height: 90,
+              transform: `rotate(-20deg) scale(${interpolate(local - tap, [-3, 0, 3], [1, 0.82, 1], clamp)})`,
+              filter: "drop-shadow(0 8px 10px rgba(0,0,0,0.4))",
+            }}
+          />
+        )}
+      </div>
+      {[0, 90, 150].map((s0, i) => (
+        <React.Fragment key={i}>
+          <Sfx at={s0} name="paper_fold" vol={0.18} />
+          <Sfx at={s0 + tap} name="click" vol={0.3} />
+        </React.Fragment>
+      ))}
+      <Sfx at={tap + 8} name="ring" vol={0.1} />
+      <Sfx at={150 + tap + 2} name="sparkle" vol={0.16} />
+    </div>
+  );
+};
+
 /* ======================= host (paper cut-out) ======================= */
 const POSES = ["p00", "p01", "p02", "p03", "p04", "p05", "p06", "p07", "p08", "p09", "p10", "p11", "p13"];
 const THINK = "p13";
@@ -1114,6 +1214,8 @@ for (let i = 1; i < LINES.length; i++) {
 }
 const MJ_SECTIONS = new Set(["m1", "m2", "m3", "m4", "m5", "plan"]);
 const END_AT = LINES[LINES.length - 1].end + 0.5;
+// silent subscribe reminder: at the first sentence start after one minute
+const PROMO_AT = (LINES.find((l) => l.start >= 60) ?? LINES[0]).start - 0.2;
 
 const cameraAt = (t: number): Station => {
   // intro: wide, then glide to the desk while the hook starts
@@ -1489,6 +1591,9 @@ export const YT3: React.FC = () => {
           <Subtitle c={c} idx={i} />
         </Sequence>
       ))}
+      <Sequence from={sec(PROMO_AT)} durationInFrames={240} layout="none">
+        <MiniPromo />
+      </Sequence>
       <Watermark />
       <Sequence from={sec(END_AT)} layout="none">
         <EndCard />
