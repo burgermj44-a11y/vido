@@ -1,12 +1,12 @@
 import React from "react";
-import { interpolate, spring, useVideoConfig } from "remotion";
+import { Img, interpolate, spring, staticFile, useVideoConfig } from "remotion";
 import { HAND, LAT, Tape, boil, rand, tornClip } from "./paper";
 import { PALETTE, PROFILE } from "./config";
 
 const exitK = (frame: number, dur: number) =>
   interpolate(frame, [dur - 7, dur], [1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
 
-// "هذا الإنسان": paper-cut person with a black bar over the eyes.
+// "هذا الإنسان": your photo as a paper print with a black bar over the eyes.
 export const PersonSticker: React.FC<{ frame: number; seed: number }> = ({ frame, seed }) => {
   const { fps } = useVideoConfig();
   const dur = 44;
@@ -14,20 +14,12 @@ export const PersonSticker: React.FC<{ frame: number; seed: number }> = ({ frame
   const p = spring({ frame, fps, config: { damping: 9, stiffness: 180, mass: 0.7 } }) * exitK(frame, dur);
   const wob = (rand(seed + boil(frame, 3)) - 0.5) * 4;
   return (
-    <div style={{ position: "absolute", left: 640, top: 760, width: 380, transform: `scale(${p}) rotate(${7 + wob}deg)`, filter: "drop-shadow(8px 12px 0 rgba(0,0,0,0.3))" }}>
-      <svg viewBox="0 0 300 340" width={380}>
-        <g stroke="#fff" strokeWidth={26} strokeLinejoin="round" fill="#fff">
-          <ellipse cx="150" cy="112" rx="72" ry="86" />
-          <path d="M20 340 C20 250 80 215 150 215 C220 215 280 250 280 340 Z" />
-        </g>
-        <path d="M20 340 C20 250 80 215 150 215 C220 215 280 250 280 340 Z" fill={PALETTE.blue} />
-        <path d="M110 218 L150 270 L190 218 Z" fill="#fff" />
-        <rect x="128" y="170" width="44" height="52" fill="#d9a77c" />
-        <ellipse cx="150" cy="112" rx="72" ry="86" fill="#eab98c" />
-        <path d="M78 100 C78 40 118 22 160 24 C206 26 226 62 222 104 C205 76 175 62 150 64 C120 66 95 78 78 100 Z" fill={PALETTE.ink} />
-        <path d="M132 168 Q150 180 168 168" stroke="#8a4b3a" strokeWidth={5} fill="none" strokeLinecap="round" />
-        <g transform="rotate(-4 150 118)"><rect x="68" y="98" width="164" height="38" rx="4" fill="#000" /></g>
-      </svg>
+    <div style={{ position: "absolute", left: 590, top: 700, width: 400, transform: `scale(${p}) rotate(${6 + wob}deg)`, filter: "drop-shadow(8px 12px 0 rgba(0,0,0,0.3))" }}>
+      <div style={{ position: "relative", background: "#fff", padding: 14, borderRadius: 6 }}>
+        <Img src={staticFile("me.jpg")} style={{ width: 372, height: 443, display: "block", objectFit: "cover" }} />
+        <div style={{ position: "absolute", left: 14 + 22, top: 14 + 207, width: 340, height: 58, background: "#000", transform: "rotate(-1.5deg)" }} />
+        <Tape style={{ left: 130, top: -22, transform: "rotate(-4deg)" }} w={130} />
+      </div>
     </div>
   );
 };
