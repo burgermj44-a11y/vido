@@ -50,12 +50,13 @@ const Host: React.FC = () => {
   const e = ENV[Math.min(ENV.length - 1, Math.floor(t * ENV_FPS))] ?? 0;
   const enter = spring({ frame: onTwos(frame - 4), fps: FPS, config: { damping: 12, stiffness: 140 } });
   const exit = ramp(frame, sec(END_AT) - 6, sec(END_AT) + 6, Easing.in(Easing.cubic));
+  const dip = (ramp(frame, FOLLOW_FROM - 4, FOLLOW_FROM + 10, Easing.inOut(Easing.cubic)) - ramp(frame, FOLLOW_FROM + FOLLOW_LEN - 14, FOLLOW_FROM + FOLLOW_LEN, Easing.inOut(Easing.cubic))) * 80;
   return (
     <div style={{ position: "absolute", left: W / 2 - 330, bottom: -10, width: 660, perspective: 1400 }}>
       <div
         style={{
           transformOrigin: "50% 100%",
-          transform: `rotateX(${(1 - enter) * 80}deg) translateY(${exit * 900 - e * 8}px) rotate(${jitter(frame, 3, 0.5)}deg) scale(${1 + Math.sin(frame / 28) * 0.006 + e * 0.008})`,
+          transform: `rotateX(${(1 - enter) * 80}deg) translateY(${exit * 900 - e * 8 + dip}px) rotate(${jitter(frame, 3, 0.5)}deg) scale(${1 + Math.sin(frame / 28) * 0.006 + e * 0.008})`,
         }}
       >
         <Img
@@ -187,39 +188,60 @@ const ShareMoment: React.FC = () => {
   );
 };
 
-/* ---------------- follow: Instagram card beside him ---------------- */
-const FollowMoment: React.FC = () => {
+/* ---------------- follow: Instagram card rises from behind his head ---------------- */
+const FOLLOW_FROM = sec(FOLLOW_AT) - 14;
+const FOLLOW_LEN = 108;
+const CARD_W = 820;
+const CARD_X = W / 2 - CARD_W / 2;
+const BTN_Y = 262; // centre of the Follow button on screen
+const FollowMoment: React.FC<{ layer: "back" | "front" }> = ({ layer }) => {
   const frame = useCurrentFrame();
-  const tap = 14;
+  const tap = 16;
   const clicked = frame >= tap;
-  const p = spring({ frame: onTwos(frame), fps: FPS, config: { damping: 12, stiffness: 160 } });
+  const p = spring({ frame: onTwos(frame), fps: FPS, config: { damping: 13, stiffness: 120 } });
   const press = spring({ frame: frame - tap, fps: FPS, config: { damping: 9, stiffness: 320 } });
-  const out = ramp(frame, 96, 108, Easing.in(Easing.cubic));
-  const handIn = spring({ frame: frame - (tap - 10), fps: FPS, config: { damping: 16, stiffness: 180 } });
+  const out = ramp(frame, FOLLOW_LEN - 14, FOLLOW_LEN - 2, Easing.in(Easing.cubic));
+  const handIn = spring({ frame: frame - (tap - 11), fps: FPS, config: { damping: 16, stiffness: 180 } });
+  const btnX = CARD_X + CARD_W / 2;
+  if (layer === "back") {
+    return (
+      <AbsoluteFill>
+        {/* glow behind the card */}
+        <div style={{ position: "absolute", left: W / 2 - 560, top: -200, width: 1120, height: 700, borderRadius: "50%", background: "radial-gradient(closest-side, rgba(255,230,160,0.7), rgba(255,210,130,0))", opacity: p * (1 - out) }} />
+        {clicked &&
+          [0, 1, 2].map((k) => {
+            const r = ((frame - tap + k * 8) % 24) / 24;
+            return <div key={k} style={{ position: "absolute", left: btnX - 200 - r * 220, top: BTN_Y - 60 - r * 120, width: 400 + r * 440, height: 120 + r * 240, borderRadius: 999, border: "6px solid #0095F6", opacity: (1 - r) * 0.6 * (1 - out) }} />;
+          })}
+        <div style={{ position: "absolute", left: CARD_X, top: 26, width: CARD_W, transform: `translateY(${(1 - p) * 420 + out * 420}px) rotate(${(1 - p) * 6 - 1.5 + jitter(frame, 9, 0.3)}deg)`, opacity: Math.min(1, p * 2) * (1 - out) }}>
+          <div style={{ background: "#0F1116", border: "9px solid #fff", borderRadius: 30, padding: "18px 20px 16px", boxShadow: "0 18px 30px rgba(0,0,0,0.45)", position: "relative" }}>
+            <Img src={staticFile("v8/ig_head.png")} style={{ width: "100%", display: "block" }} />
+            <div style={{ marginTop: 10, height: 66, borderRadius: 14, background: clicked ? "#363636" : "#0095F6", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "Roboto, Arial, sans-serif", fontWeight: 700, fontSize: 34, transform: `scale(${clicked ? interpolate(press, [0, 0.4, 1], [1, 0.9, 1]) : 1})` }}>
+              {clicked ? "Following ✓" : "Follow"}
+            </div>
+            <Tape x={90} y={-8} w={130} rot={-20} />
+            <Tape x={CARD_W - 90} y={-8} w={130} rot={18} />
+          </div>
+        </div>
+      </AbsoluteFill>
+    );
+  }
   return (
     <AbsoluteFill style={{ opacity: 1 - out }}>
-      <div style={{ position: "absolute", left: 70, top: 120, width: 600, perspective: 1100 }}>
-        <div style={{ transformOrigin: "50% 0%", transform: `rotateX(${(1 - p) * -90}deg) rotate(${-2 + jitter(frame, 9, 0.4)}deg)`, background: "#0F1116", border: "8px solid #fff", borderRadius: 30, padding: 16, boxShadow: "0 18px 30px rgba(0,0,0,0.4)", position: "relative" }}>
-          <Img src={staticFile("promo/profile_shot.png")} style={{ width: "100%", display: "block", borderRadius: 14 }} />
-          <div style={{ marginTop: 10, height: 64, borderRadius: 14, background: clicked ? "#363636" : "#0095F6", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "Roboto, Arial, sans-serif", fontWeight: 700, fontSize: 32, transform: `scale(${clicked ? interpolate(press, [0, 0.4, 1], [1, 0.9, 1]) : 1})` }}>
-            {clicked ? "Following ✓" : "Follow"}
-          </div>
-          <Tape x={80} y={-6} w={120} rot={-22} />
-          <Tape x={520} y={-6} w={120} rot={20} />
-        </div>
-        <div dir="ltr" style={{ marginTop: 20, display: "inline-block", background: MARKER, padding: "4px 24px 10px", borderRadius: 8, transform: "rotate(-2deg)", opacity: ramp(frame, 8, 16) }}>
-          <span style={{ fontFamily: "Roboto, Arial, sans-serif", fontWeight: 800, fontSize: 40, color: INK }}>@abdelwahab__mj</span>
-        </div>
+      {/* handle tag on the side */}
+      <div dir="ltr" style={{ position: "absolute", left: CARD_X + CARD_W - 40, top: 300, background: MARKER, padding: "4px 24px 10px", borderRadius: 8, transform: `rotate(4deg) scale(${spring({ frame: onTwos(frame - 10), fps: FPS, config: { damping: 10 } })})`, boxShadow: "0 8px 12px rgba(0,0,0,0.3)" }}>
+        <span style={{ fontFamily: "Roboto, Arial, sans-serif", fontWeight: 800, fontSize: 40, color: INK }}>@abdelwahab__mj</span>
       </div>
-      {frame > tap - 12 && frame < tap + 18 && (
-        <Img src={icon("1f446")} style={{ position: "absolute", left: interpolate(handIn, [0, 1], [760, 330]), top: interpolate(handIn, [0, 1], [700, 330]), width: 120, height: 120, transform: `rotate(-20deg) scale(${interpolate(frame - tap, [-3, 0, 3], [1, 0.82, 1], clamp)})`, filter: "drop-shadow(0 10px 12px rgba(0,0,0,0.4))" }} />
+      {frame > tap - 12 && frame < tap + 20 && (
+        <Img src={icon("1f446")} style={{ position: "absolute", left: interpolate(handIn, [0, 1], [1500, btnX + 40]), top: interpolate(handIn, [0, 1], [700, BTN_Y + 10]), width: 130, height: 130, transform: `rotate(-20deg) scale(${interpolate(frame - tap, [-3, 0, 3], [1, 0.82, 1], clamp)})`, filter: "drop-shadow(0 10px 12px rgba(0,0,0,0.4))" }} />
       )}
       {clicked &&
-        [0, 1, 2, 3, 4].map((i) => {
-          const d = frame - tap - 3 - i * 2;
+        Array.from({ length: 8 }, (_, i) => {
+          const d = frame - tap - 2 - i * 2;
           if (d < 0) return null;
-          const prog = d / 30;
-          return <Img key={i} src={icon("2764")} style={{ position: "absolute", left: 560 + Math.sin(i * 2.1) * 40 * prog, top: 360 - prog * 300, width: 60, height: 60, opacity: interpolate(prog, [0, 0.2, 1], [0, 1, 0], { extrapolateRight: "clamp" }) }} />;
+          const prog = d / 34;
+          const side = i % 2 ? 1 : -1;
+          return <Img key={i} src={icon("2764")} style={{ position: "absolute", left: btnX + side * (430 + (i % 3) * 40) + Math.sin(d / 4 + i) * 20 - 32, top: BTN_Y - prog * 220, width: 64, height: 64, transform: `rotate(${side * 15}deg) scale(${0.6 + prog})`, opacity: interpolate(prog, [0, 0.2, 1], [0, 1, 0], clamp) }} />;
         })}
       <Sfx at={0} name="paper_slide" vol={0.25} />
       <Sfx at={tap} name="click" vol={0.35} />
@@ -284,6 +306,9 @@ export const V8: React.FC = () => {
   return (
     <AbsoluteFill style={{ background: "#B98B5A" }}>
       <Backdrop />
+      <Sequence from={FOLLOW_FROM} durationInFrames={FOLLOW_LEN} layout="none">
+        <FollowMoment layer="back" />
+      </Sequence>
       <Host />
       {CAPTIONS8.map((c, i) => (
         <Sequence key={i} from={Math.max(0, sec(c.start) - 3)} durationInFrames={sec(c.end - c.start) + 10} layout="none">
@@ -293,8 +318,8 @@ export const V8: React.FC = () => {
       <Sequence from={sec(SHARE_AT) - 10} durationInFrames={92} layout="none">
         <ShareMoment />
       </Sequence>
-      <Sequence from={sec(FOLLOW_AT) - 14} durationInFrames={108} layout="none">
-        <FollowMoment />
+      <Sequence from={FOLLOW_FROM} durationInFrames={FOLLOW_LEN} layout="none">
+        <FollowMoment layer="front" />
       </Sequence>
       <div style={{ position: "absolute", left: 40, top: 26, fontFamily: FONT, fontSize: 54, letterSpacing: -2, background: MJ_GOLD, WebkitBackgroundClip: "text", color: "transparent", filter: "drop-shadow(0 3px 4px rgba(0,0,0,0.35))" }}>MJ</div>
       <div style={{ position: "absolute", left: 0, right: 0, bottom: 0, height: 10, background: "rgba(0,0,0,0.2)" }}>
