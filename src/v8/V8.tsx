@@ -1,0 +1,319 @@
+/*
+ * Video 8 (16:9): his voice over a black clip. His photo (paper cut-out) stands
+ * in the centre, the words pop up around him on torn paper, animated kraft
+ * background, share animation on "تبارطاجي", Instagram follow card on "تبونيو".
+ */
+import React from "react";
+import { AbsoluteFill, Audio, Easing, Img, Sequence, interpolate, spring, staticFile, useCurrentFrame } from "remotion";
+import { FONT, loadFonts } from "../fonts";
+import { FPS, GOLD, H, INK, MARKER, MJ_GOLD, PEN, Sfx, Sheet, Tape, W, clamp, icon, jitter, loadHand, maskStyle, onTwos, ramp, sec, stickerFilter, tex } from "../yt2/kit";
+import { ENV, ENV_FPS } from "./env";
+import { CAPTIONS8, Cap8, DURATION8, FOLLOW_AT, SHARE_AT, WIPES8 } from "./script8";
+
+loadFonts();
+loadHand();
+
+export const V8_FPS = FPS;
+export const V8_FRAMES = Math.round(DURATION8 * FPS);
+const END_AT = CAPTIONS8[CAPTIONS8.length - 1].end + 0.3;
+
+/* ---------------- animated kraft background ---------------- */
+const Backdrop: React.FC = () => {
+  const frame = useCurrentFrame();
+  const lx = 50 + Math.sin(frame / 140) * 22;
+  const ly = 40 + Math.cos(frame / 170) * 14;
+  return (
+    <AbsoluteFill style={{ overflow: "hidden", background: "#B98B5A" }}>
+      <AbsoluteFill style={{ transform: `scale(${1.1 + Math.sin(frame / 90) * 0.012}) translate(${Math.sin(frame / 200) * 12}px, ${Math.cos(frame / 230) * 8}px)`, filter: "blur(4px) saturate(1.1)" }}>
+        <Img src={tex("kraft")} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+      </AbsoluteFill>
+      <AbsoluteFill style={{ background: `radial-gradient(ellipse at ${lx}% ${ly}%, rgba(255,226,170,0.55) 0%, rgba(255,210,150,0.18) 35%, rgba(0,0,0,0) 65%)`, mixBlendMode: "soft-light" }} />
+      {[0.18, 0.62, 0.86].map((x, i) => (
+        <div key={i} style={{ position: "absolute", top: -100, bottom: -100, left: `${x * 100}%`, width: 120, background: "linear-gradient(90deg, rgba(0,0,0,0), rgba(70,40,15,0.10), rgba(255,240,210,0.10), rgba(0,0,0,0))", transform: `rotate(${4 - i * 3}deg) translateX(${Math.sin(frame / (160 + i * 40)) * 10}px)`, filter: "blur(6px)" }} />
+      ))}
+      {Array.from({ length: 24 }, (_, i) => {
+        const sp = 0.25 + ((i * 37) % 10) / 20;
+        const x = (((i * 173) % 1920) + frame * sp * (i % 2 ? 1 : -1) * 0.6 + 4000) % 1980 - 30;
+        const y = ((i * 97) % 1080) + Math.sin(frame / (40 + i * 3) + i) * 18;
+        const s = 6 + (i % 5) * 4;
+        return <div key={i} style={{ position: "absolute", left: x, top: y, width: s, height: s * 0.7, borderRadius: 2, background: i % 3 ? "rgba(255,240,215,0.55)" : "rgba(90,55,25,0.35)", transform: `rotate(${frame * (i % 2 ? 0.6 : -0.4) + i * 30}deg)` }} />;
+      })}
+      <AbsoluteFill style={{ background: "radial-gradient(ellipse at 50% 45%, rgba(0,0,0,0) 50%, rgba(50,25,8,0.38) 100%)" }} />
+    </AbsoluteFill>
+  );
+};
+
+/* ---------------- his photo in the centre ---------------- */
+const Host: React.FC = () => {
+  const frame = useCurrentFrame();
+  const t = frame / FPS;
+  const e = ENV[Math.min(ENV.length - 1, Math.floor(t * ENV_FPS))] ?? 0;
+  const enter = spring({ frame: onTwos(frame - 4), fps: FPS, config: { damping: 12, stiffness: 140 } });
+  const exit = ramp(frame, sec(END_AT) - 6, sec(END_AT) + 6, Easing.in(Easing.cubic));
+  return (
+    <div style={{ position: "absolute", left: W / 2 - 330, bottom: -10, width: 660, perspective: 1400 }}>
+      <div
+        style={{
+          transformOrigin: "50% 100%",
+          transform: `rotateX(${(1 - enter) * 80}deg) translateY(${exit * 900 - e * 8}px) rotate(${jitter(frame, 3, 0.5)}deg) scale(${1 + Math.sin(frame / 28) * 0.006 + e * 0.008})`,
+        }}
+      >
+        <Img
+          src={staticFile("v8/host.png")}
+          style={{ width: 660, display: "block", filter: "drop-shadow(9px 0 0 #fff) drop-shadow(-9px 0 0 #fff) drop-shadow(0 -9px 0 #fff) drop-shadow(0 18px 24px rgba(40,22,8,0.55))" }}
+        />
+      </div>
+      <Sfx at={4} name="paper_fold" vol={0.25} />
+    </div>
+  );
+};
+
+/* ---------------- words around him ---------------- */
+const SLOTS = { L: [250, 430, 610], R: [250, 430, 610] };
+const CapStrip: React.FC<{ c: Cap8; idx: number }> = ({ c, idx }) => {
+  const frame = useCurrentFrame();
+  const dur = sec(c.end - c.start) + 10;
+  const p = spring({ frame: onTwos(frame), fps: FPS, config: { damping: 13, stiffness: 180 } });
+  const out = ramp(frame, dur - 6, dur, Easing.in(Easing.cubic));
+  const words = c.text.split(" ");
+  const per = (sec(c.end - c.start) * 0.9) / words.length;
+  const left = c.side === "L";
+  const y = SLOTS[c.side][Math.floor(idx / 2) % 3];
+  const rot = (left ? -2 : 2) + jitter(frame, idx * 7, 0.4);
+  return (
+    <div style={{ position: "absolute", top: y, [left ? "left" : "right"]: 60 - (1 - p) * 120 + out * -200, width: 620, display: "flex", justifyContent: left ? "flex-start" : "flex-end", opacity: Math.min(p * 1.4, 1 - out) } as React.CSSProperties}>
+      <div style={{ position: "relative", transform: `rotate(${rot}deg) scale(${0.85 + p * 0.15})`, transformOrigin: left ? "0% 50%" : "100% 50%", filter: "drop-shadow(0 10px 12px rgba(40,22,8,0.4))" }}>
+        <div style={{ position: "absolute", inset: 0, overflow: "hidden", ...maskStyle(idx) }}>
+          <Img src={tex("white")} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+        </div>
+        <div dir="rtl" style={{ position: "relative", padding: "14px 34px 20px", display: "flex", flexWrap: "wrap", gap: "0 14px", justifyContent: "center", maxWidth: 620 }}>
+          {words.map((w, i) => {
+            const start = Math.floor(i * per);
+            const active = frame >= start && frame < Math.floor((i + 1) * per) + 2;
+            const hl = c.hl?.includes(w.replace(/[،.؟]/g, ""));
+            const mk = ramp(frame, start, start + 6);
+            return (
+              <span
+                key={i}
+                style={{
+                  fontFamily: FONT,
+                  fontSize: 52,
+                  lineHeight: 1.35,
+                  color: active ? PEN : INK,
+                  backgroundImage: hl ? `linear-gradient(transparent 40%, ${MARKER} 40%, ${MARKER} 92%, transparent 92%)` : "none",
+                  backgroundRepeat: "no-repeat",
+                  backgroundPosition: "right",
+                  backgroundSize: hl ? `${mk * 100}% 100%` : "auto",
+                  padding: hl ? "0 6px" : 0,
+                }}
+              >
+                {w}
+              </span>
+            );
+          })}
+        </div>
+        <Tape x={left ? 60 : 560} y={4} w={100} rot={left ? -18 : 18} />
+      </div>
+      {c.code && (
+        <div style={{ position: "absolute", top: -125, [left ? "left" : "right"]: 30, width: 120, height: 120, perspective: 800 } as React.CSSProperties}>
+          <Img src={icon(c.code)} style={{ width: 120, height: 120, transformOrigin: "50% 100%", transform: `rotateX(${(1 - spring({ frame: onTwos(frame - 5), fps: FPS, config: { damping: 11 } })) * 90}deg) rotate(${(left ? 10 : -10) + jitter(frame, idx, 1.2)}deg)`, filter: stickerFilter(5), opacity: frame >= 5 ? 1 : 0 }} />
+        </div>
+      )}
+      <Sfx at={0} name="paper_rustle" vol={0.22} />
+      {c.code && <Sfx at={5} name="paper_fold" vol={0.18} />}
+    </div>
+  );
+};
+
+/* ---------------- share: paper button beside his head, planes fly around him ---------------- */
+const ShareMoment: React.FC = () => {
+  const frame = useCurrentFrame();
+  const tap = 10;
+  const p = spring({ frame: onTwos(frame), fps: FPS, config: { damping: 12, stiffness: 170 } });
+  const press = spring({ frame: frame - tap, fps: FPS, config: { damping: 9, stiffness: 320 } });
+  const out = ramp(frame, 80, 92, Easing.in(Easing.cubic));
+  const cx = W / 2 + 330;
+  const cy = 230;
+  const friends = [
+    { code: "1f468-200d-1f393", x: W / 2 - 520, y: 160 },
+    { code: "1f469-200d-1f393", x: W / 2 - 360, y: 70 },
+    { code: "1f9d1-200d-1f393", x: W / 2 + 560, y: 110 },
+    { code: "1f929", x: W / 2 + 640, y: 300 },
+  ];
+  return (
+    <AbsoluteFill style={{ opacity: 1 - out }}>
+      {frame > tap &&
+        [0, 1].map((k) => {
+          const r = ((frame - tap + k * 10) % 20) / 20;
+          return <div key={k} style={{ position: "absolute", left: cx - 110 - r * 80, top: cy - 110 - r * 80, width: 220 + r * 160, height: 220 + r * 160, borderRadius: "50%", border: `7px solid ${PEN}`, opacity: (1 - r) * 0.6 }} />;
+        })}
+      <div style={{ position: "absolute", left: cx - 110, top: cy - 110, perspective: 900 }}>
+        <div style={{ transformOrigin: "50% 100%", transform: `rotateX(${(1 - p) * 90}deg) scale(${frame > tap ? interpolate(press, [0, 0.4, 1], [1, 0.86, 1]) : 1})` }}>
+          <Sheet w={220} h={220} tx="kraft" seed={4} style={{ borderRadius: 999 }}>
+            <svg width="220" height="220" viewBox="0 0 24 24" style={{ position: "absolute", inset: 0 }}>
+              <path d="M13.5 6.5 19.5 11.5 13.5 16.5V13.6C9.5 13.6 6.8 14.8 4.8 18 5.6 13.4 8.3 10 13.5 9.3Z" fill="white" stroke={INK} strokeWidth="0.6" strokeLinejoin="round" />
+            </svg>
+            <Tape x={110} y={8} w={100} rot={6} />
+          </Sheet>
+        </div>
+      </div>
+      {friends.map((fr, i) => {
+        const launch = tap + 4 + i * 3;
+        const t = spring({ frame: onTwos(frame - launch), fps: FPS, config: { damping: 200 }, durationInFrames: 14 });
+        const arrived = frame >= launch + 14;
+        const px = interpolate(t, [0, 1], [cx, fr.x]);
+        const py = interpolate(t, [0, 1], [cy, fr.y]) - Math.sin(t * Math.PI) * 120;
+        const ang = (Math.atan2(fr.y - cy, fr.x - cx) * 180) / Math.PI + 45;
+        const pop = spring({ frame: frame - (launch + 14), fps: FPS, config: { damping: 9 } });
+        return (
+          <React.Fragment key={i}>
+            {frame >= launch && !arrived && (
+              <svg width="90" height="90" viewBox="0 0 24 24" style={{ position: "absolute", left: px - 45, top: py - 45, transform: `rotate(${ang}deg)`, filter: "drop-shadow(0 6px 6px rgba(0,0,0,0.3))" }}>
+                <path d="M2 11.5 22 3 15.5 21 11.5 13.2Z" fill="white" stroke={INK} strokeWidth="0.8" strokeLinejoin="round" />
+              </svg>
+            )}
+            {arrived && (
+              <div style={{ position: "absolute", left: fr.x - 70, top: fr.y - 70, width: 140, height: 140, transform: `scale(${pop})` }}>
+                <Img src={icon(fr.code)} style={{ width: 140, height: 140, filter: stickerFilter(5) }} />
+                <div style={{ position: "absolute", right: -4, bottom: -4, width: 50, height: 50, borderRadius: 25, background: "#2E9E5B", border: "4px solid #fff", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 30, fontWeight: 900 }}>✓</div>
+              </div>
+            )}
+            <Sfx at={launch} name="paper_slide" vol={0.18} />
+          </React.Fragment>
+        );
+      })}
+      <Sfx at={tap} name="click" vol={0.35} />
+    </AbsoluteFill>
+  );
+};
+
+/* ---------------- follow: Instagram card beside him ---------------- */
+const FollowMoment: React.FC = () => {
+  const frame = useCurrentFrame();
+  const tap = 14;
+  const clicked = frame >= tap;
+  const p = spring({ frame: onTwos(frame), fps: FPS, config: { damping: 12, stiffness: 160 } });
+  const press = spring({ frame: frame - tap, fps: FPS, config: { damping: 9, stiffness: 320 } });
+  const out = ramp(frame, 96, 108, Easing.in(Easing.cubic));
+  const handIn = spring({ frame: frame - (tap - 10), fps: FPS, config: { damping: 16, stiffness: 180 } });
+  return (
+    <AbsoluteFill style={{ opacity: 1 - out }}>
+      <div style={{ position: "absolute", left: 70, top: 120, width: 600, perspective: 1100 }}>
+        <div style={{ transformOrigin: "50% 0%", transform: `rotateX(${(1 - p) * -90}deg) rotate(${-2 + jitter(frame, 9, 0.4)}deg)`, background: "#0F1116", border: "8px solid #fff", borderRadius: 30, padding: 16, boxShadow: "0 18px 30px rgba(0,0,0,0.4)", position: "relative" }}>
+          <Img src={staticFile("promo/profile_shot.png")} style={{ width: "100%", display: "block", borderRadius: 14 }} />
+          <div style={{ marginTop: 10, height: 64, borderRadius: 14, background: clicked ? "#363636" : "#0095F6", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "Roboto, Arial, sans-serif", fontWeight: 700, fontSize: 32, transform: `scale(${clicked ? interpolate(press, [0, 0.4, 1], [1, 0.9, 1]) : 1})` }}>
+            {clicked ? "Following ✓" : "Follow"}
+          </div>
+          <Tape x={80} y={-6} w={120} rot={-22} />
+          <Tape x={520} y={-6} w={120} rot={20} />
+        </div>
+        <div dir="ltr" style={{ marginTop: 20, display: "inline-block", background: MARKER, padding: "4px 24px 10px", borderRadius: 8, transform: "rotate(-2deg)", opacity: ramp(frame, 8, 16) }}>
+          <span style={{ fontFamily: "Roboto, Arial, sans-serif", fontWeight: 800, fontSize: 40, color: INK }}>@abdelwahab__mj</span>
+        </div>
+      </div>
+      {frame > tap - 12 && frame < tap + 18 && (
+        <Img src={icon("1f446")} style={{ position: "absolute", left: interpolate(handIn, [0, 1], [760, 330]), top: interpolate(handIn, [0, 1], [700, 330]), width: 120, height: 120, transform: `rotate(-20deg) scale(${interpolate(frame - tap, [-3, 0, 3], [1, 0.82, 1], clamp)})`, filter: "drop-shadow(0 10px 12px rgba(0,0,0,0.4))" }} />
+      )}
+      {clicked &&
+        [0, 1, 2, 3, 4].map((i) => {
+          const d = frame - tap - 3 - i * 2;
+          if (d < 0) return null;
+          const prog = d / 30;
+          return <Img key={i} src={icon("2764")} style={{ position: "absolute", left: 560 + Math.sin(i * 2.1) * 40 * prog, top: 360 - prog * 300, width: 60, height: 60, opacity: interpolate(prog, [0, 0.2, 1], [0, 1, 0], { extrapolateRight: "clamp" }) }} />;
+        })}
+      <Sfx at={0} name="paper_slide" vol={0.25} />
+      <Sfx at={tap} name="click" vol={0.35} />
+      <Sfx at={tap + 3} name="sparkle" vol={0.2} />
+    </AbsoluteFill>
+  );
+};
+
+/* ---------------- MJ wipe ---------------- */
+const MJWipe: React.FC<{ seed: number }> = ({ seed }) => {
+  const frame = useCurrentFrame();
+  const ease = Easing.bezier(0.65, 0, 0.35, 1);
+  const sheetX = (lag: number) => interpolate(frame - lag, [0, 9, 15, 24], [2000, 0, 0, -2150], { ...clamp, easing: ease });
+  const mj = ramp(frame, 7, 12);
+  const line = ramp(frame, 10, 15);
+  return (
+    <AbsoluteFill style={{ pointerEvents: "none" }}>
+      <Sfx at={0} name="mj_whoosh" vol={0.3} />
+      <Sfx at={2} name="paper_flip" vol={0.18} />
+      <Sfx at={10} name="mj_hit" vol={0.22} />
+      <div style={{ position: "absolute", left: sheetX(-2) - 160, top: -200 }}>
+        <div style={{ position: "relative", width: 2300, height: 1500, filter: "drop-shadow(-18px 0 30px rgba(0,0,0,0.35))" }}>
+          <div style={{ position: "absolute", inset: 0, background: GOLD, overflow: "hidden", ...maskStyle(seed) }}>
+            <Img src={tex("white")} style={{ width: "100%", height: "100%", objectFit: "cover", mixBlendMode: "multiply", opacity: 0.9 }} />
+          </div>
+        </div>
+      </div>
+      <div style={{ position: "absolute", left: sheetX(1) - 80, top: -200 }}>
+        <div style={{ position: "relative", width: 2200, height: 1500, filter: "drop-shadow(-24px 0 40px rgba(0,0,0,0.5))" }}>
+          <div style={{ position: "absolute", inset: 0, background: "#151515", overflow: "hidden", ...maskStyle(seed + 3) }}>
+            <Img src={tex("kraft")} style={{ width: "100%", height: "100%", objectFit: "cover", mixBlendMode: "overlay", opacity: 0.5 }} />
+          </div>
+          <div style={{ position: "absolute", left: 80, top: 200, width: W, height: H, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
+            <div style={{ fontFamily: FONT, fontSize: 300, lineHeight: 1, letterSpacing: interpolate(mj, [0, 1], [50, -4]), background: MJ_GOLD, WebkitBackgroundClip: "text", color: "transparent", opacity: mj, filter: "drop-shadow(0 14px 22px rgba(0,0,0,0.55))" }}>MJ</div>
+            <div style={{ width: 300 * line, height: 6, borderRadius: 3, background: GOLD, marginTop: 8 }} />
+          </div>
+        </div>
+      </div>
+    </AbsoluteFill>
+  );
+};
+
+const EndCard: React.FC = () => {
+  const frame = useCurrentFrame();
+  const p = ramp(frame, 0, 16);
+  return (
+    <AbsoluteFill style={{ background: "#141414" }}>
+      <AbsoluteFill style={{ mixBlendMode: "overlay", opacity: 0.5 }}>
+        <Img src={tex("kraft")} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+      </AbsoluteFill>
+      <AbsoluteFill style={{ alignItems: "center", justifyContent: "center", flexDirection: "column", gap: 10 }}>
+        <div style={{ fontFamily: FONT, fontSize: 280, lineHeight: 1, letterSpacing: interpolate(p, [0, 1], [50, -4]), background: MJ_GOLD, WebkitBackgroundClip: "text", color: "transparent", opacity: p }}>MJ</div>
+        <div style={{ width: 320 * p, height: 6, background: GOLD, borderRadius: 3 }} />
+        <div style={{ fontFamily: FONT, fontSize: 44, color: GOLD, opacity: p, marginTop: 16 }}>@abdelwahab__mj</div>
+      </AbsoluteFill>
+    </AbsoluteFill>
+  );
+};
+
+export const V8: React.FC = () => {
+  const frame = useCurrentFrame();
+  return (
+    <AbsoluteFill style={{ background: "#B98B5A" }}>
+      <Backdrop />
+      <Host />
+      {CAPTIONS8.map((c, i) => (
+        <Sequence key={i} from={Math.max(0, sec(c.start) - 3)} durationInFrames={sec(c.end - c.start) + 10} layout="none">
+          <CapStrip c={c} idx={i} />
+        </Sequence>
+      ))}
+      <Sequence from={sec(SHARE_AT) - 10} durationInFrames={92} layout="none">
+        <ShareMoment />
+      </Sequence>
+      <Sequence from={sec(FOLLOW_AT) - 14} durationInFrames={108} layout="none">
+        <FollowMoment />
+      </Sequence>
+      <div style={{ position: "absolute", left: 40, top: 26, fontFamily: FONT, fontSize: 54, letterSpacing: -2, background: MJ_GOLD, WebkitBackgroundClip: "text", color: "transparent", filter: "drop-shadow(0 3px 4px rgba(0,0,0,0.35))" }}>MJ</div>
+      <div style={{ position: "absolute", left: 0, right: 0, bottom: 0, height: 10, background: "rgba(0,0,0,0.2)" }}>
+        <div style={{ height: "100%", width: `${(frame / V8_FRAMES) * 100}%`, background: GOLD }} />
+      </div>
+      {WIPES8.map((t, i) => (
+        <Sequence key={i} from={sec(t) - 12} durationInFrames={24} layout="none">
+          <MJWipe seed={i} />
+        </Sequence>
+      ))}
+      <Sequence from={sec(END_AT)} layout="none">
+        <EndCard />
+      </Sequence>
+      <Sequence from={sec(END_AT) - 12} durationInFrames={24} layout="none">
+        <MJWipe seed={5} />
+      </Sequence>
+      <Sfx at={0} name="riser" vol={0.3} />
+      <Audio src={staticFile("v8/voice.wav")} />
+      <Audio src={staticFile("v8/music.wav")} volume={(f) => interpolate(f, [0, 15, V8_FRAMES - 30, V8_FRAMES], [0, 0.07, 0.07, 0], clamp)} />
+    </AbsoluteFill>
+  );
+};
