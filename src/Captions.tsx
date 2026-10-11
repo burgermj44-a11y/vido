@@ -76,7 +76,7 @@ const Emoji: React.FC<{ e: string; x: number; y: number; s: number; r: number; l
         top: y,
         fontSize: s,
         lineHeight: 1,
-        transform: `scale(${Math.max(0, p)}) rotate(${r + w}deg)`,
+        transform: `translateY(${(1 - Math.min(1, Math.max(0, p))) * 140}px) scale(${Math.max(0, p)}) rotate(${r + w}deg)`,
         textShadow: `4px 0 0 ${o}, -4px 0 0 ${o}, 0 4px 0 ${o}, 0 -4px 0 ${o}, 3px 3px 0 ${o}, -3px -3px 0 ${o}, 3px -3px 0 ${o}, -3px 3px 0 ${o}, 8px 12px 0 rgba(0,0,0,0.25)`,
       }}
     >
@@ -85,54 +85,43 @@ const Emoji: React.FC<{ e: string; x: number; y: number; s: number; r: number; l
   );
 };
 
-export const TopicLayer: React.FC<{ frame: number }> = ({ frame }) => {
-  const { fps } = useVideoConfig();
+const useTopic = (frame: number) => {
   const i = TOPICS.findIndex((t) => frame >= t.from && frame < t.to);
-  if (i < 0) return null;
-  const tp: Topic = TOPICS[i];
-  const local = frame - tp.from;
+  return i < 0 ? null : { i, tp: TOPICS[i] as Topic, local: frame - TOPICS[i].from, exit: Math.min(1, (TOPICS[i].to - frame) / 5) };
+};
+
+
+// Paper tag at the top (in front of everything).
+export const TopicTitle: React.FC<{ frame: number }> = ({ frame }) => {
+  const { fps } = useVideoConfig();
+  const tt = useTopic(frame);
+  if (!tt) return null;
+  const { i, tp, local, exit } = tt;
   const pop = spring({ frame: local, fps, config: { damping: 10, stiffness: 170, mass: 0.7 } });
-  const exit = Math.min(1, (tp.to - frame) / 5);
   const rot = (rand(i * 7) - 0.5) * 4 + (boil(frame, 6) % 2) * 0.4;
   return (
     <div style={{ position: "absolute", inset: 0, opacity: exit }}>
-      <div
-        style={{
-          position: "absolute",
-          left: 0,
-          right: 0,
-          top: 70,
-          display: "flex",
-          justifyContent: "center",
-          transform: `translateY(${(1 - pop) * -160}px) rotate(${rot}deg)`,
-        }}
-      >
+      <div style={{ position: "absolute", left: 0, right: 0, top: 70, display: "flex", justifyContent: "center", transform: `translateY(${(1 - pop) * -160}px) rotate(${rot}deg)` }}>
         <div style={{ position: "relative", filter: "drop-shadow(5px 8px 0 rgba(0,0,0,0.3))" }}>
-          <div
-            style={{
-              background: PALETTE.paper,
-              clipPath: tornClip(i * 5 + 1, 18, 7),
-              padding: "22px 70px 36px",
-              direction: "rtl",
-              fontFamily: HAND,
-              fontWeight: 700,
-              fontSize: 92,
-              lineHeight: 1.1,
-              color: tp.red ? PALETTE.red : PALETTE.ink,
-              whiteSpace: "nowrap",
-            }}
-          >
-            {tp.title}
-          </div>
+          <div style={{ background: PALETTE.paper, clipPath: tornClip(i * 5 + 1, 18, 7), padding: "22px 70px 36px", direction: "rtl", fontFamily: HAND, fontWeight: 700, fontSize: 92, lineHeight: 1.1, color: tp.red ? PALETTE.red : PALETTE.ink, whiteSpace: "nowrap" }}>{tp.title}</div>
           <Tape style={{ left: "50%", top: -20, marginLeft: -60, transform: "rotate(-3deg)" }} w={120} />
         </div>
       </div>
+    </div>
+  );
+};
+
+// Emoji / notes: drawn BETWEEN the background and the speaker.
+export const TopicStickers: React.FC<{ frame: number }> = ({ frame }) => {
+  const tt = useTopic(frame);
+  if (!tt) return null;
+  const { i, tp, local, exit } = tt;
+  return (
+    <div style={{ position: "absolute", inset: 0, opacity: exit }}>
       {tp.stickers.map((s, k) => (
         <Emoji key={k} e={s.e} x={s.x} y={s.y} s={s.s ?? 140} r={s.r ?? 0} local={local} delay={4 + k * 4} seed={i * 10 + k} />
       ))}
-      {tp.note && frame >= f(tp.noteFrom ?? 0) && (
-        <PaperNote text={tp.note} local={frame - f(tp.noteFrom ?? 0)} />
-      )}
+      {tp.note && frame >= f(tp.noteFrom ?? 0) && <PaperNote text={tp.note} local={frame - f(tp.noteFrom ?? 0)} />}
     </div>
   );
 };
@@ -141,8 +130,8 @@ const PaperNote: React.FC<{ text: string; local: number }> = ({ text, local }) =
   const { fps } = useVideoConfig();
   const p = spring({ frame: local, fps, config: { damping: 9, stiffness: 160, mass: 0.7 } });
   return (
-    <div style={{ position: "absolute", left: 360, top: 250, transform: `scale(${p}) rotate(${-5 + (boil(local, 4) % 2)}deg)`, filter: "drop-shadow(6px 9px 0 rgba(0,0,0,0.3))" }}>
-      <div style={{ background: PALETTE.paper, clipPath: tornClip(41, 14, 6), padding: "10px 46px 24px", fontFamily: AR, fontWeight: 900, fontSize: 150, color: PALETTE.red, letterSpacing: -4, direction: "ltr" }}>{text}</div>
+    <div style={{ position: "absolute", left: 20, top: 250, transform: `scale(${p}) rotate(${-5 + (boil(local, 4) % 2)}deg)`, filter: "drop-shadow(6px 9px 0 rgba(0,0,0,0.3))" }}>
+      <div style={{ background: PALETTE.paper, clipPath: tornClip(41, 14, 6), padding: "10px 46px 24px", fontFamily: AR, fontWeight: 900, fontSize: 120, color: PALETTE.red, letterSpacing: -4, direction: "ltr" }}>{text}</div>
       <Tape style={{ left: 40, top: -18, transform: "rotate(-8deg)" }} w={120} />
     </div>
   );
