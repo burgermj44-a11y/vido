@@ -3,7 +3,7 @@
  * Same paper study-room setup and host cut-out as video 2 (shared kit in ../yt2).
  */
 import React from "react";
-import { AbsoluteFill, Audio, Easing, Img, Sequence, interpolate, spring, staticFile, useCurrentFrame } from "remotion";
+import { AbsoluteFill, Audio, Easing, Img, Sequence, getInputProps, interpolate, spring, staticFile, useCurrentFrame } from "remotion";
 import { FONT, loadFonts } from "../fonts";
 import { ENV, ENV_FPS } from "./env";
 import {
@@ -1471,13 +1471,15 @@ export const YT3: React.FC = () => {
       <Sequence from={sec(END_AT) - 12} durationInFrames={24} layout="none">
         <MJWipe seed={9} />
       </Sequence>
-      <Audio src={staticFile("yt3/narration.wav")} />
+      {getInputProps().voice !== false && <Audio src={staticFile("yt3/narration.wav")} />}
+      {getInputProps().music !== false && (
       <Audio
         src={staticFile("yt3/music.wav")}
         volume={(f) =>
           interpolate(f, [0, sec(LINES[0].start), sec(LINES[0].start) + 15, sec(END_AT) - 10, sec(END_AT), YT3_FRAMES - 20, YT3_FRAMES], [0.3, 0.3, 0.08, 0.08, 0.3, 0.3, 0], clamp)
         }
       />
+      )}
       <Progress />
     </AbsoluteFill>
   );
