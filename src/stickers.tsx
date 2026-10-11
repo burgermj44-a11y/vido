@@ -40,8 +40,8 @@ export const ShareSticker: React.FC<{ frame: number }> = ({ frame }) => {
           <Tape style={{ left: "50%", top: -20, marginLeft: -60 }} w={120} />
         </div>
       </div>
-      <div style={{ position: "absolute", left: 390, top: 270, width: 300, height: 190, background: PALETTE.kraft, clipPath: tornClip(9, 12, 6), transform: `scale(${p})`, filter: "drop-shadow(5px 8px 0 rgba(0,0,0,0.3))" }} />
-      <svg style={{ position: "absolute", left: 420 + slide, top: 285, transform: `scale(${p})` }} width={260} height={170} viewBox="0 0 260 170">
+      <div style={{ position: "absolute", left: 650, top: 250, width: 300, height: 190, background: PALETTE.kraft, clipPath: tornClip(9, 12, 6), transform: `scale(${p})`, filter: "drop-shadow(5px 8px 0 rgba(0,0,0,0.3))" }} />
+      <svg style={{ position: "absolute", left: 680 + slide * 0.5, top: 265, transform: `scale(${p})` }} width={260} height={170} viewBox="0 0 260 170">
         <path d="M20 150 C30 70 100 40 170 50 L170 16 L245 72 L170 128 L170 94 C120 90 70 110 20 150 Z" fill="#fff" stroke="#e4e4e4" strokeWidth={3} />
       </svg>
       {[{ e: "🧑‍🎓", x: 80, y: 300 }, { e: "👩‍🎓", x: 840, y: 300 }].map((s, i) => (
@@ -63,16 +63,17 @@ export const FollowCard: React.FC<{ frame: number }> = ({ frame }) => {
   const hand = interpolate(frame, [10, 22], [160, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
   const wob = (rand(boil(frame, 4)) - 0.5) * 1.4;
   if (PROFILE_IMAGE) {
+    // Real profile screenshot, sitting behind the speaker.
     return (
-      <div style={{ position: "absolute", left: 100, top: 50 - (1 - p) * 520, width: 880, opacity: k, transform: `rotate(${-1.5 + wob}deg)` }}>
-        <Img src={staticFile(PROFILE_IMAGE)} style={{ width: 880, display: "block", borderRadius: 30, boxShadow: "10px 14px 0 rgba(0,0,0,0.35)" }} />
+      <div style={{ position: "absolute", left: 150, top: 60 - (1 - p) * 520, width: 780, opacity: k, transform: `rotate(${-1.2 + wob}deg)` }}>
+        <Img src={staticFile(PROFILE_IMAGE)} style={{ width: 780, display: "block", borderRadius: 28, border: "3px solid #2a2d33", boxShadow: "10px 14px 0 rgba(0,0,0,0.35)" }} />
         <Tape style={{ left: -30, top: -14, transform: "rotate(-35deg)" }} w={120} />
         <Tape style={{ right: -30, top: -14, transform: "rotate(35deg)" }} w={120} />
-        {done && (
-          <div style={{ position: "absolute", right: 30, bottom: -28, background: "#2f7bf5", color: "#fff", fontFamily: LAT, fontWeight: 800, fontSize: 46, padding: "12px 40px", borderRadius: 18, boxShadow: "6px 8px 0 rgba(0,0,0,0.3)", transform: `scale(${press}) rotate(-3deg)` }}>Abonné ✓</div>
-        )}
-        <div style={{ position: "absolute", right: 90, bottom: -90 + hand, fontSize: 110, opacity: interpolate(frame, [10, 14, 44, 52], [0, 1, 1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }) }}>👆</div>
-        {done && <div style={{ position: "absolute", right: -10 + (frame - 26) * 1.5, top: 60 - (frame - 26) * 4, fontSize: 100, opacity: Math.max(0, 1 - (frame - 26) / 26) }}>❤️</div>}
+        <div style={{ position: "absolute", right: -105, top: 215, background: done ? "#3a3d44" : "#2f7bf5", color: "#fff", fontFamily: LAT, fontWeight: 800, fontSize: 42, padding: "10px 30px", borderRadius: 18, boxShadow: "6px 8px 0 rgba(0,0,0,0.35)", transform: `scale(${press}) rotate(-3deg)`, whiteSpace: "nowrap" }}>
+          {done ? "Abonné ✓" : "S'abonner"}
+        </div>
+        <div style={{ position: "absolute", right: 40, top: 300 + hand, fontSize: 100, opacity: interpolate(frame, [10, 14, 44, 52], [0, 1, 1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }) }}>👆</div>
+        {done && <div style={{ position: "absolute", right: -50 + (frame - 26) * 1.5, top: 190 - (frame - 26) * 4, fontSize: 90, opacity: Math.max(0, 1 - (frame - 26) / 26) }}>❤️</div>}
       </div>
     );
   }

@@ -36,4 +36,4 @@ export const BROLL = { from: f(29.0), to: f(32.3) };
 
 export const PROFILE = { handle: "mj" };
 // Put a screenshot of your Instagram profile in public/ and set its file name here.
-export const PROFILE_IMAGE: string | null = null;
+export const PROFILE_IMAGE: string | null = "profile_card.png";

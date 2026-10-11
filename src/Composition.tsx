@@ -50,6 +50,20 @@ export const MontageComposition: React.FC = () => {
 
       {/* emoji + notes sit between the background and the speaker */}
       {!inBroll && <TopicStickers frame={frame} />}
+      {!inBroll && <TopicTitle frame={frame} />}
+      <Sequence from={SHARE_AT} durationInFrames={40} layout="none">
+        <ShareSticker frame={frame - SHARE_AT} />
+        {sfx("flap", 0.5)}
+        <Sequence from={10}>{sfx("ding", 0.25)}</Sequence>
+      </Sequence>
+      <Sequence from={FOLLOW_AT} durationInFrames={58} layout="none">
+        <FollowCard frame={frame - FOLLOW_AT} />
+        {sfx("flap", 0.5)}
+        <Sequence from={26}>{sfx("flap", 0.5)}</Sequence>
+        <Sequence from={28}>{sfx("ding", 0.3)}</Sequence>
+      </Sequence>
+
+
       {!inBroll && (
         <div style={{ position: "absolute", inset: 0, overflow: "hidden" }}>
           <div
@@ -72,7 +86,7 @@ export const MontageComposition: React.FC = () => {
         </div>
       )}
 
-      {inBroll ? <BrollScene frame={frame - BROLL.from} /> : <TopicTitle frame={frame} />}
+      {inBroll && <BrollScene frame={frame - BROLL.from} />}
       <CaptionLayer frame={frame} />
 
       {PERSON_AT.map((t, i) => (
@@ -81,18 +95,6 @@ export const MontageComposition: React.FC = () => {
           {sfx("flap", 0.5)}
         </Sequence>
       ))}
-      <Sequence from={SHARE_AT} durationInFrames={40} layout="none">
-        <ShareSticker frame={frame - SHARE_AT} />
-        {sfx("flap", 0.5)}
-        <Sequence from={10}>{sfx("ding", 0.25)}</Sequence>
-      </Sequence>
-      <Sequence from={FOLLOW_AT} durationInFrames={58} layout="none">
-        <FollowCard frame={frame - FOLLOW_AT} />
-        {sfx("flap", 0.5)}
-        <Sequence from={26}>{sfx("flap", 0.5)}</Sequence>
-        <Sequence from={28}>{sfx("ding", 0.3)}</Sequence>
-      </Sequence>
-
       {CUTS.map((c, i) => {
         const s = c.at - TRANSITION_FRAMES / 2;
         return (
