@@ -187,17 +187,17 @@ const Stairs: React.FC<{ from: number; revealNames?: number[]; showArrow?: numbe
 const S_Stairs: React.FC<SceneProps> = ({ from }) => (
   <AbsoluteFill>
     <Stairs from={from} />
-    <Label text="الأصعب" x={CX - 440} y={CY - 360} delay={word(from, 1, "الأصعب")} size={50} color={RED} />
-    <Label text="الأسهل" x={CX + 520} y={CY + 400} delay={word(from, 1, "الأسهل")} size={50} color={GREEN} rot={2} />
-    <Stamp text="نتائج قوية 💪" x={CX - 300} y={CY + 230} delay={word(from, 2, "نتائج")} color={RED} rot={-6} size={46} />
-    <Stamp text="بداية سهلة 🙂" x={CX + 160} y={CY - 300} delay={word(from, 2, "تساعدك")} color={GREEN} rot={5} size={46} />
+    <Label text="الأصعب" x={CX - 440} y={CY - 360} delay={word(from, 2, "الأصعب")} size={50} color={RED} />
+    <Label text="الأسهل" x={CX + 520} y={CY + 400} delay={word(from, 2, "الأسهل")} size={50} color={GREEN} rot={2} />
+    <Stamp text="نتائج قوية 💪" x={CX - 300} y={CY + 230} delay={word(from, 3, "نتائج")} color={RED} rot={-6} size={46} />
+    <Stamp text="بداية سهلة 🙂" x={CX + 160} y={CY - 300} delay={word(from, 3, "تساعدك")} color={GREEN} rot={5} size={46} />
   </AbsoluteFill>
 );
 
 const S_Choose: React.FC<SceneProps> = ({ from }) => (
   <AbsoluteFill>
     <Sticker code="1f914" x={CX - 280} y={CY - 20} size={260} delay={2} seed={9} />
-    <Sticker code="1f680" x={CX + 280} y={CY - 20} size={260} delay={word(from, 3, "وابدأ")} seed={10} rot={10} />
+    <Sticker code="1f680" x={CX + 280} y={CY - 20} size={260} delay={word(from, 4, "وابدأ")} seed={10} rot={10} />
     <Label text="اختر ما يناسبك وابدأ اليوم" x={CX} y={CY + 280} delay={6} size={56} tx="kraft" />
   </AbsoluteFill>
 );
@@ -207,7 +207,7 @@ const S_Quote: React.FC<SceneProps> = ({ from }) => (
   <AbsoluteFill>
     <Sticker code="1f9d1-200d-1f52c" x={CX + 470} y={CY - 120} size={230} delay={2} seed={11} />
     <Label text="ريتشارد فاينمان · فيزيائي" x={CX + 400} y={CY + 140} delay={8} size={38} tx="kraft" />
-    <Unfold x={CX - 180} y={CY + 30} delay={word(from, 5, "كان")} seed={12} sound="paper_slide">
+    <Unfold x={CX - 180} y={CY + 30} delay={word(from, 7, "كان")} seed={12} sound="paper_slide">
       <Sheet w={760} h={420} seed={12}>
         <div style={{ position: "absolute", left: 30, top: -10, fontFamily: "Georgia, serif", fontSize: 200, color: MARKER, lineHeight: 1 }}>”</div>
         <div dir="rtl" style={{ position: "absolute", inset: "70px 50px 40px 50px", display: "flex", alignItems: "center", justifyContent: "center", textAlign: "center" }}>
@@ -236,7 +236,7 @@ const FStep: React.FC<{ n: number; text: string; delay?: number }> = ({ n, text,
 
 const S_FWrite: React.FC<SceneProps> = ({ from }) => {
   const frame = useCurrentFrame();
-  const w = ramp(frame, word(from, 6, "اكتب"), word(from, 6, "أعلى") + 10);
+  const w = ramp(frame, word(from, 8, "اكتب"), word(from, 8, "أعلى") + 10);
   return (
     <AbsoluteFill>
       <FStep n={1} text="اكتب اسم الدرس" />
@@ -250,7 +250,7 @@ const S_FWrite: React.FC<SceneProps> = ({ from }) => {
           <div style={{ position: "absolute", left: 50, right: 50, top: 130, height: 4, background: "rgba(43,89,195,0.4)" }} />
         </Sheet>
       </Unfold>
-      <Sticker code="270d" x={CX + 330} y={CY + 340} size={140} delay={word(from, 6, "اكتب")} seed={14} rot={10} />
+      <Sticker code="270d" x={CX + 330} y={CY + 340} size={140} delay={word(from, 8, "اكتب")} seed={14} rot={10} />
     </AbsoluteFill>
   );
 };
@@ -258,20 +258,20 @@ const S_FWrite: React.FC<SceneProps> = ({ from }) => {
 const S_FChild: React.FC<SceneProps> = ({ from }) => (
   <AbsoluteFill>
     <FStep n={2} text="اشرحه كأنك تشرحه لطفل" />
-    <Sticker code="1f9d2" x={CX + 330} y={CY + 140} size={280} delay={word(from, 7, "لطفل")} seed={15} />
-    <Unfold x={CX - 220} y={CY + 80} delay={word(from, 7, "اشرحه")} seed={16} sound="paper_slide">
+    <Sticker code="1f9d2" x={CX + 330} y={CY + 140} size={280} delay={word(from, 9, "لطفل")} seed={15} />
+    <Unfold x={CX - 220} y={CY + 80} delay={word(from, 9, "اشرحه")} seed={16} sound="paper_slide">
       <div dir="rtl" style={{ maxWidth: 620, background: "#fff", border: `5px solid ${INK}`, borderRadius: 34, padding: "26px 36px", boxShadow: "0 12px 16px rgba(0,0,0,0.25)" }}>
         <Hand size={46}>شوف، الدالة الأسية كي تكبر x، تكبر بسرعة بزاف...</Hand>
       </div>
     </Unfold>
-    <Label text="بكلماتك أنت" x={CX - 220} y={CY + 330} delay={word(from, 7, "بكلماتك")} size={46} tx="kraft" />
+    <Label text="بكلماتك أنت" x={CX - 220} y={CY + 330} delay={word(from, 9, "بكلماتك")} size={46} tx="kraft" />
   </AbsoluteFill>
 );
 
 const S_FGap: React.FC<SceneProps> = ({ from }) => {
   const frame = useCurrentFrame();
-  const c = ramp(frame, word(from, 8, "فهذه"), word(from, 8, "فهذه") + 14);
-  const t9 = at(from, 9, 0);
+  const c = ramp(frame, word(from, 10, "فهذه"), word(from, 10, "فهذه") + 14);
+  const t9 = at(from, 11, 0);
   return (
     <AbsoluteFill>
       <FStep n={3} text="أين توقفت؟ هنا لم تفهم" />
@@ -293,9 +293,9 @@ const S_FGap: React.FC<SceneProps> = ({ from }) => {
           )}
         </Sheet>
       </Unfold>
-      <Sticker code="1f630" x={CX + 420} y={CY + 60} size={170} delay={word(from, 8, "تتوقف")} seed={18} />
+      <Sticker code="1f630" x={CX + 420} y={CY + 60} size={170} delay={word(from, 10, "تتوقف")} seed={18} />
       <Sticker code="1f4d6" x={CX + 420} y={CY + 300} size={150} delay={t9} seed={19} rot={-8} />
-      <Sfx at={word(from, 8, "فهذه")} name="paper_crumple" vol={0.2} />
+      <Sfx at={word(from, 10, "فهذه")} name="paper_crumple" vol={0.2} />
     </AbsoluteFill>
   );
 };
@@ -303,18 +303,18 @@ const S_FGap: React.FC<SceneProps> = ({ from }) => {
 const S_FWhy: React.FC<SceneProps> = ({ from }) => (
   <AbsoluteFill>
     <Sticker code="1f50d" x={CX - 280} y={CY - 20} size={280} delay={2} seed={20} rot={-10} />
-    <Card x={CX + 250} y={CY - 20} delay={word(from, 10, "تكشف")} title="تكشف ما لا تعرفه" code="1f648" seed={21} w={440} h={360} />
-    <Stamp text="أقوى فهم 💯" x={CX} y={CY + 300} delay={word(from, 10, "أقوى")} color={GREEN} rot={-4} size={60} />
+    <Card x={CX + 250} y={CY - 20} delay={word(from, 12, "تكشف")} title="تكشف ما لا تعرفه" code="1f648" seed={21} w={440} h={360} />
+    <Stamp text="أقوى فهم 💯" x={CX} y={CY + 300} delay={word(from, 12, "أقوى")} color={GREEN} rot={-4} size={60} />
   </AbsoluteFill>
 );
 
 /* ---- 2: active recall ---- */
 const S_Close: React.FC<SceneProps> = ({ from }) => (
   <AbsoluteFill>
-    <Card x={CX + 280} y={CY} delay={word(from, 12, "تعيد")} title="إعادة القراءة" code="1f4d6" seed={22} w={400} h={360} />
-    <DrawMark kind="cross" x={CX + 280} y={CY} size={260} at={word(from, 12, "أغلق")} />
-    <Sticker code="1f4d5" x={CX - 230} y={CY - 60} size={220} delay={word(from, 12, "أغلق")} seed={23} />
-    <Unfold x={CX - 230} y={CY + 220} delay={word(from, 12, "واسأل")} seed={24} sound="paper_slide">
+    <Card x={CX + 280} y={CY} delay={word(from, 20, "تعيد")} title="إعادة القراءة" code="1f4d6" seed={22} w={400} h={360} />
+    <DrawMark kind="cross" x={CX + 280} y={CY} size={260} at={word(from, 20, "أغلق")} />
+    <Sticker code="1f4d5" x={CX - 230} y={CY - 60} size={220} delay={word(from, 20, "أغلق")} seed={23} />
+    <Unfold x={CX - 230} y={CY + 220} delay={word(from, 20, "واسأل")} seed={24} sound="paper_slide">
       <div dir="rtl" style={{ background: "#fff", border: `5px solid ${INK}`, borderRadius: 30, padding: "16px 34px" }}>
         <Hand size={56}>ماذا أتذكر؟ 🤔</Hand>
       </div>
@@ -324,8 +324,8 @@ const S_Close: React.FC<SceneProps> = ({ from }) => (
 
 const S_WriteFix: React.FC<SceneProps> = ({ from }) => {
   const frame = useCurrentFrame();
-  const t0 = word(from, 13, "اكتب");
-  const tFix = word(from, 13, "وصحح");
+  const t0 = word(from, 21, "اكتب");
+  const tFix = word(from, 21, "وصحح");
   return (
     <AbsoluteFill>
       <Unfold x={CX} y={CY + 30} delay={2} seed={25}>
@@ -364,17 +364,17 @@ const S_WriteFix: React.FC<SceneProps> = ({ from }) => {
 const S_QCards: React.FC<SceneProps> = ({ from }) => (
   <AbsoluteFill>
     {[0, 1, 2].map((i) => (
-      <Card key={i} x={CX + 330 - i * 330} y={CY - 20} delay={word(from, 14, "أسئلة") + i * 5} title={`سؤال ${i + 1} ؟`} code="2753" seed={27 + i} w={300} h={320} color={PEN} />
+      <Card key={i} x={CX + 330 - i * 330} y={CY - 20} delay={word(from, 22, "أسئلة") + i * 5} title={`سؤال ${i + 1} ؟`} code="2753" seed={27 + i} w={300} h={320} color={PEN} />
     ))}
-    <Label text="📅 أجب بعد يوم" x={CX} y={CY + 290} delay={word(from, 14, "بعد")} size={56} tx="kraft" />
+    <Label text="📅 أجب بعد يوم" x={CX} y={CY + 290} delay={word(from, 22, "بعد")} size={56} tx="kraft" />
   </AbsoluteFill>
 );
 
 const S_Effort: React.FC<SceneProps> = ({ from }) => (
   <AbsoluteFill>
     <Sticker code="1f9e0" x={CX - 260} y={CY - 20} size={280} delay={2} seed={30} />
-    <Sticker code="1f4aa" x={CX + 260} y={CY - 20} size={240} delay={word(from, 15, "التعب")} seed={31} rot={8} />
-    <Label text="تعب التذكر = تثبيت المعلومة" x={CX} y={CY + 280} delay={word(from, 15, "يثبت")} size={54} />
+    <Sticker code="1f4aa" x={CX + 260} y={CY - 20} size={240} delay={word(from, 23, "التعب")} seed={31} rot={8} />
+    <Label text="تعب التذكر = تثبيت المعلومة" x={CX} y={CY + 280} delay={word(from, 23, "يثبت")} size={54} />
   </AbsoluteFill>
 );
 
@@ -409,9 +409,9 @@ const Blocks: React.FC<{ mixAt: number; label?: boolean }> = ({ mixAt }) => {
 
 const S_Blocked: React.FC<SceneProps> = ({ from }) => (
   <AbsoluteFill>
-    <Label text="10 تمارين من نفس النوع" x={CX} y={CY - 250} delay={word(from, 17, "عشرة")} size={54} tx="kraft" />
+    <Label text="10 تمارين من نفس النوع" x={CX} y={CY - 250} delay={word(from, 31, "عشرة")} size={54} tx="kraft" />
     <Blocks mixAt={99999} />
-    <Unfold x={CX} y={CY + 300} delay={at(from, 18, 0.1)} seed={32} sound="paper_slide">
+    <Unfold x={CX} y={CY + 300} delay={at(from, 32, 0.1)} seed={32} sound="paper_slide">
       <div dir="rtl" style={{ background: "#fff", border: `5px solid ${RED}`, borderRadius: 24, padding: "12px 30px" }}>
         <Hand size={50} color={RED}>
           في الامتحان: ما هو نوع التمرين؟ 🤷
@@ -422,22 +422,22 @@ const S_Blocked: React.FC<SceneProps> = ({ from }) => (
 );
 
 const S_Mix: React.FC<SceneProps> = ({ from }) => {
-  const mixAt = word(from, 19, "اخلط");
+  const mixAt = word(from, 33, "اخلط");
   return (
     <AbsoluteFill>
       <Label text="اخلط!" x={CX} y={CY - 250} delay={mixAt} size={70} color={GREEN} />
       <Blocks mixAt={mixAt} />
       <Sfx at={mixAt} name="mj_whoosh" vol={0.2} />
-      <Sticker code="1f9e0" x={CX - 420} y={CY + 300} size={150} delay={at(from, 20, 0.05)} seed={33} />
-      <Label text="عقلك يختار الطريقة المناسبة" x={CX + 80} y={CY + 300} delay={at(from, 20, 0.1)} size={46} />
+      <Sticker code="1f9e0" x={CX - 420} y={CY + 300} size={150} delay={at(from, 34, 0.05)} seed={33} />
+      <Label text="عقلك يختار الطريقة المناسبة" x={CX + 80} y={CY + 300} delay={at(from, 34, 0.1)} size={46} />
     </AbsoluteFill>
   );
 };
 
 const S_Result: React.FC<SceneProps> = ({ from }) => {
   const frame = useCurrentFrame();
-  const a = ramp(frame, word(from, 21, "أصعب"), word(from, 21, "أصعب") + 16);
-  const b = ramp(frame, word(from, 21, "نتيجتك"), word(from, 21, "نتيجتك") + 20);
+  const a = ramp(frame, word(from, 35, "أصعب"), word(from, 35, "أصعب") + 16);
+  const b = ramp(frame, word(from, 35, "نتيجتك"), word(from, 35, "نتيجتك") + 20);
   const bars = [
     { t: "تمارين بنفس النوع", ex: 0.75, exam: 0.4, c: "#999" },
     { t: "تمارين مخلوطة", ex: 0.55, exam: 0.85, c: GREEN },
@@ -465,7 +465,7 @@ const S_Result: React.FC<SceneProps> = ({ from }) => {
           </div>
         </Sheet>
       </Unfold>
-      <Stamp text="أفضل في الامتحان" x={CX - 260} y={CY - 250} delay={word(from, 21, "أفضل")} color={GREEN} rot={-6} size={52} />
+      <Stamp text="أفضل في الامتحان" x={CX - 260} y={CY - 250} delay={word(from, 35, "أفضل")} color={GREEN} rot={-6} size={52} />
     </AbsoluteFill>
   );
 };
@@ -473,8 +473,8 @@ const S_Result: React.FC<SceneProps> = ({ from }) => {
 /* ---- 4: spaced repetition ---- */
 const S_Curve: React.FC<SceneProps> = ({ from }) => {
   const frame = useCurrentFrame();
-  const red = ramp(frame, word(from, 23, "ينسى"), word(from, 23, "لكن"));
-  const green = ramp(frame, word(from, 23, "كل"), at(from, 23, 1));
+  const red = ramp(frame, word(from, 43, "ينسى"), word(from, 43, "لكن"));
+  const green = ramp(frame, word(from, 43, "كل"), at(from, 43, 1));
   const X = (d: number) => 120 + Math.sqrt(d / 30) * 860;
   const Y = (r: number) => 480 - r * 360;
   const redPts = Array.from({ length: 61 }, (_, i) => `${X(i / 2).toFixed(1)},${Y(0.2 + 0.8 * Math.exp(-(i / 2) / 1.2)).toFixed(1)}`).join(" ");
@@ -525,7 +525,7 @@ const S_Dates: React.FC<SceneProps> = ({ from }) => {
   return (
     <AbsoluteFill>
       {marks.map(([t, w], i) => (
-        <Unfold key={i} x={CX + 450 - i * 300} y={CY} delay={word(from, 24, w)} seed={36 + i} rot={i % 2 ? 3 : -3}>
+        <Unfold key={i} x={CX + 450 - i * 300} y={CY} delay={word(from, 44, w)} seed={36 + i} rot={i % 2 ? 3 : -3}>
           <Sheet w={250} h={250} tx={i === 3 ? "kraft" : "white"} seed={36 + i}>
             <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
               <Img src={icon("1f4c5")} style={{ width: 90, height: 90 }} />
@@ -535,7 +535,7 @@ const S_Dates: React.FC<SceneProps> = ({ from }) => {
           </Sheet>
         </Unfold>
       ))}
-      <Label text="راجع في هذه المواعيد" x={CX} y={CY + 290} delay={word(from, 24, "راجع")} size={54} tx="kraft" />
+      <Label text="راجع في هذه المواعيد" x={CX} y={CY + 290} delay={word(from, 44, "راجع")} size={54} tx="kraft" />
     </AbsoluteFill>
   );
 };
@@ -543,7 +543,7 @@ const S_Dates: React.FC<SceneProps> = ({ from }) => {
 const S_Table: React.FC<SceneProps> = ({ from }) => {
   const frame = useCurrentFrame();
   const rows = ["الدوال", "الأعداد المركبة", "الوراثة", "الفلسفة"];
-  const t0 = word(from, 25, "اكتب");
+  const t0 = word(from, 45, "اكتب");
   return (
     <AbsoluteFill>
       <Unfold x={CX} y={CY - 20} delay={2} seed={40}>
@@ -565,7 +565,7 @@ const S_Table: React.FC<SceneProps> = ({ from }) => {
           ))}
         </Sheet>
       </Unfold>
-      <Stamp text="سهلة: تنظيم + التزام" x={CX} y={CY + 320} delay={word(from, 26, "سهلة")} color={GREEN} rot={-3} size={54} />
+      <Stamp text="سهلة: تنظيم + التزام" x={CX} y={CY + 320} delay={word(from, 46, "سهلة")} color={GREEN} rot={-3} size={54} />
     </AbsoluteFill>
   );
 };
@@ -573,12 +573,12 @@ const S_Table: React.FC<SceneProps> = ({ from }) => {
 /* ---- 5: mind map ---- */
 const S_MindMap: React.FC<SceneProps> = ({ from }) => {
   const frame = useCurrentFrame();
-  const tC = word(from, 28, "عنوان");
-  const tB = word(from, 29, "فروعًا");
-  const tS = word(from, 29, "أصغر");
-  const tCol = at(from, 30, 0.05);
-  const tAll = at(from, 31, 0.05);
-  const tFast = at(from, 32, 0.1);
+  const tC = word(from, 54, "عنوان");
+  const tB = word(from, 55, "فروعًا");
+  const tS = word(from, 55, "أصغر");
+  const tCol = at(from, 56, 0.05);
+  const tAll = at(from, 57, 0.05);
+  const tFast = at(from, 58, 0.1);
   const branches = [
     { a: -150, t: "التعريف", code: "1f4d6", c: RED },
     { a: -30, t: "الخصائص", code: "2728", c: PEN },
@@ -644,13 +644,13 @@ const S_MindMap: React.FC<SceneProps> = ({ from }) => {
 /* ---- recap & cta ---- */
 const S_RecapStairs: React.FC<SceneProps> = ({ from }) => {
   const names = ["فاينمان", "الاسترجاع", "الخلط", "التكرار", "الخريطة"];
-  const reveal = names.map((n) => word(from, 34, n));
+  const reveal = names.map((n) => word(from, 84, n));
   return (
     <AbsoluteFill>
-      <Stairs from={from} revealNames={reveal} showArrow={at(from, 35, 0.2)} />
-      <Label text="ابدأ بالسهلة ← وأضف طريقة كل أسبوع" x={CX} y={CY + 400} delay={at(from, 35, 0.1)} size={46} tx="kraft" />
-      <Sticker code="1f4c8" x={CX - 470} y={CY + 240} size={170} delay={at(from, 36, 0.3)} seed={43} />
-      <Stamp text="الفرق في معدلك" x={CX - 380} y={CY - 360} delay={word(from, 36, "الفرق")} color={GREEN} rot={-5} size={50} />
+      <Stairs from={from} revealNames={reveal} showArrow={at(from, 85, 0.2)} />
+      <Label text="ابدأ بالسهلة ← وأضف طريقة كل أسبوع" x={CX} y={CY + 400} delay={at(from, 85, 0.1)} size={46} tx="kraft" />
+      <Sticker code="1f4c8" x={CX - 470} y={CY + 240} size={170} delay={at(from, 86, 0.3)} seed={43} />
+      <Stamp text="الفرق في معدلك" x={CX - 380} y={CY - 360} delay={word(from, 86, "الفرق")} color={GREEN} rot={-5} size={50} />
     </AbsoluteFill>
   );
 };
@@ -658,7 +658,7 @@ const S_RecapStairs: React.FC<SceneProps> = ({ from }) => {
 const S_Comment: React.FC<SceneProps> = ({ from }) => {
   const frame = useCurrentFrame();
   const opts = ["فاينمان", "الاسترجاع", "الخلط", "التكرار", "الخريطة"];
-  const pick = at(from, 37, 0.7);
+  const pick = at(from, 87, 0.7);
   return (
     <AbsoluteFill>
       <Unfold x={CX} y={CY - 150} delay={2} seed={44} sound="paper_slide">
@@ -689,10 +689,10 @@ const S_Comment: React.FC<SceneProps> = ({ from }) => {
 
 const S_Subscribe: React.FC<SceneProps> = ({ from }) => {
   const frame = useCurrentFrame();
-  const tap = word(from, 38, "اشترك") + 8;
+  const tap = word(from, 88, "اشترك") + 8;
   const sub = frame >= tap;
-  const bell = word(from, 38, "القناة") + 6;
-  const share = word(from, 38, "وشارك");
+  const bell = word(from, 88, "القناة") + 6;
+  const share = word(from, 88, "وشارك");
   return (
     <AbsoluteFill>
       <Sfx at={tap} name="click" vol={0.3} />
@@ -721,6 +721,305 @@ const S_Subscribe: React.FC<SceneProps> = ({ from }) => {
     </AbsoluteFill>
   );
 };
+
+
+/* ---- generic scenes for the 8-minute version ---- */
+const S_Wrong: React.FC<SceneProps> = ({ from }) => {
+  const frame = useCurrentFrame();
+  const h = interpolate(frame, [4, at(from, 1, 0.5)], [0, 6], clamp);
+  return (
+    <AbsoluteFill>
+      <Unfold x={CX + 250} y={CY - 20} delay={2} seed={50}>
+        <Sheet w={420} h={380} seed={50}>
+          <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
+            <Img src={icon("23f0")} style={{ width: 150, height: 150, transform: `rotate(${jitter(frame, 3, 5)}deg)` }} />
+            <Hand size={70}>{Math.round(h)} ساعات</Hand>
+          </div>
+        </Sheet>
+      </Unfold>
+      <Card x={CX - 250} y={CY - 20} delay={word(from, 1, "فلا")} title="0 تذكّر" code="1f635" seed={51} w={420} h={380} color={RED} />
+      <Stamp text="طريقة خاطئة" x={CX} y={CY + 280} delay={word(from, 1, "خاطئة")} size={60} />
+    </AbsoluteFill>
+  );
+};
+
+const S_PlanTeaser: React.FC<SceneProps> = ({ from }) => (
+  <AbsoluteFill>
+    <Sticker code="1f5d3" x={CX} y={CY - 40} size={300} delay={2} seed={52} />
+    <Stamp text="خطة أسبوعية في الآخر 🎁" x={CX} y={CY + 250} delay={word(from, 5, "خطة")} color={PEN} rot={-4} size={56} />
+  </AbsoluteFill>
+);
+
+type Bullet = [string, string];
+const ExampleScene = (li: number, subject: string, code: string, bullets: Bullet[], tail?: { li: number; text: string; code: string }): React.FC<SceneProps> => {
+  const C: React.FC<SceneProps> = ({ from }) => {
+    const frame = useCurrentFrame();
+    return (
+      <AbsoluteFill>
+        <Unfold x={CX - 60} y={CY + 10} delay={2} seed={li}>
+          <Sheet w={900} h={560} seed={li}>
+            <div dir="rtl" style={{ position: "absolute", top: 24, right: 40, display: "flex", alignItems: "center", gap: 16 }}>
+              <div style={{ background: MARKER, padding: "0 18px 6px", borderRadius: 8 }}>
+                <Hand size={50}>مثال</Hand>
+              </div>
+              <Hand size={50} color={PEN}>
+                {subject}
+              </Hand>
+            </div>
+            {bullets.map(([t, w], i) => {
+              const d = word(from, li, w);
+              return frame >= d ? (
+                <div key={i} dir="rtl" style={{ position: "absolute", right: 50, top: 140 + i * 100, display: "flex", alignItems: "center", gap: 14, opacity: ramp(frame, d, d + 6), transform: `translateX(${(1 - ramp(frame, d, d + 8)) * -30}px)` }}>
+                  <div style={{ width: 22, height: 22, borderRadius: 11, background: TOMATO }} />
+                  <Hand size={46}>{t}</Hand>
+                </div>
+              ) : null;
+            })}
+          </Sheet>
+        </Unfold>
+        <Sticker code={code} x={CX + 480} y={CY - 200} size={170} delay={6} rot={8} seed={li + 1} />
+        {bullets.map(([, w], i) => (
+          <Sfx key={i} at={word(from, li, w)} name="paper_rustle" vol={0.14} />
+        ))}
+        {tail && <Label text={tail.text} x={CX - 60} y={CY + 360} delay={at(from, tail.li, 0.05)} size={48} tx="kraft" />}
+        {tail && <Sticker code={tail.code} x={CX + 470} y={CY + 300} size={150} delay={at(from, tail.li, 0.1)} seed={li + 2} />}
+      </AbsoluteFill>
+    );
+  };
+  return C;
+};
+
+const MistakeScene = (li: number, wrong: string, fixLi: number, fix: string, code: string): React.FC<SceneProps> => {
+  const C: React.FC<SceneProps> = ({ from }) => (
+    <AbsoluteFill>
+      <Unfold x={CX} y={150} delay={0} seed={li + 3} sound="paper_slide">
+        <Sheet w={560} h={120} tx="kraft" seed={li + 3}>
+          <div dir="rtl" style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", gap: 16 }}>
+            <Img src={icon("26a0")} style={{ width: 70, height: 70 }} />
+            <Hand size={54} color={RED}>
+              الخطأ الشائع
+            </Hand>
+          </div>
+        </Sheet>
+      </Unfold>
+      <Card x={CX + 260} y={CY + 110} delay={at(from, li, 0.15)} title={wrong} code={code} seed={li + 4} w={460} h={380} />
+      <DrawMark kind="cross" x={CX + 260} y={CY + 110} size={260} at={at(from, li, 0.8)} />
+      <Card x={CX - 260} y={CY + 110} delay={at(from, fixLi, 0.05)} title={fix} code="2705" seed={li + 5} w={460} h={380} color={GREEN} />
+    </AbsoluteFill>
+  );
+  return C;
+};
+
+const WhenScene = (li: number, chips: Bullet[]): React.FC<SceneProps> => {
+  const C: React.FC<SceneProps> = ({ from }) => {
+    const frame = useCurrentFrame();
+    return (
+      <AbsoluteFill>
+        <Sticker code="1f552" x={CX + 420} y={CY - 140} size={200} delay={2} seed={li} />
+        <Label text="متى تستعملها؟" x={CX - 80} y={CY - 200} delay={2} size={72} />
+        <div dir="rtl" style={{ position: "absolute", left: CX - 640, width: 1280, top: CY + 60, display: "flex", gap: 22, justifyContent: "center", flexWrap: "wrap" }}>
+          {chips.map(([t, w], i) => {
+            const d = word(from, li, w);
+            return frame >= d ? (
+              <div key={i} style={{ padding: "14px 34px", borderRadius: 999, background: "#fff", border: `5px solid ${LEVEL_COLORS[i % 5]}`, transform: `scale(${spring({ frame: frame - d, fps: FPS, config: { damping: 10 } })}) rotate(${i % 2 ? 2 : -2}deg)`, boxShadow: "0 8px 10px rgba(0,0,0,0.2)" }}>
+                <Hand size={50}>{t}</Hand>
+              </div>
+            ) : null;
+          })}
+        </div>
+        {chips.map(([, w], i) => (
+          <Sfx key={i} at={word(from, li, w)} name="click" vol={0.14} />
+        ))}
+      </AbsoluteFill>
+    );
+  };
+  return C;
+};
+
+const ExtraScene = (li: number, items: { code: string; w: string; label: string }[]): React.FC<SceneProps> => {
+  const C: React.FC<SceneProps> = ({ from }) => (
+    <AbsoluteFill>
+      {items.map((it, i) => {
+        const x = CX + (items.length === 1 ? 0 : 280 - i * (560 / (items.length - 1)));
+        return (
+          <React.Fragment key={i}>
+            <Sticker code={it.code} x={x} y={CY - 40} size={240} delay={word(from, li, it.w)} seed={li + i} rot={i % 2 ? 8 : -8} />
+            <Label text={it.label} x={x} y={CY + 200} delay={word(from, li, it.w) + 6} size={46} tx={i % 2 ? "kraft" : "white"} />
+          </React.Fragment>
+        );
+      })}
+    </AbsoluteFill>
+  );
+  return C;
+};
+
+const S_FlashFlip: React.FC<SceneProps> = ({ from }) => {
+  const frame = useCurrentFrame();
+  const t0 = word(from, 26, "سؤال");
+  const flip = ramp(frame, word(from, 26, "والجواب"), word(from, 26, "والجواب") + 14, Easing.inOut(Easing.cubic));
+  const back = flip > 0.5;
+  return (
+    <AbsoluteFill>
+      <Unfold x={CX} y={CY} delay={t0 - 4} seed={60}>
+        <div style={{ perspective: 1400 }}>
+          <div style={{ transform: `rotateY(${flip * 180}deg)` }}>
+            <div style={{ transform: back ? "rotateY(180deg)" : "none" }}>
+              <Sheet w={760} h={440} seed={back ? 61 : 60} tint={back ? "#E9F7EE" : undefined}>
+                <div style={{ position: "absolute", left: 30, right: 30, top: 80, height: 4, background: "rgba(215,50,47,0.45)" }} />
+                <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
+                  <Hand size={44} color="#555">
+                    {back ? "الظهر" : "الوجه"}
+                  </Hand>
+                  <Hand size={96} color={back ? GREEN : PEN}>
+                    {back ? "الجواب ✓" : "سؤال ؟"}
+                  </Hand>
+                </div>
+              </Sheet>
+            </div>
+          </div>
+        </div>
+      </Unfold>
+      <Sfx at={word(from, 26, "والجواب")} name="paper_flip" vol={0.3} />
+      <Sticker code="1f4c7" x={CX - 470} y={CY + 200} size={170} delay={t0} seed={62} />
+    </AbsoluteFill>
+  );
+};
+
+const S_SpacedExample: React.FC<SceneProps> = ({ from }) => {
+  const days: Bullet[] = [
+    ["السبت: درس", "السبت"],
+    ["الأحد", "الأحد"],
+    ["الثلاثاء", "الثلاثاء"],
+    ["السبت القادم", "القادم"],
+  ];
+  return (
+    <AbsoluteFill>
+      <Label text="مثال: درس الدوال" x={CX} y={CY - 260} delay={2} size={56} tx="kraft" />
+      {days.map(([t, w], i) => (
+        <Unfold key={i} x={CX + 450 - i * 300} y={CY + 30} delay={word(from, 47, w)} seed={63 + i} rot={i % 2 ? 3 : -3}>
+          <Sheet w={260} h={260} tx={i === 0 ? "kraft" : "white"} seed={63 + i}>
+            <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 6 }}>
+              <Img src={icon(i === 0 ? "1f4d6" : "1f504")} style={{ width: 90, height: 90 }} />
+              <Hand size={44}>{t}</Hand>
+            </div>
+            <Tape x={130} y={6} w={100} />
+          </Sheet>
+        </Unfold>
+      ))}
+    </AbsoluteFill>
+  );
+};
+
+const S_MiniMap: React.FC<SceneProps> = ({ from }) => {
+  const frame = useCurrentFrame();
+  const t0 = word(from, 59, "الإشكالية");
+  const t1 = word(from, 59, "والمواقف");
+  const br = ["الموقف 1", "الموقف 2", "النقد", "التركيب"];
+  return (
+    <AbsoluteFill>
+      <Unfold x={CX} y={CY + 20} delay={2} seed={67}>
+        <Sheet w={1100} h={640} seed={67}>
+          <svg width={1100} height={640} style={{ position: "absolute", inset: 0 }}>
+            {br.map((_, i) => {
+              const a = (-150 + i * 100) * (Math.PI / 180);
+              const p = ramp(frame, t1 + i * 5, t1 + i * 5 + 12);
+              return <line key={i} x1={550} y1={320} x2={550 + Math.cos(a) * 340 * p} y2={320 + Math.sin(a) * 220 * p} stroke={LEVEL_COLORS[i]} strokeWidth="10" strokeLinecap="round" />;
+            })}
+          </svg>
+          <div style={{ position: "absolute", left: 370, top: 270, width: 360, height: 100, borderRadius: 50, background: "#fff", border: `6px solid ${INK}`, display: "flex", alignItems: "center", justifyContent: "center", opacity: ramp(frame, t0, t0 + 8) }}>
+            <Hand size={44}>الإشكالية</Hand>
+          </div>
+          {br.map((b, i) => {
+            const a = (-150 + i * 100) * (Math.PI / 180);
+            return (
+              <div key={i} style={{ position: "absolute", left: 550 + Math.cos(a) * 340 - 100, top: 320 + Math.sin(a) * 220 - 34, width: 200, textAlign: "center", background: "#fff", border: `4px solid ${LEVEL_COLORS[i]}`, borderRadius: 14, opacity: ramp(frame, t1 + i * 5 + 10, t1 + i * 5 + 16) }}>
+                <Hand size={38}>{b}</Hand>
+              </div>
+            );
+          })}
+        </Sheet>
+      </Unfold>
+      <Sticker code="1f914" x={CX + 520} y={CY - 260} size={150} delay={6} seed={68} />
+    </AbsoluteFill>
+  );
+};
+
+const PLAN_ROWS: { li: number; day: string; text: string; code: string; col: string }[] = [
+  { li: 66, day: "يوم الدرس", text: "فاينمان + خريطة ذهنية", code: "1f9d1-200d-1f52c", col: RED },
+  { li: 67, day: "اليوم التالي", text: "الاسترجاع الفعّال", code: "1f9e0", col: "#F28C28" },
+  { li: 68, day: "خلال الأسبوع", text: "التكرار المتباعد", code: "1f4c5", col: "#F2B705" },
+  { li: 69, day: "نهاية الأسبوع", text: "تمارين مخلوطة", code: "1f500", col: GREEN },
+];
+const S_Plan: React.FC<SceneProps> = ({ from }) => {
+  const frame = useCurrentFrame();
+  return (
+    <AbsoluteFill>
+      <Unfold x={CX} y={CY + 20} delay={2} seed={70}>
+        <Sheet w={1160} h={700} seed={70}>
+          <div style={{ position: "absolute", top: 24, right: 50 }}>
+            <Hand size={60}>خطة الأسبوع 🗓️</Hand>
+          </div>
+          {PLAN_ROWS.map((r, i) => {
+            const d = at(from, r.li, 0.05);
+            return frame >= d ? (
+              <div key={i} dir="rtl" style={{ position: "absolute", right: 50, left: 50, top: 140 + i * 125, height: 100, borderRadius: 18, background: r.col, display: "flex", alignItems: "center", gap: 24, padding: "0 30px", transform: `scaleX(${ramp(frame, d, d + 12, Easing.out(Easing.back(1.2)))})`, transformOrigin: "100% 50%" }}>
+                <Hand size={42} color="#fff" style={{ width: 280 }}>
+                  {r.day}
+                </Hand>
+                <Img src={icon(r.code)} style={{ width: 70, height: 70 }} />
+                <div style={{ fontFamily: FONT, fontSize: 42, color: "#fff" }}>{r.text}</div>
+              </div>
+            ) : null;
+          })}
+        </Sheet>
+      </Unfold>
+      {PLAN_ROWS.map((r, i) => (
+        <Sfx key={i} at={at(from, r.li, 0.05)} name="paper_slide" vol={0.18} />
+      ))}
+      <Stamp text="كل طريقة تقوي الأخرى 💪" x={CX} y={CY + 400} delay={at(from, 70, 0.2)} color={GREEN} rot={-3} size={50} />
+    </AbsoluteFill>
+  );
+};
+
+const FaqScene3 = (q: number, qText: string, aText: string, aCode: string): React.FC<SceneProps> => {
+  const C: React.FC<SceneProps> = ({ from }) => (
+    <AbsoluteFill>
+      <Sticker code="2753" x={CX + 520} y={CY - 230} size={150} delay={2} seed={124 + q} />
+      <Unfold x={CX + 80} y={CY - 150} delay={4} seed={125 + q} sound="paper_slide">
+        <div dir="rtl" style={{ maxWidth: 900, background: "#fff", borderRadius: 30, padding: "24px 40px", border: `5px solid ${INK}`, boxShadow: "0 12px 16px rgba(0,0,0,0.25)" }}>
+          <Hand size={52} style={{ whiteSpace: "normal" }}>
+            {qText}
+          </Hand>
+        </div>
+      </Unfold>
+      <Unfold x={CX - 80} y={CY + 170} delay={at(from, q + 1, 0.05)} seed={126 + q}>
+        <div dir="rtl" style={{ maxWidth: 900, background: "#E8F6EC", borderRadius: 30, padding: "24px 40px", border: `5px solid ${GREEN}`, boxShadow: "0 12px 16px rgba(0,0,0,0.25)", display: "flex", alignItems: "center", gap: 20 }}>
+          <Img src={icon(aCode)} style={{ width: 90, height: 90 }} />
+          <Hand size={48} color="#1E6B3D">
+            {aText}
+          </Hand>
+        </div>
+      </Unfold>
+    </AbsoluteFill>
+  );
+  return C;
+};
+
+const TIPS: { li: number; code: string; text: string }[] = [
+  { li: 78, code: "1f634", text: "نم جيدًا" },
+  { li: 79, code: "1f4f5", text: "أبعد الهاتف" },
+  { li: 80, code: "1f345", text: "جلسات قصيرة" },
+];
+const S_Tips: React.FC<SceneProps> = ({ from }) => (
+  <AbsoluteFill>
+    <Label text="3 نصائح ذهبية" x={CX} y={CY - 280} delay={2} size={64} tx="kraft" />
+    {TIPS.map((t, i) => (
+      <Card key={i} x={CX + 380 - i * 380} y={CY + 60} delay={at(from, t.li, 0.05)} title={`${i + 1}. ${t.text}`} code={t.code} seed={80 + i} w={340} h={360} />
+    ))}
+    <Stamp text="فيديو البومودورو 🍅" x={CX - 380} y={CY + 330} delay={word(from, 81, "البومودورو")} color={RED} rot={-6} size={46} />
+    <Stamp text="ستلاحظ الفرق ✓" x={CX + 300} y={CY + 330} delay={word(from, 82, "وستلاحظ")} color={GREEN} rot={4} size={46} />
+  </AbsoluteFill>
+);
 
 const TitleScene = (n: number): React.FC<SceneProps> => {
   const C: React.FC<SceneProps> = () => <MethodTitle n={n} />;
@@ -786,6 +1085,9 @@ const SECTION_STATION: Record<string, keyof typeof ST> = {
   m3: "books",
   m4: "window",
   m5: "shelf",
+  plan: "board",
+  faq: "monitor",
+  tips: "notebook",
   recap: "desk",
   cta: "wide",
 };
@@ -797,6 +1099,9 @@ const SECTION_NAMES: Record<string, string> = {
   m3: "3 · الخلط بين التمارين",
   m4: "4 · التكرار المتباعد",
   m5: "5 · الخريطة الذهنية",
+  plan: "خطة أسبوعية",
+  faq: "أسئلة شائعة",
+  tips: "نصائح ذهبية",
   recap: "الخلاصة",
   cta: "دورك الآن",
 };
@@ -807,7 +1112,7 @@ const BOUNDS: Boundary[] = [];
 for (let i = 1; i < LINES.length; i++) {
   if (LINES[i].section !== LINES[i - 1].section) BOUNDS.push({ t: (LINES[i - 1].end + LINES[i].start) / 2, section: LINES[i].section, prev: LINES[i - 1].section });
 }
-const MJ_SECTIONS = new Set(["m1", "m2", "m3", "m4", "m5"]);
+const MJ_SECTIONS = new Set(["m1", "m2", "m3", "m4", "m5", "plan"]);
 const END_AT = LINES[LINES.length - 1].end + 0.5;
 
 const cameraAt = (t: number): Station => {
@@ -1037,32 +1342,60 @@ const Watermark: React.FC = () => (
 type SceneDef = { first: number; C: React.FC<SceneProps> };
 const SCENES: SceneDef[] = [
   { first: 0, C: S_Balance },
-  { first: 1, C: S_Stairs },
-  { first: 3, C: S_Choose },
-  { first: 4, C: TitleScene(1) },
-  { first: 5, C: S_Quote },
-  { first: 6, C: S_FWrite },
-  { first: 7, C: S_FChild },
-  { first: 8, C: S_FGap },
-  { first: 10, C: S_FWhy },
-  { first: 11, C: TitleScene(2) },
-  { first: 12, C: S_Close },
-  { first: 13, C: S_WriteFix },
-  { first: 14, C: S_QCards },
-  { first: 15, C: S_Effort },
-  { first: 16, C: TitleScene(3) },
-  { first: 17, C: S_Blocked },
-  { first: 19, C: S_Mix },
-  { first: 21, C: S_Result },
-  { first: 22, C: TitleScene(4) },
-  { first: 23, C: S_Curve },
-  { first: 24, C: S_Dates },
-  { first: 25, C: S_Table },
-  { first: 27, C: TitleScene(5) },
-  { first: 28, C: S_MindMap },
-  { first: 33, C: S_RecapStairs },
-  { first: 37, C: S_Comment },
-  { first: 38, C: S_Subscribe },
+  { first: 1, C: S_Wrong },
+  { first: 2, C: S_Stairs },
+  { first: 4, C: S_Choose },
+  { first: 5, C: S_PlanTeaser },
+  { first: 6, C: TitleScene(1) },
+  { first: 7, C: S_Quote },
+  { first: 8, C: S_FWrite },
+  { first: 9, C: S_FChild },
+  { first: 10, C: S_FGap },
+  { first: 12, C: S_FWhy },
+  { first: 13, C: ExampleScene(13, "درس الوراثة", "1f9ec", [["اشرحه لأخيك الصغير", "حاول"], ["كيف تنتقل الصفات؟", "كيف"]], { li: 14, text: "لم أفهم؟ ← بسّط أكثر", code: "1f9d2" }) },
+  { first: 15, C: ExtraScene(15, [{ code: "1fa9e", w: "المرآة", label: "اشرح أمام المرآة" }, { code: "1f399", w: "سجل", label: "سجّل صوتك" }]) },
+  { first: 16, C: MistakeScene(16, "حفظ كلمات الكتاب", 17, "أمثلة من حياتك + رسومات", "1f99c") },
+  { first: 18, C: WhenScene(18, [["الدروس النظرية", "النظرية"], ["العلوم", "العلوم"], ["الفلسفة", "والفلسفة"], ["الفيزياء", "والفيزياء"]]) },
+  { first: 19, C: TitleScene(2) },
+  { first: 20, C: S_Close },
+  { first: 21, C: S_WriteFix },
+  { first: 22, C: S_QCards },
+  { first: 23, C: S_Effort },
+  { first: 24, C: ExampleScene(24, "درس التاريخ", "1f4dc", [["أغلق الكتاب", "أغلق"], ["اكتب التواريخ والأحداث", "واكتب"]], { li: 25, text: "نسيت أشياء؟ هذا طبيعي 🙂", code: "1f60c" }) },
+  { first: 26, C: S_FlashFlip },
+  { first: 27, C: MistakeScene(27, "تنظر إلى الجواب بسرعة", 28, "حاول دقيقتين على الأقل", "1f440") },
+  { first: 29, C: WhenScene(29, [["بعد كل درس", "بعد"], ["في كل مراجعة", "وفي"]]) },
+  { first: 30, C: TitleScene(3) },
+  { first: 31, C: S_Blocked },
+  { first: 33, C: S_Mix },
+  { first: 35, C: S_Result },
+  { first: 36, C: ExampleScene(36, "الفيزياء", "26a1", [["الميكانيك ⚙️", "الميكانيك"], ["الكهرباء ⚡", "الكهرباء"], ["الموجات 🌊", "الموجات"]], { li: 37, text: "ما نوع هذا التمرين؟ 🤔", code: "1f914" }) },
+  { first: 38, C: ExtraScene(38, [{ code: "1f4d0", w: "الرياضيات", label: "لا مفاجآت في الامتحان" }]) },
+  { first: 39, C: MistakeScene(39, "خلط دروس لم تفهمها", 40, "افهم كل درس وحده أولًا", "1f635") },
+  { first: 41, C: WhenScene(41, [["تحضير الامتحانات", "تحضر"], ["المراجعة العامة", "المراجعة"]]) },
+  { first: 42, C: TitleScene(4) },
+  { first: 43, C: S_Curve },
+  { first: 44, C: S_Dates },
+  { first: 45, C: S_Table },
+  { first: 47, C: S_SpacedExample },
+  { first: 48, C: ExtraScene(48, [{ code: "1f9e0", w: "اختبر", label: "اختبر نفسك" }, { code: "1f4f1", w: "تطبيقًا", label: "تطبيق يذكّرك 🔔" }]) },
+  { first: 50, C: MistakeScene(50, "كل شيء في الليلة الأخيرة", 51, "مراجعة موزعة على أيام", "1f319") },
+  { first: 52, C: WhenScene(52, [["طوال السنة", "طوال"], ["كل المواد", "كل"]]) },
+  { first: 53, C: TitleScene(5) },
+  { first: 54, C: S_MindMap },
+  { first: 59, C: S_MiniMap },
+  { first: 60, C: ExtraScene(60, [{ code: "1f4cc", w: "تعلق", label: "علّقها على الحائط" }]) },
+  { first: 61, C: ExtraScene(61, [{ code: "270d", w: "رسمتها", label: "ارسمها بيدك" }]) },
+  { first: 62, C: MistakeScene(62, "جمل طويلة", 63, "كلمات مفتاحية + ألوان", "1f4dc") },
+  { first: 64, C: WhenScene(64, [["الملخصات", "الملخصات"], ["قبل الامتحان بأيام", "وقبل"]]) },
+  { first: 65, C: S_Plan },
+  { first: 71, C: FaqScene3(71, "هل أستعمل الطرق الخمس كلها؟", "ابدأ بطريقة أو اثنتين، ثم أضف", "1f44c") },
+  { first: 73, C: FaqScene3(73, "كم من الوقت تحتاج؟", "أطول قليلًا في البداية، وأقل في المراجعة", "23f3") },
+  { first: 75, C: FaqScene3(75, "هل تصلح للمواد الأدبية؟", "نعم: فاينمان والخرائط للفلسفة والتاريخ", "1f4da") },
+  { first: 77, C: S_Tips },
+  { first: 83, C: S_RecapStairs },
+  { first: 87, C: S_Comment },
+  { first: 88, C: S_Subscribe },
 ];
 
 const sceneFrom = (first: number) => {
