@@ -1138,6 +1138,19 @@ const cameraAt = (t: number): Station => {
   return { x: cur.x + (target.x - cur.x) * p + drift, y: cur.y + (target.y - cur.y) * p, s: cur.s + (target.s - cur.s) * p + Math.sin(t / 5) * 0.01 };
 };
 
+/* simple style: a softly blurred sheet of paper instead of the study room */
+const PaperBackdrop: React.FC<{ kind: "white" | "kraft" }> = ({ kind }) => {
+  const frame = useCurrentFrame();
+  return (
+    <AbsoluteFill style={{ overflow: "hidden", background: kind === "kraft" ? "#C9A57A" : "#F4EFE6" }}>
+      <AbsoluteFill style={{ transform: `scale(${1.08 + Math.sin(frame / 90) * 0.01})`, filter: "blur(5px)" }}>
+        <Img src={tex(kind)} style={{ width: "100%", height: "100%", objectFit: "cover", opacity: kind === "kraft" ? 0.9 : 1 }} />
+      </AbsoluteFill>
+      <AbsoluteFill style={{ background: "radial-gradient(ellipse at 50% 45%, rgba(255,255,255,0.18) 0%, rgba(0,0,0,0) 55%, rgba(60,40,20,0.22) 100%)" }} />
+    </AbsoluteFill>
+  );
+};
+
 const World: React.FC = () => {
   const frame = useCurrentFrame();
   const t = frame / FPS;
@@ -1421,7 +1434,7 @@ export const YT3: React.FC = () => {
   const introEnd = sec(LINES[0].start - 0.3);
   return (
     <AbsoluteFill style={{ background: "#EED9B6" }}>
-      <World />
+      {getInputProps().bg === "white" || getInputProps().bg === "kraft" ? <PaperBackdrop kind={getInputProps().bg as "white" | "kraft"} /> : <World />}
       {/* soft scrim so the cards read well over the room */}
       <AbsoluteFill style={{ background: "radial-gradient(ellipse at 62% 45%, rgba(255,248,235,0.55) 0%, rgba(255,248,235,0.25) 55%, rgba(0,0,0,0) 80%)" }} />
       <Sequence durationInFrames={introEnd + 10} layout="none">
