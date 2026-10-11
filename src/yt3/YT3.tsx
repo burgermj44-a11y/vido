@@ -1138,15 +1138,37 @@ const cameraAt = (t: number): Station => {
   return { x: cur.x + (target.x - cur.x) * p + drift, y: cur.y + (target.y - cur.y) * p, s: cur.s + (target.s - cur.s) * p + Math.sin(t / 5) * 0.01 };
 };
 
-/* simple style: a softly blurred sheet of paper instead of the study room */
+/* simple style: a softly blurred sheet of paper instead of the study room.
+   The kraft version is animated: drifting light, slow parallax, floating paper flecks. */
 const PaperBackdrop: React.FC<{ kind: "white" | "kraft" }> = ({ kind }) => {
   const frame = useCurrentFrame();
+  const kraft = kind === "kraft";
+  const lx = 50 + Math.sin(frame / 140) * 22;
+  const ly = 40 + Math.cos(frame / 170) * 14;
   return (
-    <AbsoluteFill style={{ overflow: "hidden", background: kind === "kraft" ? "#C9A57A" : "#F4EFE6" }}>
-      <AbsoluteFill style={{ transform: `scale(${1.08 + Math.sin(frame / 90) * 0.01})`, filter: "blur(5px)" }}>
-        <Img src={tex(kind)} style={{ width: "100%", height: "100%", objectFit: "cover", opacity: kind === "kraft" ? 0.9 : 1 }} />
+    <AbsoluteFill style={{ overflow: "hidden", background: kraft ? "#B98B5A" : "#F4EFE6" }}>
+      <AbsoluteFill style={{ transform: `scale(${1.1 + Math.sin(frame / 90) * 0.012}) translate(${Math.sin(frame / 200) * 12}px, ${Math.cos(frame / 230) * 8}px)`, filter: kraft ? "blur(4px) saturate(1.1)" : "blur(5px)" }}>
+        <Img src={tex(kind)} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
       </AbsoluteFill>
-      <AbsoluteFill style={{ background: "radial-gradient(ellipse at 50% 45%, rgba(255,255,255,0.18) 0%, rgba(0,0,0,0) 55%, rgba(60,40,20,0.22) 100%)" }} />
+      {kraft && (
+        <>
+          {/* warm drifting light */}
+          <AbsoluteFill style={{ background: `radial-gradient(ellipse at ${lx}% ${ly}%, rgba(255,226,170,0.55) 0%, rgba(255,210,150,0.18) 35%, rgba(0,0,0,0) 65%)`, mixBlendMode: "soft-light" }} />
+          {/* soft folds / creases */}
+          {[0.22, 0.58, 0.81].map((x, i) => (
+            <div key={i} style={{ position: "absolute", top: -100, bottom: -100, left: `${x * 100}%`, width: 120, background: "linear-gradient(90deg, rgba(0,0,0,0), rgba(70,40,15,0.10), rgba(255,240,210,0.10), rgba(0,0,0,0))", transform: `rotate(${4 - i * 3}deg) translateX(${Math.sin(frame / (160 + i * 40)) * 10}px)`, filter: "blur(6px)" }} />
+          ))}
+          {/* floating paper flecks */}
+          {Array.from({ length: 22 }, (_, i) => {
+            const sp = 0.25 + ((i * 37) % 10) / 20;
+            const x = ((i * 173) % 1920 + frame * sp * (i % 2 ? 1 : -1) * 0.6 + 4000) % 1980 - 30;
+            const y = ((i * 97) % 1080) + Math.sin(frame / (40 + i * 3) + i) * 18;
+            const s = 6 + (i % 5) * 4;
+            return <div key={i} style={{ position: "absolute", left: x, top: y, width: s, height: s * 0.7, borderRadius: 2, background: i % 3 ? "rgba(255,240,215,0.55)" : "rgba(90,55,25,0.35)", transform: `rotate(${frame * (i % 2 ? 0.6 : -0.4) + i * 30}deg)`, filter: "blur(0.6px)" }} />;
+          })}
+        </>
+      )}
+      <AbsoluteFill style={{ background: kraft ? "radial-gradient(ellipse at 50% 45%, rgba(0,0,0,0) 50%, rgba(50,25,8,0.38) 100%)" : "radial-gradient(ellipse at 50% 45%, rgba(255,255,255,0.18) 0%, rgba(0,0,0,0) 55%, rgba(60,40,20,0.22) 100%)" }} />
     </AbsoluteFill>
   );
 };
