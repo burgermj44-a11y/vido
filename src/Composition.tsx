@@ -1,133 +1,83 @@
-import React from "react";
-import {
-  AbsoluteFill,
-  Composition,
-  Html5Audio,
-  OffthreadVideo,
-  Sequence,
-  interpolate,
-  staticFile,
-  useCurrentFrame,
-} from "remotion";
-import { CUTS, DURATION, FPS, H, INTERSTITIALS, PALETTE, TRIGGERS, W } from "./config";
-import { FONT, PaperBackground, Tape, boil, rand } from "./paper";
-import { PaperTransition, TRANSITION_FRAMES } from "./Transition";
+import React, { useEffect, useState } from "react";
+import { AbsoluteFill, Composition, Html5Audio, OffthreadVideo, Sequence, continueRender, delayRender, interpolate, staticFile, useCurrentFrame } from "remotion";
+import "@fontsource/cairo/arabic-900.css";
+import "@fontsource/cairo/latin-900.css";
+import "@fontsource/aref-ruqaa/arabic-700.css";
+import "@fontsource/aref-ruqaa/latin-700.css";
+import { BROLL, CUTS, DURATION, FPS, H, W } from "./config";
+import { FOLLOW_AT, PERSON_AT, SHARE_AT } from "./script";
+import { CaptionLayer, TopicLayer } from "./Captions";
 import { FollowCard, PersonSticker, ShareSticker } from "./stickers";
+import { BrollScene } from "./Broll";
+import { PaperTransition, TRANSITION_FRAMES } from "./Transition";
+import { boil, rand } from "./paper";
 
-const SCENE_ZOOM = [1.0, 1.16, 1.04, 1.2, 1.0, 1.14, 1.06, 1.0];
-const SCENE_ROT = [-1.2, 1.4, -0.8, 1.6, -1.5, 1.0, -1.0, 0.6];
-const SCENE_ORIGIN = ["50% 40%", "40% 35%", "60% 45%", "50% 30%", "50% 50%", "35% 40%", "65% 40%", "50% 40%"];
+const ZOOM = [1.0, 1.12, 1.0, 1.14, 1.04, 1.12, 1.0, 1.1, 1.0, 1.12];
+const ORIGIN = ["50% 38%", "45% 35%", "55% 40%", "50% 33%", "50% 45%", "40% 38%", "60% 38%", "50% 36%", "50% 40%", "50% 36%"];
 
-const sfx = (name: string, volume = 1) => (
-  <Html5Audio src={staticFile(`sfx/${name}.wav`)} volume={volume} />
-);
+const sfx = (name: string, volume = 0.8) => <Html5Audio src={staticFile(`sfx/${name}.wav`)} volume={volume} />;
+
+const useFonts = () => {
+  const [h] = useState(() => delayRender("fonts"));
+  useEffect(() => {
+    Promise.all([
+      document.fonts.load("900 40px Cairo", "هذا الإنسان 16"),
+      document.fonts.load("700 40px 'Aref Ruqaa'", "قصة محمد"),
+    ]).finally(() => continueRender(h));
+  }, [h]);
+};
 
 export const MontageComposition: React.FC = () => {
+  useFonts();
   const frame = useCurrentFrame();
-  const scene = CUTS.filter((c) => frame >= c).length;
-  const sceneStart = scene === 0 ? 0 : CUTS[scene - 1];
-  const local = frame - sceneStart;
-
-  // Punch-in right after every cut, then a slow push.
-  const punch = interpolate(local, [0, 10], [0.1, 0], {
-    extrapolateRight: "clamp",
-    easing: (t) => 1 - Math.pow(1 - t, 3),
-  });
-  const push = local * 0.0006;
-  const zoom = SCENE_ZOOM[scene] + punch + push;
-  const jx = (rand(boil(frame, 4) + 3) - 0.5) * 5;
-  const jy = (rand(boil(frame, 4) + 9) - 0.5) * 5;
-  const rot = SCENE_ROT[scene] + (rand(boil(frame, 6) + scene) - 0.5) * 0.5;
-  const settle = interpolate(local, [0, 8], [1.05, 1], { extrapolateRight: "clamp" });
+  const scene = CUTS.filter((c) => frame >= c.at).length;
+  const start = scene === 0 ? 0 : CUTS[scene - 1].at;
+  const local = frame - start;
+  const punch = interpolate(local, [0, 9], [0.09, 0], { extrapolateRight: "clamp", easing: (t) => 1 - Math.pow(1 - t, 3) });
+  const zoom = ZOOM[scene] + punch + local * 0.0005;
+  const jx = (rand(boil(frame, 4) + 3) - 0.5) * 4;
+  const jy = (rand(boil(frame, 4) + 9) - 0.5) * 4;
+  const inBroll = frame >= BROLL.from && frame < BROLL.to;
 
   return (
-    <AbsoluteFill style={{ fontFamily: FONT }}>
-      <PaperBackground frame={frame} />
-
-      {/* video card */}
-      <div
-        style={{
-          position: "absolute",
-          left: (W - 928) / 2 + jx,
-          top: (H - 1628) / 2 + jy,
-          width: 928,
-          height: 1628,
-          padding: 14,
-          background: "#fff",
-          boxShadow: "16px 22px 0 rgba(0,0,0,0.28)",
-          transform: `rotate(${rot}deg) scale(${settle})`,
-        }}
-      >
-        <div style={{ width: 900, height: 1600, overflow: "hidden", position: "relative" }}>
-          <div
-            style={{
-              width: "100%",
-              height: "100%",
-              transform: `scale(${zoom})`,
-              transformOrigin: SCENE_ORIGIN[scene],
-            }}
-          >
-            <OffthreadVideo
-              src={staticFile("input.mp4")}
-              style={{ width: 900, height: 1600, objectFit: "cover" }}
-            />
-          </div>
+    <AbsoluteFill style={{ background: "#000" }}>
+      <div style={{ position: "absolute", inset: 0, overflow: "hidden" }}>
+        <div style={{ width: W, height: H, transform: `translate(${jx}px,${jy}px) scale(${zoom})`, transformOrigin: ORIGIN[scene] }}>
+          <OffthreadVideo src={staticFile("input.mp4")} style={{ width: W, height: H, objectFit: "cover" }} />
         </div>
-        <Tape style={{ left: -50, top: -14, transform: "rotate(-38deg)" }} />
-        <Tape style={{ right: -50, bottom: -14, transform: "rotate(-38deg)" }} />
       </div>
 
-      {/* mj tag, always visible */}
-      <div
-        style={{
-          position: "absolute",
-          left: 44,
-          top: 40,
-          background: PALETTE.red,
-          color: PALETTE.paper,
-          border: "8px solid #fff",
-          borderRadius: 999,
-          padding: "2px 34px 10px",
-          fontWeight: 900,
-          fontSize: 76,
-          letterSpacing: -4,
-          transform: `rotate(${-6 + (boil(frame, 6) % 2)}deg)`,
-          boxShadow: "6px 8px 0 rgba(0,0,0,0.28)",
-        }}
-      >
-        mj
-      </div>
+      {inBroll ? <BrollScene frame={frame - BROLL.from} /> : <TopicLayer frame={frame} />}
+      <CaptionLayer frame={frame} />
 
-      {/* word / action stickers */}
-      {TRIGGERS.person.map((t, i) => (
-        <Sequence key={t} from={t} durationInFrames={50} layout="none">
+      {PERSON_AT.map((t, i) => (
+        <Sequence key={t} from={t} durationInFrames={46} layout="none">
           <PersonSticker frame={frame - t} seed={i * 17} />
-          {sfx("pop", 0.9)}
+          {sfx("pop", 0.7)}
         </Sequence>
       ))}
-      <Sequence from={TRIGGERS.share} durationInFrames={66} layout="none">
-        <ShareSticker frame={frame - TRIGGERS.share} />
-        {sfx("pop", 0.9)}
-        <Sequence from={14}>{sfx("ding", 0.7)}</Sequence>
+      <Sequence from={SHARE_AT} durationInFrames={40} layout="none">
+        <ShareSticker frame={frame - SHARE_AT} />
+        {sfx("pop", 0.7)}
+        <Sequence from={10}>{sfx("ding", 0.5)}</Sequence>
       </Sequence>
-      <Sequence from={TRIGGERS.follow} durationInFrames={DURATION - TRIGGERS.follow} layout="none">
-        <FollowCard frame={frame - TRIGGERS.follow} />
-        {sfx("whoosh", 0.6)}
-        <Sequence from={38}>{sfx("pop", 0.9)}</Sequence>
-        <Sequence from={40}>{sfx("ding", 0.8)}</Sequence>
+      <Sequence from={FOLLOW_AT} durationInFrames={58} layout="none">
+        <FollowCard frame={frame - FOLLOW_AT} />
+        {sfx("whoosh", 0.5)}
+        <Sequence from={26}>{sfx("pop", 0.8)}</Sequence>
+        <Sequence from={28}>{sfx("ding", 0.7)}</Sequence>
       </Sequence>
 
-      {/* transitions + their sound design */}
       {CUTS.map((c, i) => {
-        const start = c - TRANSITION_FRAMES / 2;
+        const s = c.at - TRANSITION_FRAMES / 2;
         return (
-          <React.Fragment key={c}>
-            <PaperTransition frame={frame - start} index={i} word={INTERSTITIALS[i]} />
-            <Sequence from={start} durationInFrames={30} layout="none">
-              {sfx("whoosh", 0.85)}
-              <Sequence from={4}>{sfx("rip", 0.8)}</Sequence>
-              <Sequence from={9}>{sfx("tick", 0.9)}</Sequence>
-              <Sequence from={12}>{sfx("thud", 0.7)}</Sequence>
+          <React.Fragment key={c.at}>
+            <PaperTransition frame={frame - s} index={i} kind={c.kind} word={c.word} />
+            <Sequence from={s} durationInFrames={34} layout="none">
+              {sfx("whoosh", 0.8)}
+              <Sequence from={3}>{sfx("rip", 0.7)}</Sequence>
+              <Sequence from={9}>{sfx(c.kind === "tear" ? "tick" : "thud", 0.9)}</Sequence>
+              <Sequence from={c.kind === "tear" ? 12 : 19}>{sfx("rip", 0.55)}</Sequence>
             </Sequence>
           </React.Fragment>
         );
@@ -137,12 +87,5 @@ export const MontageComposition: React.FC = () => {
 };
 
 export const MyComposition = () => (
-  <Composition
-    id="Montage"
-    component={MontageComposition}
-    durationInFrames={DURATION}
-    fps={FPS}
-    width={W}
-    height={H}
-  />
+  <Composition id="Montage" component={MontageComposition} durationInFrames={DURATION} fps={FPS} width={W} height={H} />
 );

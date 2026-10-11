@@ -1,39 +1,21 @@
 import React from "react";
 import { interpolate, spring, useVideoConfig } from "remotion";
-import { FONT, boil, rand } from "./paper";
+import { HAND, LAT, Tape, boil, rand, tornClip } from "./paper";
 import { PALETTE, PROFILE } from "./config";
 
-const usePop = (frame: number, duration: number) => {
-  const { fps } = useVideoConfig();
-  const enter = spring({ frame, fps, config: { damping: 10, stiffness: 170, mass: 0.7 } });
-  const exit = interpolate(frame, [duration - 8, duration], [1, 0], {
-    extrapolateLeft: "clamp",
-    extrapolateRight: "clamp",
-  });
-  return { scale: enter * exit, visible: frame >= 0 && frame <= duration };
-};
-
-const shadow = "10px 14px 0 rgba(0,0,0,0.28)";
+const exitK = (frame: number, dur: number) =>
+  interpolate(frame, [dur - 7, dur], [1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
 
 // "هذا الإنسان": paper-cut person with a black bar over the eyes.
 export const PersonSticker: React.FC<{ frame: number; seed: number }> = ({ frame, seed }) => {
-  const duration = 46;
-  const { scale, visible } = usePop(frame, duration);
-  if (!visible) return null;
+  const { fps } = useVideoConfig();
+  const dur = 44;
+  if (frame < 0 || frame > dur) return null;
+  const p = spring({ frame, fps, config: { damping: 9, stiffness: 180, mass: 0.7 } }) * exitK(frame, dur);
   const wob = (rand(seed + boil(frame, 3)) - 0.5) * 4;
   return (
-    <div
-      style={{
-        position: "absolute",
-        left: 560,
-        top: 880,
-        width: 430,
-        transform: `scale(${scale}) rotate(${6 + wob}deg)`,
-        filter: "drop-shadow(10px 14px 0 rgba(0,0,0,0.28))",
-      }}
-    >
-      <svg viewBox="0 0 300 340" width={430}>
-        {/* white paper-cut border (same shape, stroked thick) */}
+    <div style={{ position: "absolute", left: 640, top: 760, width: 380, transform: `scale(${p}) rotate(${7 + wob}deg)`, filter: "drop-shadow(8px 12px 0 rgba(0,0,0,0.3))" }}>
+      <svg viewBox="0 0 300 340" width={380}>
         <g stroke="#fff" strokeWidth={26} strokeLinejoin="round" fill="#fff">
           <ellipse cx="150" cy="112" rx="72" ry="86" />
           <path d="M20 340 C20 250 80 215 150 215 C220 215 280 250 280 340 Z" />
@@ -43,194 +25,72 @@ export const PersonSticker: React.FC<{ frame: number; seed: number }> = ({ frame
         <rect x="128" y="170" width="44" height="52" fill="#d9a77c" />
         <ellipse cx="150" cy="112" rx="72" ry="86" fill="#eab98c" />
         <path d="M78 100 C78 40 118 22 160 24 C206 26 226 62 222 104 C205 76 175 62 150 64 C120 66 95 78 78 100 Z" fill={PALETTE.ink} />
-        <ellipse cx="124" cy="140" rx="0" ry="0" fill="none" />
         <path d="M132 168 Q150 180 168 168" stroke="#8a4b3a" strokeWidth={5} fill="none" strokeLinecap="round" />
-        {/* censor bar over the eyes */}
-        <g transform="rotate(-4 150 118)">
-          <rect x="68" y="98" width="164" height="38" rx="4" fill="#000" />
-        </g>
+        <g transform="rotate(-4 150 118)"><rect x="68" y="98" width="164" height="38" rx="4" fill="#000" /></g>
       </svg>
     </div>
   );
 };
 
-// "بارطاجي": share icon flying out to friends.
+// "بارطاجي": handwritten tag + curved share arrow on cork, as in the reference.
 export const ShareSticker: React.FC<{ frame: number }> = ({ frame }) => {
-  const duration = 62;
-  const { scale, visible } = usePop(frame, duration);
-  if (!visible) return null;
-  const wob = (rand(boil(frame, 3)) - 0.5) * 6;
-  const fly = (i: number) => {
-    const t = Math.max(0, frame - 14 - i * 5) / 22;
-    return Math.min(1, t);
-  };
+  const { fps } = useVideoConfig();
+  const dur = 38;
+  if (frame < 0 || frame > dur) return null;
+  const p = spring({ frame, fps, config: { damping: 10, stiffness: 170, mass: 0.7 } });
+  const k = exitK(frame, dur);
+  const slide = interpolate(frame, [6, 24], [0, 40], { extrapolateRight: "clamp" });
   return (
-    <div
-      style={{
-        position: "absolute",
-        left: 560,
-        top: 300,
-        width: 440,
-        transform: `scale(${scale}) rotate(${-7 + wob}deg)`,
-      }}
-    >
-      <div
-        style={{
-          width: 300,
-          height: 300,
-          margin: "0 auto",
-          borderRadius: "50%",
-          background: PALETTE.teal,
-          border: "16px solid #fff",
-          boxShadow: shadow,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-        }}
-      >
-        <svg viewBox="0 0 100 100" width={170}>
-          <g stroke="#fff" strokeWidth={7} strokeLinecap="round" fill="#fff">
-            <path d="M72 24 L30 48 M30 52 L72 76" fill="none" />
-            <circle cx="74" cy="22" r="13" />
-            <circle cx="26" cy="50" r="13" />
-            <circle cx="74" cy="78" r="13" />
-          </g>
-        </svg>
+    <div style={{ position: "absolute", inset: 0, opacity: k }}>
+      <div style={{ position: "absolute", left: 0, right: 0, top: 60, display: "flex", justifyContent: "center", transform: `scale(${p}) rotate(-2deg)`, filter: "drop-shadow(5px 8px 0 rgba(0,0,0,0.3))" }}>
+        <div style={{ position: "relative" }}>
+          <div style={{ background: PALETTE.paper, clipPath: tornClip(77, 18, 7), padding: "22px 64px 36px", direction: "rtl", fontFamily: HAND, fontWeight: 700, fontSize: 90, color: PALETTE.ink, whiteSpace: "nowrap" }}>بارطاجي مع صحابك</div>
+          <Tape style={{ left: "50%", top: -20, marginLeft: -60 }} w={120} />
+        </div>
       </div>
-      {[0, 1, 2].map((i) => (
-        <div
-          key={i}
-          style={{
-            position: "absolute",
-            left: 150 + fly(i) * (i - 1) * 190,
-            top: 120 + fly(i) * (70 + i * 25),
-            width: 90,
-            height: 90,
-            borderRadius: "50%",
-            background: [PALETTE.yellow, PALETTE.pink, PALETTE.blue][i],
-            border: "8px solid #fff",
-            boxShadow: "6px 8px 0 rgba(0,0,0,0.25)",
-            opacity: Math.min(1, fly(i) * 3),
-            transform: `scale(${0.4 + fly(i) * 0.6})`,
-          }}
-        />
+      <div style={{ position: "absolute", left: 390, top: 270, width: 300, height: 190, background: PALETTE.kraft, clipPath: tornClip(9, 12, 6), transform: `scale(${p})`, filter: "drop-shadow(5px 8px 0 rgba(0,0,0,0.3))" }} />
+      <svg style={{ position: "absolute", left: 420 + slide, top: 285, transform: `scale(${p})` }} width={260} height={170} viewBox="0 0 260 170">
+        <path d="M20 150 C30 70 100 40 170 50 L170 16 L245 72 L170 128 L170 94 C120 90 70 110 20 150 Z" fill="#fff" stroke="#e4e4e4" strokeWidth={3} />
+      </svg>
+      {[{ e: "🧑‍🎓", x: 80, y: 300 }, { e: "👩‍🎓", x: 840, y: 300 }].map((s, i) => (
+        <div key={i} style={{ position: "absolute", left: s.x, top: s.y, fontSize: 130, transform: `scale(${p}) rotate(${i ? 8 : -8}deg)`, textShadow: "4px 0 #fff,-4px 0 #fff,0 4px #fff,0 -4px #fff,8px 12px 0 rgba(0,0,0,0.25)" }}>{s.e}</div>
       ))}
-      <div
-        style={{
-          position: "absolute",
-          top: 300,
-          left: 10,
-          right: 10,
-          textAlign: "center",
-          background: PALETTE.yellow,
-          border: `10px solid ${PALETTE.ink}`,
-          fontFamily: FONT,
-          fontWeight: 900,
-          fontSize: 78,
-          color: PALETTE.ink,
-          padding: "6px 0",
-          transform: "rotate(3deg)",
-          boxShadow: shadow,
-        }}
-      >
-        Partage !
-      </div>
     </div>
   );
 };
 
-// "ابوني": Instagram-style profile card with a follow button.
+// "ابوني": dark profile card at the top, button taps to "Abonné ✓".
 export const FollowCard: React.FC<{ frame: number }> = ({ frame }) => {
   const { fps } = useVideoConfig();
-  const enter = spring({ frame, fps, config: { damping: 12, stiffness: 120 } });
-  if (frame < 0) return null;
-  const followed = frame > 38;
-  const press = interpolate(frame, [34, 38, 42], [1, 0.9, 1], {
-    extrapolateLeft: "clamp",
-    extrapolateRight: "clamp",
-  });
-  const wob = (rand(boil(frame, 4)) - 0.5) * 2;
+  const dur = 56;
+  if (frame < 0 || frame > dur) return null;
+  const p = spring({ frame, fps, config: { damping: 12, stiffness: 140 } });
+  const k = exitK(frame, dur);
+  const done = frame > 26;
+  const press = interpolate(frame, [22, 26, 30], [1, 0.92, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  const hand = interpolate(frame, [10, 22], [160, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  const wob = (rand(boil(frame, 4)) - 0.5) * 1.4;
   return (
-    <div
-      style={{
-        position: "absolute",
-        left: 90,
-        top: 1130 + (1 - enter) * 700,
-        width: 900,
-        transform: `rotate(${-3 + wob}deg)`,
-        background: "#fff",
-        borderRadius: 36,
-        boxShadow: "14px 18px 0 rgba(0,0,0,0.3)",
-        padding: 44,
-        display: "flex",
-        alignItems: "center",
-        gap: 40,
-        fontFamily: FONT,
-      }}
-    >
-      <div
-        style={{
-          width: 200,
-          height: 200,
-          borderRadius: "50%",
-          padding: 10,
-          background:
-            "conic-gradient(from 200deg, #feda75, #fa7e1e, #d62976, #962fbf, #4f5bd5, #feda75)",
-          flexShrink: 0,
-        }}
-      >
-        <div
-          style={{
-            width: "100%",
-            height: "100%",
-            borderRadius: "50%",
-            border: "8px solid #fff",
-            background: PALETTE.red,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            color: "#fff",
-            fontWeight: 900,
-            fontSize: 84,
-            letterSpacing: -5,
-          }}
-        >
-          {PROFILE.name}
+    <div style={{ position: "absolute", left: 100, top: 50 - (1 - p) * 420, width: 880, opacity: k, transform: `rotate(${-1.5 + wob}deg)`, fontFamily: LAT }}>
+      <div style={{ background: "#14161a", borderRadius: 34, padding: "40px 44px 38px", boxShadow: "10px 14px 0 rgba(0,0,0,0.35)", border: "3px solid #2a2d33" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 36 }}>
+          <div style={{ position: "relative" }}>
+            <div style={{ width: 170, height: 170, borderRadius: "50%", background: PALETTE.red, display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontWeight: 900, fontSize: 80, letterSpacing: -4, border: "6px solid #fff" }}>{PROFILE.handle}</div>
+            {!done && <div style={{ position: "absolute", right: 0, bottom: 0, width: 54, height: 54, borderRadius: "50%", background: "#2f7bf5", border: "4px solid #14161a", color: "#fff", fontWeight: 800, fontSize: 40, display: "flex", alignItems: "center", justifyContent: "center" }}>+</div>}
+          </div>
+          <div style={{ color: "#fff" }}>
+            <div style={{ fontSize: 64, fontWeight: 800 }}>{PROFILE.handle}</div>
+            <div style={{ fontSize: 34, color: "#a8adb5", marginTop: 6 }}>Montage · Motivation</div>
+          </div>
+        </div>
+        <div style={{ marginTop: 34, height: 100, borderRadius: 22, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 50, fontWeight: 800, transform: `scale(${press})`, background: done ? "#3a3d44" : "#2f7bf5", color: "#fff" }}>
+          {done ? "Abonné ✓" : "S'abonner"}
         </div>
       </div>
-      <div style={{ flex: 1 }}>
-        <div style={{ fontSize: 58, fontWeight: 800, color: PALETTE.ink }}>{PROFILE.handle}</div>
-        <div
-          style={{
-            marginTop: 22,
-            display: "inline-block",
-            transform: `scale(${press})`,
-            padding: "16px 54px",
-            borderRadius: 18,
-            fontSize: 48,
-            fontWeight: 800,
-            background: followed ? "#e8e8e8" : "#2f7bf5",
-            color: followed ? PALETTE.ink : "#fff",
-          }}
-        >
-          {followed ? "Suivi ✓" : "Suivre"}
-        </div>
-      </div>
-      {/* tapping finger */}
-      <div
-        style={{
-          position: "absolute",
-          right: 150,
-          top: 150 + interpolate(frame, [18, 34], [200, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }),
-          fontSize: 100,
-          opacity: interpolate(frame, [18, 24, 46, 54], [0, 1, 1, 0], {
-            extrapolateLeft: "clamp",
-            extrapolateRight: "clamp",
-          }),
-        }}
-      >
-        👆
-      </div>
+      <Tape style={{ left: -30, top: -14, transform: "rotate(-35deg)" }} w={120} />
+      <Tape style={{ right: -30, top: -14, transform: "rotate(35deg)" }} w={120} />
+      <div style={{ position: "absolute", right: 120, top: 330 + hand, fontSize: 110, opacity: interpolate(frame, [10, 14, 44, 52], [0, 1, 1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" }) }}>👆</div>
+      {done && <div style={{ position: "absolute", right: -30 + (frame - 26) * 1.5, top: 80 - (frame - 26) * 4, fontSize: 100, opacity: Math.max(0, 1 - (frame - 26) / 26) }}>❤️</div>}
     </div>
   );
 };

@@ -3,41 +3,35 @@ export const DURATION = 1423; // 47.43s source video
 export const W = 1080;
 export const H = 1920;
 
-const f = (s: number) => Math.round(s * FPS);
-
-// Centre of each paper transition (seconds into the source video).
-export const CUTS = [5.4, 10.6, 16.2, 21.4, 27, 32.8, 38.4].map(f);
-
-// What appears between cuts: the "mj" logo, or a French word.
-export const INTERSTITIALS = [
-  "mj",
-  "Astuce",
-  "mj",
-  "Retiens ça",
-  "mj",
-  "Attention",
-  "Go !",
-];
-
-// Moments where a word is spoken (seconds). Tune these if a sticker is off.
-export const TRIGGERS = {
-  person: [0.2, 8.8].map(f), // "هذا الإنسان"
-  share: f(7.2), // "بارطاجي هذا الفيديو لكاع أصحابك"
-  follow: f(43.6), // "ابوني هذا الكونت راح يفيدك كاع حياتك"
-};
-
-export const PROFILE = {
-  handle: "@mj",
-  name: "mj",
-};
+export const f = (s: number) => Math.round(s * FPS);
 
 export const PALETTE = {
-  paper: "#f4ecda",
+  paper: "#fbf6ea",
   kraft: "#c79a5b",
   ink: "#1d1a17",
-  red: "#e5483a",
-  yellow: "#f6c945",
-  teal: "#2b9c8f",
-  blue: "#3b6fd4",
-  pink: "#f08ab0",
+  red: "#d92f2f",
+  yellow: "#ffd84a",
+  blue: "#1f3fd1",
+  black: "#15110d",
 };
+
+export type CutKind = "mj" | "word" | "tear";
+export type Cut = { at: number; kind: CutKind; word?: string };
+
+// Paper transitions: black "mj" card, a French word card, or a plain tear.
+export const CUTS: Cut[] = [
+  { at: f(4.95), kind: "mj" },
+  { at: f(9.95), kind: "word", word: "Histoire" },
+  { at: f(15.5), kind: "mj" },
+  { at: f(20.0), kind: "word", word: "Le déclic" },
+  { at: f(26.8), kind: "mj" },
+  { at: f(29.0), kind: "tear" },
+  { at: f(32.3), kind: "word", word: "Astuce" },
+  { at: f(36.3), kind: "mj" },
+  { at: f(43.0), kind: "word", word: "Bonne chance !" },
+];
+
+// Full-screen paper "week" scene shown between two cuts.
+export const BROLL = { from: f(29.0), to: f(32.3) };
+
+export const PROFILE = { handle: "mj" };
