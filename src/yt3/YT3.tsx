@@ -1028,7 +1028,7 @@ const TitleScene = (n: number): React.FC<SceneProps> => {
 
 
 /* ======================= silent subscribe reminder (around 1:00) ======================= */
-const MiniPromo: React.FC = () => {
+export const MiniPromo: React.FC = () => {
   const frame = useCurrentFrame();
   const enter = spring({ frame: onTwos(frame), fps: FPS, config: { damping: 13, stiffness: 160 } });
   const exit = ramp(frame, 228, 240, Easing.in(Easing.cubic));
