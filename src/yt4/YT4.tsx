@@ -6,7 +6,7 @@
 import React from "react";
 import { AbsoluteFill, Audio, Easing, Img, Sequence, interpolate, spring, staticFile, useCurrentFrame } from "remotion";
 import { FONT, loadFonts } from "../fonts";
-import { DrawMark, FPS, GOLD, GREEN, H, HAND, INK, MARKER, MJ_GOLD, PEN, RED, Sfx, Sheet, Stamp, TOMATO, Tape, W, clamp, icon, jitter, loadHand, maskStyle, onTwos, ramp, sec, stickerFilter, tex } from "../yt2/kit";
+import { DrawMark, FPS, GOLD, GREEN, H, HAND, INK, MARKER, MJ_GOLD, PEN, RED, Sfx, Sheet, TOMATO, Tape, W, clamp, icon, jitter, loadHand, maskStyle, onTwos, ramp, sec, stickerFilter, tex } from "../yt2/kit";
 import { MiniPromo } from "../yt3/YT3";
 import { LINES, YT4_DURATION } from "./timing";
 
@@ -218,18 +218,18 @@ const Visual: React.FC<{ v: V; seed: number }> = ({ v, seed }) => {
       const n = isNum ? Math.round(interpolate(frame, [4, 24], [0, Number(v.n)], { ...clamp, easing: Easing.out(Easing.cubic) })) : v.n;
       return (
         <>
-          <Pop x={CX - 230} y={CY - 10} seed={seed} rot={-3}>
+          <Pop x={CX - 380} y={CY - 10} seed={seed} rot={-3}>
             <Sheet w={420} h={420} tx="kraft" seed={seed}>
               <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: FONT, fontSize: String(v.n).length > 2 ? 190 : 250, color: v.color ?? INK }}>{n}</div>
               <Tape x={210} y={6} w={160} />
             </Sheet>
           </Pop>
           {isNum && frame >= 4 && frame < 24 && frame % 2 === 0 && <Sfx at={frame} name="tick" vol={0.06} />}
-          <Pop x={CX + 330} y={CY + 30} at={6} seed={seed + 1} rot={2} sound="paper_rustle">
+          <Pop x={CX + 300} y={CY + 30} at={6} seed={seed + 1} rot={2} sound="paper_rustle">
             <Torn text={v.label} size={62} seed={seed + 2} />
           </Pop>
           {v.code && (
-            <Pop x={CX + 330} y={CY - 200} at={12} seed={seed + 3} rot={10} sound="pop" vol={0.12}>
+            <Pop x={CX + 300} y={CY - 200} at={12} seed={seed + 3} rot={10} sound="pop" vol={0.12}>
               <Em code={v.code} size={170} />
             </Pop>
           )}
