@@ -20,7 +20,8 @@ const word = (i: number, w: string) => {
   const k = Math.max(0, t.indexOf(w));
   return sec(L(i).start + ((L(i).end - L(i).start) * k) / t.length);
 };
-const SPLIT = (LINES[0].end + LINES[1].start) / 2;
+const SPLIT1 = (LINES[0].end + LINES[1].start) / 2;
+const SPLIT = (LINES[1].end + LINES[2].start) / 2;
 const YT_RED = "#FF0033";
 
 const Hand2: React.FC<{ x: number; y: number; at: number; from: [number, number] }> = ({ x, y, at, from }) => {
@@ -121,9 +122,82 @@ const YouTubePart: React.FC = () => {
   );
 };
 
+const SharePart: React.FC<{ offset: number }> = ({ offset }) => {
+  const frame = useCurrentFrame();
+  const tap = word(1, "وشارك") + 6 - offset;
+  const tapped = frame >= tap;
+  const p = spring({ frame: onTwos(frame - 2), fps: FPS, config: { damping: 12, stiffness: 170 } });
+  const press = spring({ frame: frame - tap, fps: FPS, config: { damping: 9, stiffness: 320 } });
+  const cx = 760;
+  const cy = 470;
+  const friends = [
+    { code: "1f468-200d-1f393", x: 1350, y: 200 },
+    { code: "1f469-200d-1f393", x: 1600, y: 420 },
+    { code: "1f9d1-200d-1f393", x: 1350, y: 680 },
+    { code: "1f929", x: 1620, y: 760 },
+  ];
+  return (
+    <AbsoluteFill>
+      {/* pulse rings */}
+      {tapped &&
+        [0, 1, 2].map((k) => {
+          const r = ((frame - tap + k * 8) % 24) / 24;
+          return <div key={k} style={{ position: "absolute", left: cx - 200 - r * 140, top: cy - 200 - r * 140, width: 400 + r * 280, height: 400 + r * 280, borderRadius: "50%", border: "8px solid #2B59C3", opacity: (1 - r) * 0.6 }} />;
+        })}
+      <div style={{ position: "absolute", left: cx - 200, top: cy - 200, perspective: 1000 }}>
+        <div style={{ transformOrigin: "50% 100%", transform: `rotateX(${(1 - p) * 92}deg) rotate(${jitter(frame, 31, 0.8)}deg) scale(${tapped ? interpolate(press, [0, 0.4, 1], [1, 0.88, 1]) : 1})` }}>
+          <Sheet w={400} h={400} tx="kraft" seed={4} style={{ borderRadius: 999 }}>
+            <svg width="400" height="400" viewBox="0 0 24 24" style={{ position: "absolute", inset: 0 }}>
+              <path d="M13.5 6.5 19.5 11.5 13.5 16.5V13.6C9.5 13.6 6.8 14.8 4.8 18 5.6 13.4 8.3 10 13.5 9.3Z" fill="white" stroke={INK} strokeWidth="0.6" strokeLinejoin="round" />
+            </svg>
+            <Tape x={200} y={10} w={140} rot={6} />
+          </Sheet>
+        </div>
+      </div>
+      <Unfold x={cx} y={cy + 300} delay={6} seed={8} sound="paper_rustle">
+        <Sheet w={520} h={110} seed={8}>
+          <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <Hand size={54}>شارك مع صحابك</Hand>
+          </div>
+          <Tape x={260} y={4} />
+        </Sheet>
+      </Unfold>
+      {friends.map((fr, i) => {
+        const launch = tap + 4 + i * 3;
+        const t = spring({ frame: onTwos(frame - launch), fps: FPS, config: { damping: 200 }, durationInFrames: 14 });
+        const arrived = frame >= launch + 14;
+        const px = interpolate(t, [0, 1], [cx, fr.x]);
+        const py = interpolate(t, [0, 1], [cy, fr.y]) - Math.sin(t * Math.PI) * 120;
+        const ang = (Math.atan2(fr.y - cy, fr.x - cx) * 180) / Math.PI + 45;
+        const pop = spring({ frame: frame - (launch + 14), fps: FPS, config: { damping: 9 } });
+        return (
+          <React.Fragment key={i}>
+            {frame >= launch && !arrived && (
+              <svg width="120" height="120" viewBox="0 0 24 24" style={{ position: "absolute", left: px - 60, top: py - 60, transform: `rotate(${ang}deg)`, filter: "drop-shadow(0 6px 6px rgba(0,0,0,0.3))" }}>
+                <path d="M2 11.5 22 3 15.5 21 11.5 13.2Z" fill="white" stroke={INK} strokeWidth="0.8" strokeLinejoin="round" />
+                <path d="M11.5 13.2 22 3" stroke={INK} strokeWidth="0.8" />
+              </svg>
+            )}
+            {arrived && (
+              <div style={{ position: "absolute", left: fr.x - 90, top: fr.y - 90, width: 180, height: 180, transform: `scale(${pop})` }}>
+                <Img src={icon(fr.code)} style={{ width: 180, height: 180, filter: "drop-shadow(6px 0 0 #fff) drop-shadow(-6px 0 0 #fff) drop-shadow(0 6px 0 #fff) drop-shadow(0 -6px 0 #fff) drop-shadow(0 8px 8px rgba(0,0,0,0.3))" }} />
+                <div style={{ position: "absolute", right: -6, bottom: -6, width: 64, height: 64, borderRadius: 32, background: "#2E9E5B", border: "5px solid #fff", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 38, fontWeight: 900 }}>✓</div>
+              </div>
+            )}
+            <Sfx at={launch} name="paper_slide" vol={0.2} />
+            <Sfx at={launch + 14} name="click" vol={0.14} />
+          </React.Fragment>
+        );
+      })}
+      <Hand2 x={cx + 60} y={cy + 40} at={tap} from={[1200, 1100]} />
+      <Sfx at={tap} name="click" vol={0.35} />
+    </AbsoluteFill>
+  );
+};
+
 const InstaPart: React.FC<{ offset: number }> = ({ offset }) => {
   const frame = useCurrentFrame();
-  const tap = word(1, "الإنستغرام") + 10 - offset;
+  const tap = word(2, "الإنستغرام") + 10 - offset;
   const clicked = frame >= tap;
   const press = spring({ frame: frame - tap, fps: FPS, config: { damping: 9, stiffness: 320 } });
   const ripple = ramp(frame, tap, tap + 14);
@@ -167,7 +241,7 @@ const InstaPart: React.FC<{ offset: number }> = ({ offset }) => {
           </div>
         </div>
       </Unfold>
-      <Unfold x={1500} y={620} delay={word(1, "عبد") - offset} seed={7} rot={-2} sound="paper_rustle">
+      <Unfold x={1500} y={620} delay={word(2, "عبد") - offset} seed={7} rot={-2} sound="paper_rustle">
         <Sheet w={500} h={120} tx="kraft" seed={7}>
           <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "Roboto, Arial, sans-serif", fontWeight: 800, fontSize: 46, color: INK }}>@abdelwahab__mj</div>
           <Tape x={250} y={4} />
@@ -238,6 +312,17 @@ const Caption: React.FC<{ text: string; dur: number; idx: number }> = ({ text, d
   );
 };
 
+/* scene folds away like a paper page at its end */
+const SceneOut: React.FC<{ dur: number; children: React.ReactNode }> = ({ dur, children }) => {
+  const frame = useCurrentFrame();
+  const o = interpolate(onTwos(frame), [dur - 8, dur], [0, 1], clamp);
+  return (
+    <AbsoluteFill style={{ perspective: 1800 }}>
+      <AbsoluteFill style={{ transformOrigin: "50% 10%", transform: `rotateX(${o * 85}deg)`, opacity: 1 - o * 0.7 }}>{children}</AbsoluteFill>
+    </AbsoluteFill>
+  );
+};
+
 export const Promo: React.FC = () => {
   const frame = useCurrentFrame();
   const split = sec(SPLIT);
@@ -249,8 +334,13 @@ export const Promo: React.FC = () => {
         <Img src={tex("notebook")} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
       </AbsoluteFill>
       <AbsoluteFill style={{ background: "radial-gradient(ellipse at 50% 45%, rgba(0,0,0,0) 55%, rgba(60,40,20,0.3) 100%)" }} />
-      <Sequence durationInFrames={split} layout="none">
-        <YouTubePart />
+      <Sequence durationInFrames={sec(SPLIT1)} layout="none">
+        <SceneOut dur={sec(SPLIT1)}>
+          <YouTubePart />
+        </SceneOut>
+      </Sequence>
+      <Sequence from={sec(SPLIT1)} durationInFrames={split - sec(SPLIT1)} layout="none">
+        <SharePart offset={sec(SPLIT1)} />
       </Sequence>
       <Sequence from={split} layout="none">
         <InstaPart offset={split} />
