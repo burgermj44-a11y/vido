@@ -29,6 +29,9 @@ export const CAPTIONS12: Cap12[] = [
   { start: 61.85, end: 64.34, text: "ربي يوفقكم خوتي", hl: ["يوفقكم"], side: "L", code: "1f932" },
 ];
 
+export const SHARE_AT = 28.9; // "نحبكم… بارطاجيو"
+export const CONTENT_AT = 53.4; // "نصنعلكم فيديوهات بالستايل الورقي"
+export const CONTENT_END = 61.6;
 export const SUB_AT = 34.4; // "أبوني للقناة على يوتيوب"
 export const FOLLOW_AT = 41.3; // "تجي للإنستغرام"
 export const MILLION_AT = 48.6; // "نوصل للمليون"

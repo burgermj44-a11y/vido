@@ -6,9 +6,9 @@
 import React from "react";
 import { AbsoluteFill, Audio, Easing, Img, Sequence, interpolate, spring, staticFile, useCurrentFrame } from "remotion";
 import { FONT, loadFonts } from "../fonts";
-import { FPS, GOLD, GREEN, H, INK, MARKER, MJ_GOLD, PEN, Sfx, Sheet, Tape, W, clamp, icon, jitter, loadHand, maskStyle, onTwos, ramp, sec, stickerFilter, tex } from "../yt2/kit";
+import { FPS, GOLD, GREEN, H, RED, INK, MARKER, MJ_GOLD, PEN, Sfx, Sheet, Tape, W, clamp, icon, jitter, loadHand, maskStyle, onTwos, ramp, sec, stickerFilter, tex } from "../yt2/kit";
 import { ENV, ENV_FPS } from "./env";
-import { CAPTIONS12 as CAPTIONS8, Cap12 as Cap8, DURATION12 as DURATION8, FOLLOW_AT, MILLION_AT, SUB_AT, WIPES12 as WIPES8 } from "./script12";
+import { CAPTIONS12 as CAPTIONS8, Cap12 as Cap8, CONTENT_AT, CONTENT_END, DURATION12 as DURATION8, FOLLOW_AT, MILLION_AT, SHARE_AT, SUB_AT, WIPES12 as WIPES8 } from "./script12";
 
 loadFonts();
 loadHand();
@@ -50,7 +50,7 @@ const Host: React.FC = () => {
   const e = ENV[Math.min(ENV.length - 1, Math.floor(t * ENV_FPS))] ?? 0;
   const enter = spring({ frame: onTwos(frame - 4), fps: FPS, config: { damping: 12, stiffness: 140 } });
   const exit = ramp(frame, sec(END_AT) - 6, sec(END_AT) + 6, Easing.in(Easing.cubic));
-  const dip = (ramp(frame, DIP_FROM - 4, DIP_FROM + 10, Easing.inOut(Easing.cubic)) - ramp(frame, DIP_TO - 14, DIP_TO, Easing.inOut(Easing.cubic))) * 80;
+  const dip = (ramp(frame, DIP_FROM - 4, DIP_FROM + 10, Easing.inOut(Easing.cubic)) - ramp(frame, DIP_TO - 14, DIP_TO, Easing.inOut(Easing.cubic)) + ramp(frame, CONTENT_FROM - 4, CONTENT_FROM + 10, Easing.inOut(Easing.cubic)) - ramp(frame, CONTENT_FROM + CONTENT_LEN - 14, CONTENT_FROM + CONTENT_LEN, Easing.inOut(Easing.cubic))) * 80;
   return (
     <div style={{ position: "absolute", left: W / 2 - 330, bottom: -10, width: 660, perspective: 1400 }}>
       <div
@@ -198,6 +198,109 @@ const MillionCard: React.FC = () => {
   );
 };
 
+/* ---------------- share: paper button beside his head, planes fly around him ---------------- */
+const ShareMoment: React.FC = () => {
+  const frame = useCurrentFrame();
+  const tap = 10;
+  const p = spring({ frame: onTwos(frame), fps: FPS, config: { damping: 12, stiffness: 170 } });
+  const press = spring({ frame: frame - tap, fps: FPS, config: { damping: 9, stiffness: 320 } });
+  const out = ramp(frame, 80, 92, Easing.in(Easing.cubic));
+  const cx = W / 2 - 330;
+  const cy = 230;
+  const friends = [
+    { code: "1f468-200d-1f393", x: W / 2 + 520, y: 160 },
+    { code: "1f469-200d-1f393", x: W / 2 + 360, y: 70 },
+    { code: "1f9d1-200d-1f393", x: W / 2 - 560, y: 110 },
+    { code: "1f929", x: W / 2 - 640, y: 300 },
+  ];
+  return (
+    <AbsoluteFill style={{ opacity: 1 - out }}>
+      {frame > tap &&
+        [0, 1].map((k) => {
+          const r = ((frame - tap + k * 10) % 20) / 20;
+          return <div key={k} style={{ position: "absolute", left: cx - 110 - r * 80, top: cy - 110 - r * 80, width: 220 + r * 160, height: 220 + r * 160, borderRadius: "50%", border: `7px solid ${PEN}`, opacity: (1 - r) * 0.6 }} />;
+        })}
+      <div style={{ position: "absolute", left: cx - 110, top: cy - 110, perspective: 900 }}>
+        <div style={{ transformOrigin: "50% 100%", transform: `rotateX(${(1 - p) * 90}deg) scale(${frame > tap ? interpolate(press, [0, 0.4, 1], [1, 0.86, 1]) : 1})` }}>
+          <Sheet w={220} h={220} tx="kraft" seed={4} style={{ borderRadius: 999 }}>
+            <svg width="220" height="220" viewBox="0 0 24 24" style={{ position: "absolute", inset: 0 }}>
+              <path d="M13.5 6.5 19.5 11.5 13.5 16.5V13.6C9.5 13.6 6.8 14.8 4.8 18 5.6 13.4 8.3 10 13.5 9.3Z" fill="white" stroke={INK} strokeWidth="0.6" strokeLinejoin="round" />
+            </svg>
+            <Tape x={110} y={8} w={100} rot={6} />
+          </Sheet>
+        </div>
+      </div>
+      {friends.map((fr, i) => {
+        const launch = tap + 4 + i * 3;
+        const t = spring({ frame: onTwos(frame - launch), fps: FPS, config: { damping: 200 }, durationInFrames: 14 });
+        const arrived = frame >= launch + 14;
+        const px = interpolate(t, [0, 1], [cx, fr.x]);
+        const py = interpolate(t, [0, 1], [cy, fr.y]) - Math.sin(t * Math.PI) * 120;
+        const ang = (Math.atan2(fr.y - cy, fr.x - cx) * 180) / Math.PI + 45;
+        const pop = spring({ frame: frame - (launch + 14), fps: FPS, config: { damping: 9 } });
+        return (
+          <React.Fragment key={i}>
+            {frame >= launch && !arrived && (
+              <svg width="90" height="90" viewBox="0 0 24 24" style={{ position: "absolute", left: px - 45, top: py - 45, transform: `rotate(${ang}deg)`, filter: "drop-shadow(0 6px 6px rgba(0,0,0,0.3))" }}>
+                <path d="M2 11.5 22 3 15.5 21 11.5 13.2Z" fill="white" stroke={INK} strokeWidth="0.8" strokeLinejoin="round" />
+              </svg>
+            )}
+            {arrived && (
+              <div style={{ position: "absolute", left: fr.x - 70, top: fr.y - 70, width: 140, height: 140, transform: `scale(${pop})` }}>
+                <Img src={icon(fr.code)} style={{ width: 140, height: 140, filter: stickerFilter(5) }} />
+                <div style={{ position: "absolute", right: -4, bottom: -4, width: 50, height: 50, borderRadius: 25, background: "#2E9E5B", border: "4px solid #fff", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 30, fontWeight: 900 }}>✓</div>
+              </div>
+            )}
+            <Sfx at={launch} name="paper_slide" vol={0.18} />
+          </React.Fragment>
+        );
+      })}
+      <Sfx at={tap} name="click" vol={0.35} />
+    </AbsoluteFill>
+  );
+};
+
+/* ---------------- his content: three posts fan out from behind his head ---------------- */
+const CONTENT_FROM = sec(CONTENT_AT) - 8;
+const CONTENT_LEN = sec(CONTENT_END - CONTENT_AT) + 8;
+const ContentShow: React.FC = () => {
+  const frame = useCurrentFrame();
+  const out = ramp(frame, CONTENT_LEN - 14, CONTENT_LEN - 2, Easing.in(Easing.cubic));
+  return (
+    <AbsoluteFill style={{ opacity: 1 - out }}>
+      <div style={{ position: "absolute", left: W / 2 - 700, top: -260, width: 1400, height: 900, borderRadius: "50%", background: "radial-gradient(closest-side, rgba(255,230,160,0.75), rgba(255,210,130,0))", opacity: ramp(frame, 0, 12) }} />
+      {[0, 1, 2].map((i) => {
+        const d = 4 + i * 6;
+        const p = spring({ frame: onTwos(frame - d), fps: FPS, config: { damping: 12, stiffness: 120 } });
+        const ang = (i - 1) * 16;
+        const x = W / 2 + (i - 1) * 420 * p;
+        const y = 330 - p * 120 + Math.abs(i - 1) * 40 * p;
+        return (
+          <div key={i} style={{ position: "absolute", left: x - 170, top: y - 210, width: 340, transform: `translateY(${(1 - p) * 500}px) rotate(${ang * p + jitter(frame, i, 0.6)}deg) scale(${1 + Math.sin(frame / 18 + i) * 0.01})`, opacity: frame >= d ? 1 : 0 }}>
+            <div style={{ background: "#fff", padding: "14px 14px 56px", boxShadow: "0 18px 26px rgba(0,0,0,0.45)", position: "relative" }}>
+              <Img src={staticFile(`v12/post${2 - i}.jpg`)} style={{ width: "100%", display: "block" }} />
+              <div style={{ position: "absolute", left: 0, right: 0, bottom: 10, display: "flex", justifyContent: "center", gap: 14, fontFamily: "Roboto, Arial, sans-serif", fontSize: 24, color: "#444" }}>
+                <span style={{ color: RED }}>♥ {["48K", "92K", "61K"][i]}</span>
+                <span>▶ {["1.2M", "2.4M", "860K"][i]}</span>
+              </div>
+              <Tape x={170} y={-6} w={120} rot={(i - 1) * 10} />
+            </div>
+            <Sfx at={d} name="paper_flip" vol={0.18} />
+          </div>
+        );
+      })}
+      <div style={{ position: "absolute", right: 30, top: 640, display: "flex", justifyContent: "center", opacity: ramp(frame, 26, 34) }}>
+        <div style={{ transform: `rotate(-2deg) scale(${spring({ frame: onTwos(frame - 26), fps: FPS, config: { damping: 10 } })})` }}>
+          <Sheet w={700} h={100} tx="kraft" seed={7}>
+            <div dir="rtl" style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: FONT, fontSize: 44, color: INK, whiteSpace: "nowrap" }}>محتوى تعليمي بستايل ورقي ✨</div>
+          </Sheet>
+        </div>
+      </div>
+      <Sfx at={26} name="sparkle" vol={0.2} />
+    </AbsoluteFill>
+  );
+};
+
 /* ---------------- follow: Instagram card rises from behind his head ---------------- */
 const FOLLOW_FROM = sec(FOLLOW_AT) - 14;
 const FOLLOW_LEN = sec(MILLION_AT - FOLLOW_AT) - 4;
@@ -325,12 +428,18 @@ export const V12: React.FC = () => {
       <Sequence from={MIL_FROM} durationInFrames={MIL_LEN} layout="none">
         <MillionCard />
       </Sequence>
+      <Sequence from={CONTENT_FROM} durationInFrames={CONTENT_LEN} layout="none">
+        <ContentShow />
+      </Sequence>
       <Host />
       {CAPTIONS8.map((c, i) => (
         <Sequence key={i} from={Math.max(0, sec(c.start) - 3)} durationInFrames={sec(c.end - c.start) + 10} layout="none">
           <CapStrip c={c} idx={i} />
         </Sequence>
       ))}
+      <Sequence from={sec(SHARE_AT) - 10} durationInFrames={92} layout="none">
+        <ShareMoment />
+      </Sequence>
       <Sequence from={FOLLOW_FROM} durationInFrames={FOLLOW_LEN} layout="none">
         <FollowMoment layer="front" />
       </Sequence>
