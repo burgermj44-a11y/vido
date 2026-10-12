@@ -6,7 +6,7 @@
 import React from "react";
 import { AbsoluteFill, Audio, Easing, Img, Sequence, interpolate, spring, staticFile, useCurrentFrame } from "remotion";
 import { FONT, loadFonts } from "../fonts";
-import { FPS, GOLD, GREEN, H, RED, INK, MARKER, MJ_GOLD, PEN, Sfx, Sheet, Tape, W, clamp, icon, jitter, loadHand, maskStyle, onTwos, ramp, sec, stickerFilter, tex } from "../yt2/kit";
+import { FPS, GOLD, GREEN, H, INK, MARKER, MJ_GOLD, PEN, Sfx, Sheet, Tape, W, clamp, icon, jitter, loadHand, maskStyle, onTwos, ramp, sec, stickerFilter, tex } from "../yt2/kit";
 import { ENV, ENV_FPS } from "./env";
 import { CAPTIONS12 as CAPTIONS8, Cap12 as Cap8, CONTENT_AT, CONTENT_END, DURATION12 as DURATION8, FOLLOW_AT, MILLION_AT, SHARE_AT, SUB_AT, WIPES12 as WIPES8 } from "./script12";
 
@@ -279,20 +279,17 @@ const ContentShow: React.FC = () => {
           <div key={i} style={{ position: "absolute", left: x - 170, top: y - 210, width: 340, transform: `translateY(${(1 - p) * 500}px) rotate(${ang * p + jitter(frame, i, 0.6)}deg) scale(${1 + Math.sin(frame / 18 + i) * 0.01})`, opacity: frame >= d ? 1 : 0 }}>
             <div style={{ background: "#fff", padding: "14px 14px 56px", boxShadow: "0 18px 26px rgba(0,0,0,0.45)", position: "relative" }}>
               <Img src={staticFile(`v12/post${2 - i}.jpg`)} style={{ width: "100%", display: "block" }} />
-              <div style={{ position: "absolute", left: 0, right: 0, bottom: 10, display: "flex", justifyContent: "center", gap: 14, fontFamily: "Roboto, Arial, sans-serif", fontSize: 24, color: "#444" }}>
-                <span style={{ color: RED }}>♥ {["48K", "92K", "61K"][i]}</span>
-                <span>▶ {["1.2M", "2.4M", "860K"][i]}</span>
-              </div>
+              <div style={{ position: "absolute", left: 0, right: 0, bottom: 12, display: "flex", justifyContent: "center", fontFamily: "Roboto, Arial, sans-serif", fontWeight: 700, fontSize: 24, color: "#444" }}>@abdelwahab__mj</div>
               <Tape x={170} y={-6} w={120} rot={(i - 1) * 10} />
             </div>
             <Sfx at={d} name="paper_flip" vol={0.18} />
           </div>
         );
       })}
-      <div style={{ position: "absolute", right: 30, top: 640, display: "flex", justifyContent: "center", opacity: ramp(frame, 26, 34) }}>
+      <div style={{ position: "absolute", right: 20, top: 700, display: "flex", justifyContent: "center", opacity: ramp(frame, 26, 34) }}>
         <div style={{ transform: `rotate(-2deg) scale(${spring({ frame: onTwos(frame - 26), fps: FPS, config: { damping: 10 } })})` }}>
-          <Sheet w={700} h={100} tx="kraft" seed={7}>
-            <div dir="rtl" style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: FONT, fontSize: 44, color: INK, whiteSpace: "nowrap" }}>محتوى تعليمي بستايل ورقي ✨</div>
+          <Sheet w={500} h={170} tx="kraft" seed={7}>
+            <div dir="rtl" style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", fontFamily: FONT, fontSize: 44, lineHeight: 1.3, color: INK, whiteSpace: "nowrap" }}><div><span style={{ color: GREEN }}>497K</span> متابع</div><div><span style={{ color: GREEN }}>575K</span> مشاهدة في 30 يوم</div></div>
           </Sheet>
         </div>
       </div>
