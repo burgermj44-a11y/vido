@@ -23,6 +23,7 @@ import { Thumb8 } from "./thumb8/Thumb8";
 import { V9, V9_FPS, V9_FRAMES } from "./v9/V9";
 import { V10, V10_FPS, V10_FRAMES } from "./v10/V10";
 import { YT4, YT4Thumb, YT4_FPS, YT4_FRAMES } from "./yt4/YT4";
+import { V12, V12_FPS, V12_FRAMES } from "./v12/V12";
 
 export const RemotionRoot: React.FC = () => {
   return (
@@ -88,6 +89,7 @@ export const RemotionRoot: React.FC = () => {
       <Composition id="Montage10" component={V10} durationInFrames={V10_FRAMES} fps={V10_FPS} width={1080} height={1920} />
       <Composition id="YT4" component={YT4} durationInFrames={YT4_FRAMES} fps={YT4_FPS} width={1920} height={1080} />
       <Composition id="YT4Thumb" component={YT4Thumb} durationInFrames={1} fps={30} width={1280} height={720} />
+      <Composition id="Montage12" component={V12} durationInFrames={V12_FRAMES} fps={V12_FPS} width={1920} height={1080} />
       <Composition id="Promo" component={Promo} durationInFrames={PROMO_FRAMES} fps={PROMO_FPS} width={1920} height={1080} />
     </>
   );
