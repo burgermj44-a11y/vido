@@ -7,7 +7,6 @@ import React from "react";
 import { AbsoluteFill, Audio, Easing, Img, Sequence, interpolate, spring, staticFile, useCurrentFrame } from "remotion";
 import { FONT, loadFonts } from "../fonts";
 import { FPS, GOLD, GREEN, H, INK, MARKER, MJ_GOLD, PEN, Sfx, Sheet, Tape, W, clamp, icon, jitter, loadHand, maskStyle, onTwos, ramp, sec, stickerFilter, tex } from "../yt2/kit";
-import { ENV, ENV_FPS } from "./env";
 import { CAPTIONS12 as CAPTIONS8, Cap12 as Cap8, CONTENT_AT, CONTENT_END, DURATION12 as DURATION8, FOLLOW_AT, MILLION_AT, SHARE_AT, SUB_AT, WIPES12 as WIPES8 } from "./script12";
 
 loadFonts();
@@ -44,30 +43,95 @@ const Backdrop: React.FC = () => {
 };
 
 /* ---------------- his photo in the centre ---------------- */
-const Host: React.FC = () => {
+/* ---------------- centre stage: one animated paper scene per sentence (no photo) ---------------- */
+type Sc = { main: string; a: string; b: string; tx: "white" | "kraft" | "notebook" };
+const SCENES12: (Sc | null)[] = [
+  { main: "1f440", a: "1f4c4", b: "2728", tx: "white" },
+  { main: "#17", a: "1f3af", b: "1f3c6", tx: "notebook" },
+  { main: "1f4da", a: "1f4dd", b: "270f", tx: "kraft" },
+  { main: "1f381", a: "2728", b: "1f389", tx: "white" },
+  { main: "1f525", a: "1f4aa", b: "1f3c1", tx: "kraft" },
+  { main: "1f9d1-200d-1f393", a: "1f4d6", b: "1f4da", tx: "notebook" },
+  { main: "#60", a: "1f4c6", b: "23f3", tx: "white" },
+  { main: "1f4a1", a: "1f9e0", b: "2728", tx: "kraft" },
+  { main: "1f932", a: "2b50", b: "1f319", tx: "white" },
+  { main: "#16", a: "1f4c8", b: "1f947", tx: "notebook" },
+  { main: "1f393", a: "1f389", b: "1f44f", tx: "kraft" },
+  { main: "1f91d", a: "2764", b: "1f60a", tx: "white" },
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  { main: "1f932", a: "2764", b: "1f44b", tx: "notebook" },
+];
+const SceneCard: React.FC<{ sc: Sc; seed: number; dur: number }> = ({ sc, seed, dur }) => {
   const frame = useCurrentFrame();
-  const t = frame / FPS;
-  const e = ENV[Math.min(ENV.length - 1, Math.floor(t * ENV_FPS))] ?? 0;
-  const enter = spring({ frame: onTwos(frame - 4), fps: FPS, config: { damping: 12, stiffness: 140 } });
-  const exit = ramp(frame, sec(END_AT) - 6, sec(END_AT) + 6, Easing.in(Easing.cubic));
-  const dip = (ramp(frame, DIP_FROM - 4, DIP_FROM + 10, Easing.inOut(Easing.cubic)) - ramp(frame, DIP_TO - 14, DIP_TO, Easing.inOut(Easing.cubic)) + ramp(frame, CONTENT_FROM - 4, CONTENT_FROM + 10, Easing.inOut(Easing.cubic)) - ramp(frame, CONTENT_FROM + CONTENT_LEN - 14, CONTENT_FROM + CONTENT_LEN, Easing.inOut(Easing.cubic))) * 80;
+  const p = spring({ frame: onTwos(frame), fps: FPS, config: { damping: 12, stiffness: 150 } });
+  const out = ramp(frame, dur - 7, dur, Easing.in(Easing.cubic));
+  const pop = (d: number) => spring({ frame: onTwos(frame - d), fps: FPS, config: { damping: 9, stiffness: 160 } });
+  const isNum = sc.main.startsWith("#");
+  const n = isNum ? Math.round(interpolate(frame, [4, 22], [0, Number(sc.main.slice(1))], { ...clamp, easing: Easing.out(Easing.cubic) })) : 0;
+  const kind = seed % 3;
   return (
-    <div style={{ position: "absolute", left: W / 2 - 330, bottom: -10, width: 660, perspective: 1400 }}>
-      <div
-        style={{
-          transformOrigin: "50% 100%",
-          transform: `rotateX(${(1 - enter) * 80}deg) translateY(${exit * 900 - e * 8 + dip}px) rotate(${jitter(frame, 3, 0.5)}deg) scale(${1 + Math.sin(frame / 28) * 0.006 + e * 0.008})`,
-        }}
-      >
-        <Img
-          src={staticFile("v8/host.png")}
-          style={{ width: 660, display: "block", filter: "drop-shadow(9px 0 0 #fff) drop-shadow(-9px 0 0 #fff) drop-shadow(0 -9px 0 #fff) drop-shadow(0 18px 24px rgba(40,22,8,0.55))" }}
-        />
+    <AbsoluteFill style={{ opacity: 1 - out, transform: `translateY(${out * -60}px)` }}>
+      {/* sunburst behind the scene */}
+      <div style={{ position: "absolute", left: W / 2 - 520, top: 560 - 520, width: 1040, height: 1040, borderRadius: "50%", transform: `rotate(${frame * 0.5 + seed * 20}deg) scale(${p})`, background: "repeating-conic-gradient(rgba(255,236,190,0.4) 0deg 8deg, rgba(0,0,0,0) 8deg 18deg)", WebkitMaskImage: "radial-gradient(circle, #000 15%, transparent 62%)" }} />
+      <div style={{ position: "absolute", left: W / 2 - 330, top: 560 - 300, width: 660, height: 600, perspective: 1200 }}>
+        <div style={{ position: "relative", width: "100%", height: "100%", transformOrigin: "50% 100%", transform: `rotateX(${(1 - p) * 90}deg) rotate(${(seed % 2 ? 2 : -2) + jitter(frame, seed, 0.6)}deg) scale(${1 + frame * 0.0006})`, filter: "drop-shadow(0 18px 22px rgba(40,20,5,0.45))" }}>
+          <div style={{ position: "absolute", inset: 0, overflow: "hidden", ...maskStyle(seed) }}>
+            <Img src={tex(sc.tx)} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+          </div>
+          <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
+            {isNum ? (
+              <div style={{ fontFamily: FONT, fontSize: 300, color: GREEN, transform: `scale(${pop(2)})` }}>{n}</div>
+            ) : (
+              <Img
+                src={icon(sc.main)}
+                style={{
+                  width: 330,
+                  height: 330,
+                  filter: stickerFilter(10),
+                  transform: `scale(${pop(3)}) ${kind === 0 ? `translateY(${Math.sin(frame / 6) * 12}px)` : kind === 1 ? `rotate(${Math.sin(frame / 8) * 8}deg)` : `scale(${1 + Math.sin(frame / 5) * 0.04})`}`,
+                }}
+              />
+            )}
+          </div>
+          <Tape x={110} y={4} w={140} rot={-14} />
+          <Tape x={550} y={4} w={140} rot={14} />
+        </div>
       </div>
-      <Sfx at={4} name="paper_fold" vol={0.25} />
-    </div>
+      {[sc.a, sc.b].map((c, i) => {
+        const pp = pop(8 + i * 5);
+        const x = W / 2 + (i ? 1 : -1) * (360 + Math.sin(frame / 20 + i) * 14);
+        const y = 330 + i * 380 + Math.cos(frame / 16 + i) * 12;
+        return <Img key={i} src={icon(c)} style={{ position: "absolute", left: x - 85, top: y - 85, width: 170, height: 170, filter: stickerFilter(6), transform: `scale(${pp}) rotate(${(i ? 12 : -12) + jitter(frame, seed + i, 2)}deg)` }} />;
+      })}
+      <Sfx at={0} name="paper_fold" vol={0.2} />
+      <Sfx at={8} name="pop" vol={0.12} />
+    </AbsoluteFill>
   );
 };
+const Stage: React.FC = () => (
+  <>
+    {CAPTIONS8.map((c, i) => {
+      const sc = SCENES12[i];
+      if (!sc) return null;
+      const from = Math.max(0, sec(c.start - 0.25));
+      const next = CAPTIONS8[i + 1];
+      const dur = (next ? sec(next.start - 0.25) : sec(END_AT)) - from;
+      return (
+        <Sequence key={i} from={from} durationInFrames={Math.max(8, dur)} layout="none">
+          <SceneCard sc={sc} seed={i} dur={Math.max(8, dur)} />
+        </Sequence>
+      );
+    })}
+  </>
+);
 
 /* ---------------- words around him ---------------- */
 const SLOTS = { L: [250, 430, 610], R: [250, 430, 610] };
@@ -131,16 +195,14 @@ const SUB_FROM = sec(SUB_AT) - 12;
 const SUB_LEN = sec(FOLLOW_AT - SUB_AT) - 2;
 const MIL_FROM = sec(MILLION_AT) - 10;
 const MIL_LEN = 150;
-const DIP_FROM = SUB_FROM;
-const DIP_TO = MIL_FROM + MIL_LEN;
 const Rise: React.FC<{ len: number; w: number; children: React.ReactNode }> = ({ len, w, children }) => {
   const frame = useCurrentFrame();
   const p = spring({ frame: onTwos(frame), fps: FPS, config: { damping: 13, stiffness: 120 } });
   const out = ramp(frame, len - 14, len - 2, Easing.in(Easing.cubic));
   return (
     <AbsoluteFill>
-      <div style={{ position: "absolute", left: W / 2 - 560, top: -200, width: 1120, height: 700, borderRadius: "50%", background: "radial-gradient(closest-side, rgba(255,230,160,0.7), rgba(255,210,130,0))", opacity: p * (1 - out) }} />
-      <div style={{ position: "absolute", left: W / 2 - w / 2, top: 26, width: w, transform: `translateY(${(1 - p) * 420 + out * 420}px) rotate(${(1 - p) * 6 - 1.5 + jitter(frame, 9, 0.3)}deg)`, opacity: Math.min(1, p * 2) * (1 - out) }}>{children}</div>
+      <div style={{ position: "absolute", left: W / 2 - 560, top: 100, width: 1120, height: 700, borderRadius: "50%", background: "radial-gradient(closest-side, rgba(255,230,160,0.7), rgba(255,210,130,0))", opacity: p * (1 - out) }} />
+      <div style={{ position: "absolute", left: W / 2 - w / 2, top: 330, width: w, transformOrigin: "50% 0%", transform: `scale(1.35) translateY(${(1 - p) * 420 + out * 420}px) rotate(${(1 - p) * 6 - 1.5 + jitter(frame, 9, 0.3)}deg)`, opacity: Math.min(1, p * 2) * (1 - out) }}>{children}</div>
     </AbsoluteFill>
   );
 };
@@ -205,13 +267,13 @@ const ShareMoment: React.FC = () => {
   const p = spring({ frame: onTwos(frame), fps: FPS, config: { damping: 12, stiffness: 170 } });
   const press = spring({ frame: frame - tap, fps: FPS, config: { damping: 9, stiffness: 320 } });
   const out = ramp(frame, 80, 92, Easing.in(Easing.cubic));
-  const cx = W / 2 - 330;
-  const cy = 230;
+  const cx = W / 2;
+  const cy = 560;
   const friends = [
-    { code: "1f468-200d-1f393", x: W / 2 + 520, y: 160 },
-    { code: "1f469-200d-1f393", x: W / 2 + 360, y: 70 },
-    { code: "1f9d1-200d-1f393", x: W / 2 - 560, y: 110 },
-    { code: "1f929", x: W / 2 - 640, y: 300 },
+    { code: "1f468-200d-1f393", x: W / 2 + 580, y: 490 },
+    { code: "1f469-200d-1f393", x: W / 2 + 420, y: 400 },
+    { code: "1f9d1-200d-1f393", x: W / 2 - 620, y: 440 },
+    { code: "1f929", x: W / 2 - 700, y: 630 },
   ];
   return (
     <AbsoluteFill style={{ opacity: 1 - out }}>
@@ -274,7 +336,7 @@ const ContentShow: React.FC = () => {
         const p = spring({ frame: onTwos(frame - d), fps: FPS, config: { damping: 12, stiffness: 120 } });
         const ang = (i - 1) * 16;
         const x = W / 2 + (i - 1) * 420 * p;
-        const y = 330 - p * 120 + Math.abs(i - 1) * 40 * p;
+        const y = 560 - p * 60 + Math.abs(i - 1) * 40 * p;
         return (
           <div key={i} style={{ position: "absolute", left: x - 170, top: y - 210, width: 340, transform: `translateY(${(1 - p) * 500}px) rotate(${ang * p + jitter(frame, i, 0.6)}deg) scale(${1 + Math.sin(frame / 18 + i) * 0.01})`, opacity: frame >= d ? 1 : 0 }}>
             <div style={{ background: "#fff", padding: "14px 14px 56px", boxShadow: "0 18px 26px rgba(0,0,0,0.45)", position: "relative" }}>
@@ -298,12 +360,30 @@ const ContentShow: React.FC = () => {
   );
 };
 
+/* ---------------- sticker row under the cards, so the page is never empty ---------------- */
+const Deco: React.FC<{ codes: string[]; len: number }> = ({ codes, len }) => {
+  const frame = useCurrentFrame();
+  const out = ramp(frame, len - 10, len, Easing.in(Easing.cubic));
+  return (
+    <AbsoluteFill style={{ opacity: 1 - out }}>
+      {codes.map((c, i) => {
+        const p = spring({ frame: onTwos(frame - 10 - i * 5), fps: FPS, config: { damping: 9, stiffness: 160 } });
+        const x = W / 2 + (i - (codes.length - 1) / 2) * 300;
+        return <Img key={i} src={icon(c)} style={{ position: "absolute", left: x - 100, top: 830 - 100 + Math.sin(frame / 10 + i) * 10, width: 200, height: 200, filter: stickerFilter(7), transform: `scale(${p}) rotate(${(i - 1) * 10 + jitter(frame, i, 2)}deg)` }} />;
+      })}
+      {codes.map((_, i) => (
+        <Sfx key={i} at={10 + i * 5} name="pop" vol={0.1} />
+      ))}
+    </AbsoluteFill>
+  );
+};
+
 /* ---------------- follow: Instagram card rises from behind his head ---------------- */
 const FOLLOW_FROM = sec(FOLLOW_AT) - 14;
 const FOLLOW_LEN = sec(MILLION_AT - FOLLOW_AT) - 4;
 const CARD_W = 820;
 const CARD_X = W / 2 - CARD_W / 2;
-const BTN_Y = 262; // centre of the Follow button on screen
+const BTN_Y = 536; // centre of the Follow button on screen
 const FollowMoment: React.FC<{ layer: "back" | "front" }> = ({ layer }) => {
   const frame = useCurrentFrame();
   const tap = 16;
@@ -317,13 +397,13 @@ const FollowMoment: React.FC<{ layer: "back" | "front" }> = ({ layer }) => {
     return (
       <AbsoluteFill>
         {/* glow behind the card */}
-        <div style={{ position: "absolute", left: W / 2 - 560, top: -200, width: 1120, height: 700, borderRadius: "50%", background: "radial-gradient(closest-side, rgba(255,230,160,0.7), rgba(255,210,130,0))", opacity: p * (1 - out) }} />
+        <div style={{ position: "absolute", left: W / 2 - 560, top: 100, width: 1120, height: 700, borderRadius: "50%", background: "radial-gradient(closest-side, rgba(255,230,160,0.7), rgba(255,210,130,0))", opacity: p * (1 - out) }} />
         {clicked &&
           [0, 1, 2].map((k) => {
             const r = ((frame - tap + k * 8) % 24) / 24;
             return <div key={k} style={{ position: "absolute", left: btnX - 200 - r * 220, top: BTN_Y - 60 - r * 120, width: 400 + r * 440, height: 120 + r * 240, borderRadius: 999, border: "6px solid #0095F6", opacity: (1 - r) * 0.6 * (1 - out) }} />;
           })}
-        <div style={{ position: "absolute", left: CARD_X, top: 26, width: CARD_W, transform: `translateY(${(1 - p) * 420 + out * 420}px) rotate(${(1 - p) * 6 - 1.5 + jitter(frame, 9, 0.3)}deg)`, opacity: Math.min(1, p * 2) * (1 - out) }}>
+        <div style={{ position: "absolute", left: CARD_X, top: 300, width: CARD_W, transform: `translateY(${(1 - p) * 420 + out * 420}px) rotate(${(1 - p) * 6 - 1.5 + jitter(frame, 9, 0.3)}deg)`, opacity: Math.min(1, p * 2) * (1 - out) }}>
           <div style={{ background: "#0F1116", border: "9px solid #fff", borderRadius: 30, padding: "18px 20px 16px", boxShadow: "0 18px 30px rgba(0,0,0,0.45)", position: "relative" }}>
             <Img src={staticFile("v8/ig_head.png")} style={{ width: "100%", display: "block" }} />
             <div style={{ marginTop: 10, height: 66, borderRadius: 14, background: clicked ? "#363636" : "#0095F6", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "Roboto, Arial, sans-serif", fontWeight: 700, fontSize: 34, transform: `scale(${clicked ? interpolate(press, [0, 0.4, 1], [1, 0.9, 1]) : 1})` }}>
@@ -428,7 +508,16 @@ export const V12: React.FC = () => {
       <Sequence from={CONTENT_FROM} durationInFrames={CONTENT_LEN} layout="none">
         <ContentShow />
       </Sequence>
-      <Host />
+      <Sequence from={SUB_FROM} durationInFrames={SUB_LEN} layout="none">
+        <Deco codes={["1f514", "25b6", "1f44d"]} len={SUB_LEN} />
+      </Sequence>
+      <Sequence from={FOLLOW_FROM} durationInFrames={FOLLOW_LEN} layout="none">
+        <Deco codes={["1f4f8", "2764", "1f465"]} len={FOLLOW_LEN} />
+      </Sequence>
+      <Sequence from={MIL_FROM} durationInFrames={MIL_LEN} layout="none">
+        <Deco codes={["1f680", "1f3af", "1f389"]} len={MIL_LEN} />
+      </Sequence>
+      <Stage />
       {CAPTIONS8.map((c, i) => (
         <Sequence key={i} from={Math.max(0, sec(c.start) - 3)} durationInFrames={sec(c.end - c.start) + 10} layout="none">
           <CapStrip c={c} idx={i} />
