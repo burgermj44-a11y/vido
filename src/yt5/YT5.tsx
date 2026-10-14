@@ -555,3 +555,44 @@ export const YT5: React.FC = () => {
     </AbsoluteFill>
   );
 };
+
+/* ---------- thumbnail (1280x720) ---------- */
+const ResultCard: React.FC<{ n: number; pass: boolean; x: number; y: number; rot: number; s?: number }> = ({ n, pass, x, y, rot, s = 1 }) => (
+  <div style={{ position: "absolute", left: x, top: y, transform: `rotate(${rot}deg) scale(${s})`, transformOrigin: "50% 50%", filter: "drop-shadow(0 14px 16px rgba(30,15,5,0.5))" }}>
+    <div style={{ position: "relative", width: 300, height: 190 }}>
+      <div style={{ position: "absolute", inset: 0, overflow: "hidden", ...maskStyle(n) }}>
+        <Img src={tex("white")} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+      </div>
+      <div style={{ position: "absolute", top: 12, left: 0, right: 0, textAlign: "center", fontFamily: FONT, fontSize: 30, color: "#8A7F6C" }}>{`الباك ${n}`}</div>
+      <div style={{ position: "absolute", top: 52, left: 0, right: 0, textAlign: "center", fontFamily: FONT, fontSize: 80, lineHeight: 1.2, color: pass ? GREEN : RED }}>{pass ? "ناجح" : "راسب"}</div>
+      <Tape x={150} y={4} w={110} />
+    </div>
+  </div>
+);
+export const YT5Thumb: React.FC = () => (
+  <AbsoluteFill style={{ background: "#B98B5A", overflow: "hidden" }}>
+    <AbsoluteFill style={{ filter: "blur(2px)" }}>
+      <Img src={tex("kraft")} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+    </AbsoluteFill>
+    <div style={{ position: "absolute", left: 980 - 900, top: 420 - 900, width: 1800, height: 1800, borderRadius: "50%", background: "repeating-conic-gradient(rgba(255,236,190,0.3) 0deg 9deg, rgba(0,0,0,0) 9deg 18deg)", WebkitMaskImage: "radial-gradient(circle, #000 12%, transparent 50%)" }} />
+    <AbsoluteFill style={{ background: "radial-gradient(ellipse at 50% 50%, rgba(0,0,0,0) 55%, rgba(40,20,5,0.55) 100%)" }} />
+    {/* his photo */}
+    <Img src={staticFile("v8/host.png")} style={{ position: "absolute", right: -30, bottom: -30, width: 560, filter: "drop-shadow(8px 0 0 #fff) drop-shadow(-8px 0 0 #fff) drop-shadow(0 -8px 0 #fff) drop-shadow(0 16px 22px rgba(30,15,5,0.6))" }} />
+    {/* two fails + one pass */}
+    <ResultCard n={1} pass={false} x={-10} y={300} rot={-8} s={0.8} />
+    <ResultCard n={2} pass={false} x={280} y={320} rot={5} s={0.8} />
+    <svg width="560" height="220" viewBox="0 0 100 40" style={{ position: "absolute", left: 20, top: 310, opacity: 0.85 }}>
+      <path d="M10 8 L36 40 M36 8 L10 40" stroke={RED} strokeWidth="5" strokeLinecap="round" />
+      <path d="M60 8 L86 40 M86 8 L60 40" stroke={RED} strokeWidth="5" strokeLinecap="round" />
+    </svg>
+    <div style={{ position: "absolute", left: 470, top: 420, width: 330, height: 260, borderRadius: "50%", background: "radial-gradient(circle, rgba(255,225,90,0.8) 0%, rgba(255,225,90,0) 70%)" }} />
+    <ResultCard n={3} pass x={480} y={460} rot={-4} s={1.05} />
+    <Img src={icon("2728")} style={{ position: "absolute", left: 760, top: 430, width: 90, height: 90, filter: stickerFilter(5) }} />
+    {/* title */}
+    <div dir="rtl" style={{ position: "absolute", left: 30, top: 24, width: 820, textAlign: "center" }}>
+      <div style={{ fontFamily: FONT, fontSize: 112, lineHeight: 1.05, color: "#fff", WebkitTextStroke: "12px #000", paintOrder: "stroke fill", filter: "drop-shadow(0 8px 0 #000)" }}>رسب مرتين…</div>
+      <div style={{ display: "inline-block", marginTop: 18, fontFamily: FONT, fontSize: 70, whiteSpace: "nowrap", color: INK, background: GOLD, padding: "0 30px 10px", borderRadius: 18, transform: "rotate(-3deg)", border: "6px solid #000" }}>والمرة الثالثة؟! 😳</div>
+    </div>
+    <div style={{ position: "absolute", left: 24, bottom: 14, fontFamily: FONT, fontSize: 60, letterSpacing: -3, background: MJ_GOLD, WebkitBackgroundClip: "text", color: "transparent", filter: "drop-shadow(0 4px 6px rgba(0,0,0,0.6))" }}>MJ</div>
+  </AbsoluteFill>
+);
