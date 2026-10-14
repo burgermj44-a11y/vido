@@ -313,7 +313,10 @@ const QUOTES = [/^التعرّف على المعلومة/, /^اقرا، غلق �
 const isQuote = (t: string) => QUOTES.some((q) => q.test(t));
 const isQuestion = (t: string) => /^واش هي|^كيفاش نقدر|^علاش طحت|^واش لازم نفهم|^هل /.test(t);
 
-const Accent: React.FC<{ text: string; idx: number; dur: number; hasSide: boolean }> = ({ text, idx, dur, hasSide }) => {
+const SECTION_DEFAULT: Record<string, string[]> = {
+  open: ["1f4bb"], night: ["1f622", "1f4ad"], turn: ["1f4a1"], habit: ["1f4d6", "1f4d2"], fail2: ["1f4d6", "23f0"], recall: ["1f4c4", "1f9e0"], solve: ["1f522", "1f4a1"], spaced: ["1f4c6", "1f9e0"], plan: ["1f4c5", "2705"], progress: ["1f4c8", "1f4aa"], bac3: ["1f4dd", "1f9e0"], result: ["1f389", "1f46a"],
+};
+const Accent: React.FC<{ text: string; idx: number; dur: number; hasSide: boolean; section: string }> = ({ text, idx, dur, hasSide, section }) => {
   const frame = useCurrentFrame();
   const out = ramp(frame, dur - 7, dur, Easing.in(Easing.cubic));
   if (isQuote(text)) {
@@ -335,7 +338,8 @@ const Accent: React.FC<{ text: string; idx: number; dur: number; hasSide: boolea
       </AbsoluteFill>
     );
   }
-  const codes = accentsFor(text);
+  const found = accentsFor(text);
+  const codes = found.length ? found : (SECTION_DEFAULT[section] ?? []).slice(idx % 2, idx % 2 + 1);
   const q = isQuestion(text);
   const left = hasSide ? 760 : CX;
   return (
@@ -464,10 +468,10 @@ const Intro: React.FC = () => {
     <AbsoluteFill style={{ opacity: 1 - out }}>
       <Kraft />
       <Pop x={CX} y={380} seed={1} sound="paper_rustle" vol={0.25}>
-        <Sheet w={1300} h={240} seed={2}>
-          <div dir="rtl" style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: FONT, fontSize: 110, color: RED }}>رسب مرتين في الباكالوريا…</div>
+        <Sheet w={1500} h={240} seed={2}>
+          <div dir="rtl" style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: FONT, fontSize: 100, color: RED, whiteSpace: "nowrap" }}>رسب مرتين في الباكالوريا…</div>
           <Tape x={150} y={4} rot={-12} />
-          <Tape x={1150} y={4} rot={12} />
+          <Tape x={1350} y={4} rot={12} />
         </Sheet>
       </Pop>
       <Pop x={CX} y={640} at={14} seed={3}>
@@ -515,7 +519,7 @@ export const YT5: React.FC = () => {
         if (i < 2) return null;
         return (
           <Sequence key={i} from={from} durationInFrames={Math.max(8, to - from)} layout="none">
-            <Accent text={l.text} idx={i} dur={Math.max(8, to - from)} hasSide={hasSide(l.section)} />
+            <Accent text={l.text} idx={i} dur={Math.max(8, to - from)} hasSide={hasSide(l.section)} section={l.section} />
           </Sequence>
         );
       })}
