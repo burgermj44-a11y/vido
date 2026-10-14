@@ -27,6 +27,7 @@ import { V12, V12_FPS, V12_FRAMES } from "./v12/V12";
 import { V13, V13_FPS, V13_FRAMES } from "./v13/V13";
 import { V14, V14_FPS, V14_FRAMES } from "./v14/V14";
 import { YT5, YT5Thumb, YT5_FPS, YT5_FRAMES } from "./yt5/YT5";
+import { V16, V16_FPS, V16_FRAMES } from "./v16/V16";
 
 export const RemotionRoot: React.FC = () => {
   return (
@@ -97,6 +98,7 @@ export const RemotionRoot: React.FC = () => {
       <Composition id="Montage14" component={V14} durationInFrames={V14_FRAMES} fps={V14_FPS} width={1080} height={1920} />
       <Composition id="YT5" component={YT5} durationInFrames={YT5_FRAMES} fps={YT5_FPS} width={1920} height={1080} />
       <Composition id="YT5Thumb" component={YT5Thumb} durationInFrames={1} fps={30} width={1280} height={720} />
+      <Composition id="Montage16" component={V16} durationInFrames={V16_FRAMES} fps={V16_FPS} width={1080} height={1920} />
       <Composition id="Promo" component={Promo} durationInFrames={PROMO_FRAMES} fps={PROMO_FPS} width={1920} height={1080} />
     </>
   );
