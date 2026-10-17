@@ -143,7 +143,7 @@ const NeonWord: React.FC<{ text: string; y: number; size: number; d?: number; co
 const Glass: React.FC<{ x: number; y: number; w: number; d?: number; children: React.ReactNode; rot?: number }> = ({ x, y, w, d = 0, children, rot = 0 }) => {
   const p = useIn(d, 13);
   return (
-    <div style={{ position: "absolute", left: x - w / 2, top: y, width: w, transform: `translateY(${(1 - p) * 120}px) scale(${0.85 + p * 0.15}) rotate(${rot}deg)`, opacity: Math.min(1, p * 1.5), background: "linear-gradient(135deg, rgba(60,20,110,0.82), rgba(26,8,51,0.78))", border: `3px solid ${GOLD}aa`, borderRadius: 36, boxShadow: `0 20px 40px rgba(20,0,40,0.45), 0 0 40px ${VIOLET}55`, backdropFilter: "blur(14px)", WebkitBackdropFilter: "blur(14px)", padding: 26 }}>
+    <div style={{ position: "absolute", left: x - w / 2, top: y, width: w, transform: `translateY(${(1 - p) * 120}px) scale(${0.85 + p * 0.15}) rotate(${rot}deg)`, opacity: Math.min(1, p * 1.5), background: "linear-gradient(135deg, rgba(150,52,8,0.85), rgba(42,16,0,0.82))", border: `3px solid ${GOLD}aa`, borderRadius: 36, boxShadow: `0 20px 40px rgba(20,0,40,0.45), 0 0 40px ${VIOLET}55`, backdropFilter: "blur(14px)", WebkitBackdropFilter: "blur(14px)", padding: 26 }}>
       {children}
     </div>
   );
