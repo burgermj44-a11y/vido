@@ -18,7 +18,7 @@ const VIOLET = "#FF7A1A";
 const DEEP = "#2A1000";
 const GOLD = "#FFC83D";
 const GOLD2 = "#FFE7A3";
-const INTRO = 2.0; // logo reveal before the clip
+const INTRO = 0; // starts directly on his words
 const CLIP = 28.3;
 const MONTAGE = 6.4; // food montage after he finishes talking
 const OUTRO = 5.5;
@@ -370,22 +370,6 @@ const Rays: React.FC<{ p: number; size: number }> = ({ p, size }) => (
     })}
   </svg>
 );
-const LogoIntro: React.FC = () => {
-  const frame = useCurrentFrame();
-  const p = spring({ frame: frame - 4, fps: FPS, config: { damping: 12, stiffness: 120 } });
-  const rays = ramp(frame, 14, 40);
-  const out = ramp(frame, sec(INTRO) - 6, sec(INTRO) + 4, Easing.in(Easing.cubic));
-  return (
-    <AbsoluteFill style={{ background: `radial-gradient(circle at 50% 45%, ${VIOLET} 0%, ${PURPLE} 35%, ${DEEP} 80%)`, clipPath: `circle(${(1 - out) * 150}% at 50% 45%)` }}>
-      <Bokeh n={20} top={300} />
-      <div style={{ position: "absolute", left: W / 2, top: 820 }}>
-        <Rays p={rays} size={900} />
-      </div>
-      <Img src={staticFile("v17/logo.png")} style={{ position: "absolute", left: W / 2 - 260, top: 520, width: 520, transform: `scale(${p}) rotate(${(1 - p) * 40}deg)`, filter: `drop-shadow(0 0 ${30 + rays * 40}px ${GOLD}) drop-shadow(0 20px 30px rgba(0,0,0,0.5))` }} />
-      <AbsoluteFill style={{ background: "#fff", opacity: interpolate(frame, [sec(INTRO) - 6, sec(INTRO) - 3, sec(INTRO) + 2], [0, 0.8, 0], clamp) }} />
-    </AbsoluteFill>
-  );
-};
 const Iris: React.FC = () => {
   const frame = useCurrentFrame();
   const close = ramp(frame, 0, 9, Easing.in(Easing.cubic));
@@ -473,7 +457,7 @@ export const V17: React.FC = () => {
       <Sequence from={sec(INTRO)} durationInFrames={sec(CLIP) + 2} layout="none">
         <Clip />
       </Sequence>
-      {frame >= sec(INTRO) - 2 && <Bokeh n={12} top={0} />}
+      <Bokeh n={12} top={0} />
       {SCENES.map((s, i) => {
         const end = i < SCENES.length - 1 ? SCENES[i + 1].start : CLIP;
         const from = T(s.start - LEAD);
@@ -530,11 +514,6 @@ export const V17: React.FC = () => {
       <div style={{ position: "absolute", left: 0, right: 0, bottom: 0, height: 10, background: "rgba(0,0,0,0.3)" }}>
         <div style={{ height: "100%", width: `${(frame / V17_FRAMES) * 100}%`, background: `linear-gradient(90deg, ${VIOLET}, ${GOLD})` }} />
       </div>
-      <Sequence durationInFrames={sec(INTRO) + 6} layout="none">
-        <LogoIntro />
-      </Sequence>
-      <Sfx at={0} name="riser" vol={0.55} />
-      <Sfx at={sec(INTRO) - 2} name="boom" vol={0.3} />
       <Sfx at={MONT_AT} name="boom" vol={0.3} />
       <Sequence from={sec(INTRO)} layout="none">
         <Audio src={staticFile("v17/voice.wav")} />
