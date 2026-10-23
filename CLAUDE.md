@@ -78,6 +78,23 @@ lip-sync of his face (he agreed to a TTS voice instead).
 - He wants small files: send a 2-pass x264 copy that fits under 30 MB
   (720p ~500 kbps for a 7-minute video).
 
+## English videos with Bomi the owl (his chosen style)
+
+When he sends an English video, use this style without being asked again:
+- Mascot: Bomi the MJ owl (`src/mascot/Owl.tsx`, demo `src/mascot/OwlDemo.tsx`),
+  "MJ" on her chest. Drive her per sentence with `poseAt` keys (idle, fly,
+  wave, point, think, surprised, happy) to match the topic and the words;
+  beak opens with the voice envelope (no fake lip-sync of his face).
+- "Legendary" motion graphics on top: the full house style (punch-ins,
+  stickers, B-roll, karaoke captions, SFX), all on-screen text in English.
+- In the first minutes (around the middle of the opening, not at second 0):
+  English subscribe + follow animation (Subscribe / Follow buttons, bell).
+- Bottom of the frame: a paper strip (torn white paper, tape) with the Arabic
+  translation of each line, so Arabic speakers understand. English captions
+  sit above it.
+- Always also make a very polished thumbnail with Bomi in it and send it
+  with the video.
+
 ## Editing rules
 
 0. **Sync graphics to the words.** Snap caption boundaries to the real pauses
