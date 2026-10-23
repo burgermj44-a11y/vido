@@ -741,6 +741,11 @@ const Captions: React.FC<{ t: number; f: number }> = ({ t, f }) => {
   const ls = line[0].s - 0.1;
   const p = ramp(f, sec(ls), sec(ls) + 6);
   const keys = new Set(b.keys ?? []);
+  const chars = line.reduce(
+    (n, w) => n + w.w.length + (keys.has(w.w.replace(/[^\w']/g, "")) ? 3 : 1),
+    0,
+  );
+  const k = Math.min(1, 38 / chars);
   return (
     <div
       style={{
@@ -748,6 +753,7 @@ const Captions: React.FC<{ t: number; f: number }> = ({ t, f }) => {
         left: 440,
         right: 40,
         top: 800,
+        whiteSpace: "nowrap",
         textAlign: "center",
         transform: `translateY(${(1 - p) * 30}px)`,
         opacity: p,
@@ -764,9 +770,9 @@ const Captions: React.FC<{ t: number; f: number }> = ({ t, f }) => {
             key={i}
             style={{
               display: "inline-block",
-              margin: "0 13px",
+              margin: `0 ${13 * k}px`,
               fontFamily: FONT,
-              fontSize: key ? 66 : 60,
+              fontSize: (key ? 66 : 60) * k,
               color: key ? INK : on ? GOLD : "#fff",
               WebkitTextStroke: key ? undefined : `10px ${INK}`,
               paintOrder: "stroke fill",
