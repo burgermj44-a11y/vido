@@ -732,11 +732,7 @@ const captionLines = (b: Beat) => {
   return lines;
 };
 
-const Captions: React.FC<{ t: number; f: number; acc: string }> = ({
-  t,
-  f,
-  acc,
-}) => {
+const Captions: React.FC<{ t: number; f: number }> = ({ t, f }) => {
   const b = BEATS.find((x) => t >= x.start - 0.1 && t < x.end + 0.15);
   if (!b) return null;
   const lines = captionLines(b);
@@ -1483,7 +1479,7 @@ export const YT6: React.FC = () => {
         })}
       </AbsoluteFill>
       <BomiLayer t={t} f={f} />
-      <Captions t={t} f={f} acc={acc} />
+      <Captions t={t} f={f} />
       <ArabicStrip t={t} f={f} />
       {/* section chip */}
       <div style={{ position: "absolute", right: 40, top: 36 }}>
@@ -1522,7 +1518,7 @@ export const YT6: React.FC = () => {
       {/* audio */}
       <Audio src={staticFile("yt6/voice.wav")} />
       <Audio
-        src={staticFile("yt6/music.wav")}
+        src={staticFile("yt6/music.mp3")}
         volume={(fr) =>
           interpolate(
             fr,
