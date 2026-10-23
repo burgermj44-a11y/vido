@@ -80,7 +80,9 @@ lip-sync of his face (he agreed to a TTS voice instead).
 
 ## English videos with Bomi the owl (his chosen style)
 
-When he sends an English video, use this style without being asked again:
+When he sends an English video, use this style without being asked again.
+Format: long YouTube video, 16:9 1920x1080 (frame his vertical clip inside
+the 16:9 scene if needed), thumbnail 1280x720, send a copy under 30 MB.
 - Mascot: Bomi the MJ owl (`src/mascot/Owl.tsx`, demo `src/mascot/OwlDemo.tsx`),
   "MJ" on her chest. Drive her per sentence with `poseAt` keys (idle, fly,
   wave, point, think, surprised, happy) to match the topic and the words;
