@@ -30,6 +30,7 @@ import { YT5, YT5Thumb, YT5_FPS, YT5_FRAMES } from "./yt5/YT5";
 import { V16, V16_FPS, V16_FRAMES } from "./v16/V16";
 import { V17, V17_FPS, V17_FRAMES } from "./v17/V17";
 import { OWL_FPS, OWL_FRAMES, OwlDemo } from "./mascot/OwlDemo";
+import { YT6, YT6Thumb, YT6_FPS, YT6_FRAMES } from "./yt6/YT6";
 
 export const RemotionRoot: React.FC = () => {
   return (
@@ -102,6 +103,8 @@ export const RemotionRoot: React.FC = () => {
       <Composition id="YT5Thumb" component={YT5Thumb} durationInFrames={1} fps={30} width={1280} height={720} />
       <Composition id="Montage16" component={V16} durationInFrames={V16_FRAMES} fps={V16_FPS} width={1080} height={1920} />
       <Composition id="Montage17" component={V17} durationInFrames={V17_FRAMES} fps={V17_FPS} width={1080} height={1920} />
+      <Composition id="YT6" component={YT6} durationInFrames={YT6_FRAMES} fps={YT6_FPS} width={1920} height={1080} />
+      <Composition id="YT6Thumb" component={YT6Thumb} durationInFrames={1} fps={30} width={1280} height={720} />
       <Composition id="OwlDemo" component={OwlDemo} durationInFrames={OWL_FRAMES} fps={OWL_FPS} width={1080} height={1920} />
       <Composition id="Promo" component={Promo} durationInFrames={PROMO_FRAMES} fps={PROMO_FPS} width={1920} height={1080} />
     </>
