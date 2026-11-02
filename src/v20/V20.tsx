@@ -28,7 +28,6 @@ import {
   MARKER,
   MJ_GOLD,
   PEN,
-  RED,
   Sfx,
   Sheet,
   Tape,
@@ -94,12 +93,14 @@ type Swap = {
   tag: string;
   from?: number;
   pos?: string;
+  stickers?: string[];
 };
 const SWAPS: Swap[] = [
   {
     start: 0.0,
     end: 4.55,
     src: "v20/chalkboard.jpg",
+    stickers: ["1f4dd", "23f0"],
     pos: "8% 50%",
     tag: "📝 الفصل الأول",
   },
@@ -107,6 +108,7 @@ const SWAPS: Swap[] = [
     start: 9.72 - CUT_LEAD,
     end: 15.4 - CUT_LEAD,
     src: "v20/broll_write.mp4",
+    stickers: ["270d", "1f4a1"],
     video: true,
     tag: "✍️ أفضل طريقة للمراجعة",
   },
@@ -114,10 +116,17 @@ const SWAPS: Swap[] = [
     start: 21.65 - CUT_LEAD,
     end: 26.55 - CUT_LEAD,
     src: "v20/broll_notebook.mp4",
+    stickers: ["1f4d2", "23f3"],
     video: true,
     tag: "📒 الطريقة كاملة",
   },
-  { start: 28.7 - CUT_LEAD, end: CLIP, src: "v20/orange.jpg", tag: "💬 علّق" },
+  {
+    start: 28.7 - CUT_LEAD,
+    end: CLIP,
+    src: "v20/orange.jpg",
+    stickers: ["1f4ac", "1f525"],
+    tag: "💬 علّق",
+  },
 ];
 const swapAt = (t: number) => SWAPS.find((w) => t >= w.start && t < w.end);
 // 0..1 how much the current frame is in a swap (fades in/out over 8 frames)
@@ -230,11 +239,27 @@ const Room: React.FC<{ cutout?: boolean }> = ({ cutout }) => {
 };
 
 /* the swapped background behind him: paper-framed media with Ken Burns + grain */
+// full-screen cut-away: he is hidden, his voice continues over his B-roll / photos
 const SwapBg: React.FC<{ w: Swap; dur: number }> = ({ w, dur }) => {
   const frame = useCurrentFrame();
-  const inP = ramp(frame, 0, 12, Easing.out(Easing.cubic));
-  const out = ramp(frame, dur - 8, dur, Easing.in(Easing.cubic));
-  const z = 1.12 + (frame / Math.max(1, dur)) * 0.12;
+  const z = 1.08 + (frame / Math.max(1, dur)) * 0.14;
+  const px = Math.sin(frame / 40) * 14;
+  // jagged paper-tear reveal from the right
+  const rev = ramp(frame, 0, 12, Easing.out(Easing.cubic));
+  const edge = Array.from(
+    { length: 17 },
+    (_, k) => `${(1 - rev) * 112 - 6 + (k % 2 ? 3 : -3)}% ${(k / 16) * 100}%`,
+  );
+  const clip = `polygon(${edge.join(", ")}, 110% 100%, 110% 0%)`;
+  // page rips apart at the end
+  const p = ramp(frame, dur - 9, dur, Easing.in(Easing.cubic));
+  const jag = Array.from(
+    { length: 13 },
+    (_, k) => `${(k / 12) * 100}% ${50 + (k % 2 ? 2.2 : -2.2)}%`,
+  );
+  const top = `polygon(0% 0%, 100% 0%, ${[...jag].reverse().join(", ")})`;
+  const bottom = `polygon(${jag.join(", ")}, 100% 100%, 0% 100%)`;
+  const sweep = ((frame * 1.6) % 260) - 80;
   const media = w.video ? (
     <OffthreadVideo
       src={staticFile(w.src)}
@@ -253,19 +278,18 @@ const SwapBg: React.FC<{ w: Swap; dur: number }> = ({ w, dur }) => {
       }}
     />
   );
-  return (
-    <AbsoluteFill
-      style={{ opacity: 1 - out, clipPath: `inset(0 ${(1 - inP) * 100}% 0 0)` }}
-    >
+  const scene = (
+    <AbsoluteFill style={{ background: "#B98B5A" }}>
       <AbsoluteFill
         style={{
-          transform: `scale(${z})`,
-          filter: "saturate(1.15) contrast(1.05) brightness(0.92)",
+          transform: `scale(${z}) translateX(${px}px)`,
+          filter: "saturate(1.18) contrast(1.06)",
         }}
       >
         {media}
       </AbsoluteFill>
-      <AbsoluteFill style={{ mixBlendMode: "multiply", opacity: 0.35 }}>
+      {/* paper grain + warm light sweep */}
+      <AbsoluteFill style={{ mixBlendMode: "multiply", opacity: 0.28 }}>
         <Img
           src={tex("white")}
           style={{ width: "100%", height: "100%", objectFit: "cover" }}
@@ -273,13 +297,53 @@ const SwapBg: React.FC<{ w: Swap; dur: number }> = ({ w, dur }) => {
       </AbsoluteFill>
       <AbsoluteFill
         style={{
-          background:
-            "radial-gradient(ellipse at 50% 45%, rgba(0,0,0,0) 45%, rgba(30,15,5,0.55) 100%)",
+          background: `linear-gradient(115deg, rgba(255,255,255,0) ${sweep}%, rgba(255,236,190,0.28) ${sweep + 12}%, rgba(255,255,255,0) ${sweep + 24}%)`,
+          mixBlendMode: "screen",
         }}
       />
+      <AbsoluteFill
+        style={{
+          background:
+            "radial-gradient(ellipse at 50% 45%, rgba(0,0,0,0) 50%, rgba(30,15,5,0.5) 100%)",
+        }}
+      />
+      {/* torn paper edges top and bottom */}
+      <div
+        style={{
+          position: "absolute",
+          left: -20,
+          right: -20,
+          top: -30,
+          height: 110,
+          overflow: "hidden",
+          ...maskStyle(w.tag.length),
+        }}
+      >
+        <Img
+          src={tex("white")}
+          style={{ width: "100%", height: "100%", objectFit: "cover" }}
+        />
+      </div>
+      <div
+        style={{
+          position: "absolute",
+          left: -20,
+          right: -20,
+          bottom: -30,
+          height: 110,
+          overflow: "hidden",
+          transform: "rotate(180deg)",
+          ...maskStyle(w.tag.length + 3),
+        }}
+      >
+        <Img
+          src={tex("white")}
+          style={{ width: "100%", height: "100%", objectFit: "cover" }}
+        />
+      </div>
       <Pop
         x={540}
-        y={190}
+        y={230}
         at={8}
         seed={w.tag.length}
         rot={-3}
@@ -288,12 +352,49 @@ const SwapBg: React.FC<{ w: Swap; dur: number }> = ({ w, dur }) => {
       >
         <TornLabel
           text={w.tag}
-          size={62}
+          size={64}
           color={INK}
           seed={w.tag.length}
           tx="kraft"
         />
       </Pop>
+      {(w.stickers ?? []).map((c, k) => (
+        <Pop
+          key={c}
+          x={k ? 870 : 200}
+          y={k ? 1020 : 470}
+          at={14 + k * 8}
+          seed={k + 3}
+          rot={k ? 10 : -10}
+          sound="pop"
+          vol={0.15}
+        >
+          <Em code={c} size={170} />
+        </Pop>
+      ))}
+    </AbsoluteFill>
+  );
+  if (p <= 0)
+    return <AbsoluteFill style={{ clipPath: clip }}>{scene}</AbsoluteFill>;
+  return (
+    <AbsoluteFill>
+      <Sfx at={dur - 9} name="paper_tear" vol={0.3} />
+      <AbsoluteFill
+        style={{
+          clipPath: top,
+          transform: `translate(${-p * 140}px, ${-p * 1100}px) rotate(${-p * 9}deg)`,
+        }}
+      >
+        {scene}
+      </AbsoluteFill>
+      <AbsoluteFill
+        style={{
+          clipPath: bottom,
+          transform: `translate(${p * 140}px, ${p * 1100}px) rotate(${p * 9}deg)`,
+        }}
+      >
+        {scene}
+      </AbsoluteFill>
     </AbsoluteFill>
   );
 };
@@ -783,44 +884,6 @@ const BackGraphics: React.FC<{ kind: Kind; dur: number }> = ({ kind, dur }) => {
   }
 };
 
-/* labels IN FRONT (text stays readable) */
-const FRONT: Partial<
-  Record<Kind, { text: string; color?: string; y?: number }>
-> = {
-  exam: { text: "الفصل الأول", color: PEN },
-  hard: { text: "صعيب بزاف!", color: RED },
-  newyear: { text: "دروس جديدة", color: PEN },
-  best: { text: "أفضل طريقة للمراجعة", color: GREEN },
-  grade: { text: "وتدّي معدل", color: GREEN },
-  before: { text: "قبل ما نبداو...", color: PEN },
-  share: { text: "بارتاجي مع صحابك", color: PEN },
-  long: { text: "الطريقة طويلة شوية", color: RED },
-  video: { text: "فيديو كامل وحدو", color: PEN },
-  like: { text: "إذا حبيتو 👇", color: GREEN },
-  react: { text: "علّقو وتفاعلو", color: PEN },
-};
-const FrontLabel: React.FC<{ kind: Kind; dur: number }> = ({ kind, dur }) => {
-  const frame = useCurrentFrame();
-  const l = FRONT[kind];
-  if (!l) return null;
-  const out = ramp(frame, dur - 6, dur, Easing.in(Easing.cubic));
-  return (
-    <AbsoluteFill style={{ opacity: 1 - out }}>
-      <Pop
-        x={540}
-        y={l.y ?? 1150}
-        at={8}
-        seed={7}
-        rot={-2}
-        sound="paper_rustle"
-        vol={0.2}
-      >
-        <TornLabel text={l.text} size={64} color={l.color} seed={kind.length} />
-      </Pop>
-    </AbsoluteFill>
-  );
-};
-
 const MJWipe: React.FC = () => {
   const frame = useCurrentFrame();
   const ease = Easing.bezier(0.65, 0, 0.35, 1);
@@ -1050,6 +1113,18 @@ export const V20: React.FC = () => {
   return (
     <AbsoluteFill style={{ background: "#000" }}>
       <Room />
+
+      {SCENES.map((s, i) => (
+        <Sequence
+          key={i}
+          from={sec(s.start)}
+          durationInFrames={visibleDur(s, i)}
+          layout="none"
+        >
+          <BackGraphics kind={s.kind} dur={visibleDur(s, i)} />
+        </Sequence>
+      ))}
+      <Room cutout />
       {SWAPS.map((w, i) => (
         <Sequence
           key={i}
@@ -1067,18 +1142,6 @@ export const V20: React.FC = () => {
           durationInFrames={visibleDur(s, i)}
           layout="none"
         >
-          <BackGraphics kind={s.kind} dur={visibleDur(s, i)} />
-        </Sequence>
-      ))}
-      <Room cutout />
-      {SCENES.map((s, i) => (
-        <Sequence
-          key={i}
-          from={sec(s.start)}
-          durationInFrames={visibleDur(s, i)}
-          layout="none"
-        >
-          <FrontLabel kind={s.kind} dur={visibleDur(s, i)} />
           <Sfx
             at={0}
             name={i % 2 ? "paper_slide" : "paper_flip"}
