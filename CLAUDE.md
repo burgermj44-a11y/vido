@@ -151,6 +151,14 @@ the 16:9 scene if needed), thumbnail 1280x720, send a copy under 30 MB.
 10. Soft vignette, slight saturation/contrast boost, progress bar on top in
     the accent colour. Output 1080×1920, same fps as the source.
 
+11. **His B-roll / photos = full-screen cut-aways.** When he sends extra videos
+    or photos with a talking-head clip, hide him completely during them (voice
+    continues) and give them effects: paper-tear reveal, Ken Burns, light sweep,
+    paper grain, torn edges, a taped title + 2 stickers, page rips at the end
+    (`SwapBg` in `src/v20/V20.tsx`). Do not just put them behind him.
+12. **Keep his face clean:** no labels/text right under his face; only the
+    bottom captions stay.
+
 ## Environment notes (cloud container)
 
 - Only PyPI, npm and GitHub are reachable. Hugging Face, Pexels, Pixabay,
