@@ -32,6 +32,7 @@ import { V17, V17_FPS, V17_FRAMES } from "./v17/V17";
 import { V18, V18_FPS, V18_FRAMES } from "./v18/V18";
 import { V19, V19_FPS, V19_FRAMES } from "./v19/V19";
 import { V20, V20_FPS, V20_FRAMES } from "./v20/V20";
+import { V21, V21_FPS, V21_FRAMES } from "./v21/V21";
 import { OWL_FPS, OWL_FRAMES, OwlDemo } from "./mascot/OwlDemo";
 import { YT6, YT6Thumb, YT6_FPS, YT6_FRAMES } from "./yt6/YT6";
 
@@ -105,6 +106,7 @@ export const RemotionRoot: React.FC = () => {
       <Composition id="YT5" component={YT5} durationInFrames={YT5_FRAMES} fps={YT5_FPS} width={1920} height={1080} />
       <Composition id="YT5Thumb" component={YT5Thumb} durationInFrames={1} fps={30} width={1280} height={720} />
       <Composition id="Montage16" component={V16} durationInFrames={V16_FRAMES} fps={V16_FPS} width={1080} height={1920} />
+      <Composition id="Montage21" component={V21} durationInFrames={V21_FRAMES} fps={V21_FPS} width={1080} height={1920} />
       <Composition id="Montage20" component={V20} durationInFrames={V20_FRAMES} fps={V20_FPS} width={1080} height={1920} />
       <Composition id="Montage19" component={V19} durationInFrames={V19_FRAMES} fps={V19_FPS} width={1080} height={1920} />
       <Composition id="Montage18" component={V18} durationInFrames={V18_FRAMES} fps={V18_FPS} width={1080} height={1920} />
